@@ -1,0 +1,9 @@
+{
+	"private": true,
+	"dependencies": {
+		"discord.js": "latest",
+		"fs": "latest",
+		"mysql": "latest",
+		"mysql-utilities": "latest"
+	}
+}
