@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 const Discord = require('discord.js')
     , client = new Discord.Client()
     , fs = require("fs")
     ;
+=======
+let color = require('colors');
+const Discord = require('discord.js'),
+client = new Discord.Client();
+const fs = require("fs");
+>>>>>>> origin/master
 
 let con = require('mysql').createConnection({user: "", password: "", database: "Akin", charset: "utf8mb4"});
 con.on('error', (err) => {console.warn(err)});
