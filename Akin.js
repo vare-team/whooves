@@ -24,8 +24,11 @@ client.userLib.sendlog = (log) => {
 
 client.userLib.presenseFunc = () => {
   switch (client.userLib.presenseCount) {
+    case 0:
+       client.user.setPresence({ game: { name: `Привет!`, type: 'LISTENING' }});
+      break;
     case 1:
-      client.user.setPresence({ game: { name: `Серверов на ${client.userLib.shardName[client.shard.id]}: ${client.guilds.size}`, type: 'LISTENING' }});
+      client.user.setPresence({ game: { name: `Серверов ${client.guilds.size}`, type: 'LISTENING' }});
       client.userLib.presenseCount = 0;
       break;
   }
