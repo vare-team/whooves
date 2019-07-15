@@ -1,0 +1,13 @@
+{
+	"prefix": ";",
+	"token": "NTMxMDk0MDg4Njk1NDE0ODA0.DxI8NA.s2fcqHXVjv7sczGc2NWs5BY4BS0",
+	"game": "{prefix}help для помощи",
+	"gtype": "WATCHING",
+	"owners": ["166610390581641217", "194384673672003584"],
+	"colors": {
+		"err": "#F04747",
+		"suc": "#43B581",
+		"inf": "#3492CC",
+		"war": "#FAA61A"
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"europa_plus": "http://ep128.hostingradio.ru:8030/ep128",
+	"humor_fm": "http://ic4.101.ru:8000/v5_1?type=.mp3",
+	"rusradio": "http://icecast.russkoeradio.cdnvideo.ru:8000/rr_m.mp3",
+	"autoradio": "http://ic7.101.ru:8000/v3_1",
+	"dorognoeradio": "http://dorognoe.hostingradio.ru:8000/dorognoe"
+}
