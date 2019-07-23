@@ -1,6 +1,6 @@
 const { registerFont, createCanvas, loadImage, Image } = require('canvas')
 const rand = require('random')
-registerFont('/home/pi/Bots/Akin/ds_moster.ttf', { family: 'Comic Sans' })
+registerFont('../akin/ds_moster.ttf', { family: 'Comic Sans' })
 var moment = require('moment');
 moment.locale('ru');
 let attachment;

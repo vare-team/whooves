@@ -6,8 +6,8 @@ exports.help = {
     flag: 3,
     cooldown: 15000
 }
-var translit = require('/home/pi/Bots/Akin/cyrylic.js');
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+let translit = require('../cyrylic.js');
+let XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 exports.run = (client, msg, args, Discord) => {
   if (!args[1]) return msg.reply('Ты не ввёл имя игрока!');

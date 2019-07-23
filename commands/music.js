@@ -1,4 +1,4 @@
-const radios = require('/home/pi/Bots/Akin/sounds/radios.json');
+const radios = require('../sounds/radios.json');
 
 exports.help = {
     name: "music",
