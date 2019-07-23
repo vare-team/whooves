@@ -18,5 +18,35 @@ module.exports = {
 
 			sendlogchannel.send({embed}).catch(err => console.log(`\nОшибка!\nСервер: ${guild.name} (ID: ${guild.id})\nПользователь: ${member.user.tag} (ID: ${member.user.id})\nТекст ошибки: ${err}`));
 		})
+	},
+	'embed': (type, text, status) => {
+		let embed = new Discord.RichEmbed();
+		if(!type) return console.error('Error! Тип не указан');
+	  
+		switch (type) {
+	  
+		  case "error":
+			embed.setTitle('Ошибка!');
+			embed.setColor('#FF0000');
+		  break;
+	  
+		  case "notification":
+			embed.setTitle('Уведомление!');
+			embed.setColor('#33FF33')
+		  break;
+	  
+		  case "warning":
+			embed.setTitle('Уведомление!');
+			embed.setColor('#33FF33')
+		  break;
+			  
+		  default:
+			embed.setTitle('unknown embed!');
+			embed.setColor(config.color)
+		}
+	  
+		if(status) embed.setAthor(message.guild.name, message.guild.iconURL);
+		if(text) embed.setDescription(text);
+		return embed;
 	}
 }
