@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
 let embed;
 
-module.exports = (client, oldMember, newMember) => {
+module.exports = async(client, oldMember, newMember) => {
 
-  client.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [oldMember.guild.id], (err, logchannel) => {
+    let [logchannel] = await client.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [oldMember.guild.id]);
     if (logchannel == '0') return;
     let sendlogchannel = client.channels.get(logchannel);
     if (!newMember.user.avatarURL) newMember.user.avatarURL = newMember.user.defaultAvatarURL;
@@ -36,5 +36,4 @@ module.exports = (client, oldMember, newMember) => {
       .setTimestamp();
       return sendlogchannel.send({embed}).catch(err => console.log(`\nОшибка!\nСервер: ${oldMember.guild.name} (ID: ${oldMember.guild.id})\nПользователь: ${oldMember.tag} (ID: ${oldMember.id})\nТекст ошибки: ${err}`));
     }
-  });
 };
