@@ -1,11 +1,7 @@
 const Discord = require('discord.js');
 let embed;
 
-module.exports = async(client, oldMember, newMember) => {
-
-    let [logchannel] = await client.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [oldMember.guild.id]);
-    if (logchannel == '0') return;
-    let sendlogchannel = client.channels.get(logchannel);
+module.exports = async (client, oldMember, newMember) => {
     if (!newMember.user.avatarURL) newMember.user.avatarURL = newMember.user.defaultAvatarURL;
     if (!sendlogchannel) return client.db.upsert(`servers`, {id: msg.guild.id, logchannel: 0}, (err) => {});
 
