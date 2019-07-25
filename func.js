@@ -19,34 +19,36 @@ module.exports = {
 			sendlogchannel.send({embed}).catch(err => console.log(`\nОшибка!\nСервер: ${guild.name} (ID: ${guild.id})\nПользователь: ${member.user.tag} (ID: ${member.user.id})\nТекст ошибки: ${err}`));
 		})
 	},
-	'embed': (type, text, status) => {
+	'logiSend': (guild, type, text) => {
 		let embed = new Discord.RichEmbed();
+
 		if(!type) return console.error('Error! Тип не указан');
-	  
 		switch (type) {
-	  
-		  case "error":
-			embed.setTitle('Ошибка!');
-			embed.setColor('#FF0000');
+		  case "memberAdd":
+			embed.setTitle('Пользователь присоединился!');
+			embed.setColor('#33af33');
 		  break;
 	  
-		  case "notification":
-			embed.setTitle('Уведомление!');
-			embed.setColor('#33FF33')
+		  case "memberRemove":
+			embed.setTitle('Пользователь вышел!');
+			embed.setColor('#ff9000')
 		  break;
 	  
-		  case "warning":
-			embed.setTitle('Уведомление!');
-			embed.setColor('#33FF33')
+		  case "memberBan":
+			embed.setTitle('Забанен!');
+			embed.setColor('#FF4000')
 		  break;
 			  
 		  default:
-			embed.setTitle('unknown embed!');
+			embed.setTitle('unknown logi!');
 			embed.setColor(config.color)
 		}
-	  
-		if(status) embed.setAthor(message.guild.name, message.guild.iconURL);
 		if(text) embed.setDescription(text);
-		return embed;
+
+		client.db.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [guild.id], (err, logchannel) => {
+			if(err) throw err;
+			if(!logchannel) return;
+			return client.channels.get(logchannel).send(embed);
+		});
 	}
 }
