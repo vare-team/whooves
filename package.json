@@ -1,9 +1,29 @@
 {
-	"private": true,
-	"dependencies": {
-		"discord.js": "latest",
-		"fs": "latest",
-		"mysql": "latest",
-		"mysql-utilities": "latest"
-	}
+  "name": "akin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Akin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MegaVasiliy007/akin.git"
+  },
+  "author": "akum",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MegaVasiliy007/akin/issues"
+  },
+  "homepage": "https://github.com/MegaVasiliy007/akin#readme",
+  "dependencies": {
+    "canvas": "^2.5.0",
+    "moment": "^2.24.0",
+    "mysql-utilities": "^1.1.0-alpha.2",
+    "mysql2": "^1.6.5",
+    "overwatch-js": "^1.8.0",
+    "random": "^2.1.1",
+    "request": "^2.88.0",
+    "xmlhttprequest": "^1.8.0"
+  }
 }
