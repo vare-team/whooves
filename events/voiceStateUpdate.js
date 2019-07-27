@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 let embed;
 
 module.exports = async (client, oldMember, newMember) => {

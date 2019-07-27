@@ -1,8 +1,6 @@
 const { registerFont, createCanvas, loadImage, Image } = require('canvas')
 const rand = require('random')
 registerFont('../akin/ds_moster.ttf', { family: 'Comic Sans' })
-var moment = require('moment');
-moment.locale('ru');
 let attachment;
 
 function greyscale(ctx, x, y, width, height) {

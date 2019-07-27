@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 let embed, args, av;
 
 module.exports = (client, oldmsg, newmsg) => {

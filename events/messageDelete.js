@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 let embed, av;
 
 function isUrl(s) {

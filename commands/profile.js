@@ -2,8 +2,6 @@ const { registerFont, createCanvas, loadImage, Image } = require('canvas')
 const canvas = createCanvas(400, 600)
 const ctx = canvas.getContext('2d')
 registerFont('../Akin/ds_moster.ttf', { family: 'Comic Sans' })
-var moment = require('moment');
-moment.locale('ru');
 
 const applyText = (text, x, y, fontSize, width, flag = false) => {
     do {
