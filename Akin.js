@@ -15,7 +15,8 @@ client.userLib.config = require("./config");
 client.userLib.discord = Discord;
 client.userLib.db = con;
 client.userLib.presenseCount = 0;
-moment = require('moment');
+client.userLib.moment = require('moment');
+client.userLib.moment.locale("ru");
 // client.userLib.cooldown = new Map();
 
 client.userLib.sendlog = (log) => {
