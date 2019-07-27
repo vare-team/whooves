@@ -36,12 +36,12 @@ module.exports = {
 	  
 		  case "memberBan":
 			embed.setTitle('Забанен!');
-			embed.setColor('#FF4000')
+			embed.setColor('#FF4000');
 		  break;
 			  
 		  default:
 			embed.setTitle('unknown logi!');
-			embed.setColor(config.color)
+			embed.setColor(config.color);
 		}
 		if(text) embed.setDescription(text);
 
