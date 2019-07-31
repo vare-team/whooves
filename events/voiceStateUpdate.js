@@ -2,7 +2,7 @@ let embed;
 
 module.exports = async (client, oldMember, newMember) => {
     if (!newMember.user.avatarURL) newMember.user.avatarURL = newMember.user.defaultAvatarURL;
-    if (!sendlogchannel) return client.db.upsert(`servers`, {id: msg.guild.id, logchannel: 0}, (err) => {});
+    if (!sendlogchannel) return client.userLib.db.upsert(`servers`, {id: msg.guild.id, logchannel: 0}, (err) => {});
 
     if (!oldMember.voiceChannel) {
       embed = new Discord.RichEmbed()

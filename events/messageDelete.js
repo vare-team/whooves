@@ -10,7 +10,7 @@ module.exports = (client, msg) => {
   if (msg.author.id == client.user.id) return;
   if (msg.author.bot) return;
 
-  client.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [msg.guild.id], (err, logchannel) => {
+  client.userLib.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [msg.guild.id], (err, logchannel) => {
     if (msg.content == '') msg.content = 'Что-то';
     if (logchannel == '0') return;
     let av = msg.author.avatarURL;
@@ -25,7 +25,7 @@ module.exports = (client, msg) => {
         .addField('Канал', `<#${msg.channel.id}>`)
         .setFooter(`ID: ${msg.author.id}`);
     let sendlogchannel = client.channels.get(logchannel);
-    if (!sendlogchannel) return client.db.upsert(`servers`, {id: msg.guild.id, logchannel: 0}, (err) => {});
+    if (!sendlogchannel) return client.userLib.db.upsert(`servers`, {id: msg.guild.id, logchannel: 0}, (err) => {});
     sendlogchannel.send({embed}).catch(err => console.log(`\nОшибка!\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`));
   });
 

@@ -16,18 +16,18 @@ module.exports = (client, msg) => {
 
   if (msg.author.bot || msg.channel.type == 'dm') return;
 
-  client.db.count('users', {id: msg.author.id, serid: msg.guild.id}, (err, count) => {
-    if (!count) client.db.insert(`users`, {id: msg.author.id, serid: msg.guild.id}, () => {})
+  client.userLib.db.count('account', {id: msg.author.id}, (err, count) => {
+    if (!count) client.userLib.db.insert(`account`, {id: msg.author.id});
   });
 
   function addmoney() {
     if (talkedMoney.has(`${msg.guild.id}_${msg.author.id}`)) return;
     talkedMoney.add(`${msg.guild.id}_${msg.author.id}`);
     setTimeout(() => {talkedMoney.delete(`${msg.guild.id}_${msg.author.id}`);}, 60000);
-    client.db.query(`UPDATE users SET coins = coins + ? WHERE id = ? AND serid = ?`, [rand.int(10, 25), msg.author.id, msg.guild.id])
+    client.userLib.db.query(`UPDATE account SET coins = coins + ? WHERE id = ?`, [rand.int(10, 25), msg.author.id])
   }
   
-  const args = msg.content.slice(client.config.prefix.length).trim().split(/ +/g);
+  const args = msg.content.slice(client.userLib.config.prefix.length).trim().split(/ +/g);
 
   if (isUrl(msg.content.toLowerCase())) {
     if (msg.author.bot || msg.guild.ownerID == msg.author.id || msg.member.hasPermission('ADMINISTRATOR')) return;
@@ -37,7 +37,8 @@ module.exports = (client, msg) => {
 
   if (msg.content.toLowerCase().startsWith(';help')) {const cmd = client.commands.get('help'); return cmd.run(client, msg, args, client.discord);};
 
-  client.db.queryValue('SELECT prefix FROM servers WHERE id = ?', [msg.guild.id], (err, prefix) => {
+  client.userLib.db.queryValue('SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id], (err, prefix) => {
+    if (err) throw err;
     if (!msg.content.startsWith(prefix)) return addmoney();
     
     const command = args[0].toLowerCase();
