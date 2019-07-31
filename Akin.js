@@ -3,7 +3,7 @@ const Discord = require('discord.js')
     , fs = require("fs")
     ;
 
-let con = require('mysql2').createConnection({user: "", password: "", database: "Akin", charset: "utf8mb4"});
+let con = require('mysql2').createConnection({user: "root", password: "rXP5n5emm7", database: "Akin", charset: "utf8mb4"});
 con.on('error', (err) => { console.warn(err) });
 con.connect(() => {client.userLib.sendlog(`{DB Connected} (ID:${con.threadId})`);});
 require('mysql-utilities').upgrade(con);
@@ -24,19 +24,20 @@ client.userLib.sendlog = (log) => {
   console.log(`${('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
 };
 
+client.userLib.presenseCount = 0;
 client.userLib.presenseFunc = () => {
-  switch (client.userLib.presenseCount) {
-    case 0:
-       client.user.setPresence({ game: { name: `Привет!`, type: 'LISTENING' }});
-      break;
-    case 1:
-      client.user.setPresence({ game: { name: `Серверов ${client.guilds.size}`, type: 'LISTENING' }});
+	switch (client.userLib.presenseCount) {
+		case 0:
+		  client.user.setPresence({ game: { name: `a.help`, type: 'WATCHING' }});
+		  break;
+		case 1:
+      client.user.setPresence({ game: { name: `серверов: ${client.guilds.size}`, type: 'WATCHING' }});
       client.userLib.presenseCount = 0;
       break;
-  }
-
-  client.userLib.presenseCount++;
+	}
+	client.userLib.presenseCount++;
 };
+
 
 con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
 
