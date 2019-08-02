@@ -9,7 +9,7 @@ module.exports = (client, member) => {
       .setColor(client.config.colors.inf)
       .setTitle('Новый участник на сервере!')
       .setAuthor(member.user.tag, av)
-      .setDescription(`Аккаунт зарегистрирован **${moment(member.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`)
+      .setDescription(`Аккаунт зарегистрирован **${client.userLib.moment(member.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`)
       .setFooter(`ID: ${member.user.id}`)
       .setTimestamp();
     let sendlogchannel = client.channels.get(logchannel);
