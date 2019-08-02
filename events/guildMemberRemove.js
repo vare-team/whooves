@@ -1,6 +1,6 @@
 module.exports = (client, member) => {
 
-  client.userLib.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [member.guild.id], (err, logchannel) => {
+  client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [member.guild.id], (err, logchannel) => {
     if (logchannel == '0') return;
     let av = member.user.avatarURL;
     if (!member.user.avatarURL) av = member.user.defaultAvatarURL;

@@ -10,7 +10,7 @@ module.exports = (client, msg) => {
   if (msg.author.id == client.user.id) return;
   if (msg.author.bot) return;
 
-  client.userLib.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [msg.guild.id], (err, logchannel) => {
+  client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [msg.guild.id], (err, logchannel) => {
     if (msg.content == '') msg.content = 'Что-то';
     if (logchannel == '0') return;
     let av = msg.author.avatarURL;

@@ -1,9 +1,6 @@
-var moment = require('moment');
-moment.locale('ru');
-
 module.exports = (client, member) => {
 
-  client.userLib.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [member.guild.id], (err, logchannel) =>   {
+  client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [member.guild.id], (err, logchannel) =>   {
     if (logchannel == '0') return;
 
     let av = member.user.avatarURL ? member.user.avatarURL : member.user.defaultAvatarURL;

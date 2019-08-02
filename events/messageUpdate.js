@@ -1,10 +1,10 @@
-let embed, args, av;
+let embed, av;
 
 module.exports = (client, oldmsg, newmsg) => {
 	
 	if (oldmsg.author.bot || !oldmsg.content || !newmsg.content) return;
 
-	client.userLib.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [oldmsg.guild.id], (err, logchannel) => {
+	client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [oldmsg.guild.id], (err, logchannel) => {
 		if (oldmsg.content == '') oldmsg.content = 'Что-то';
 		if (newmsg.content == '') newmsg.content = 'Что-то';
 		if (logchannel == '0') return;
