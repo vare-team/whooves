@@ -32,36 +32,65 @@ module.exports = function(Discord, client, con) {
 		this.presenseCount++;
 	};
 
-	this.sendLogChannel = (guild, type, text) => {
-		let embed = new Discord.RichEmbed();
+	this.sendLogChannel = async (type, guild, data) => {
+    let [logchannel] = await con.promise().queryValue('SELECT logchannel FROM guilds WHERE id = ?', [guild.id]);
+    if(!logchannel[0]) return;
+    let channel = guild.channels.get(logchannel);
 
-		if(!type) return console.error('Error! Тип не указан');
+    if(!channel) {
+      con.update('guilds', {id: guild.id, logchannel: null}, () => {});
+      return;
+    };
+
+		let embed = new Discord.RichEmbed().setTimestamp().setAuthor(data.user.tag, data.user.avatar).setFooter(`ID: ${data.user.id}`);
+
+		if(!type) return console.warn('Error! Тип не указан');
 		switch (type) {
 		  case "memberAdd":
-			embed.setTitle('Пользователь присоединился!');
-			embed.setColor('#33af33');
+        embed.setColor(this.colors.suc)
+          .setTitle('Новый участник на сервере!')
+          .setDescription(`Аккаунт зарегистрирован **${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`);
 		  break;
 	  
 		  case "memberRemove":
-			embed.setTitle('Пользователь вышел!');
-			embed.setColor('#ff9000')
-		  break;
-	  
-		  case "memberBan":
-			embed.setTitle('Забанен!');
-			embed.setColor('#FF4000');
-		  break;
+        embed.setColor(this.colors.err)
+          .setTitle('Участник покинул сервер!');
+      break;
+      
+      case "messageDelete":
+          embed.setColor(this.colors.err)
+          .setTitle('Удалённое сообщение')
+          .setDescription(`\`\`\`${data.content.replace(/`/g, "")}\`\`\``)
+          .addField('Канал', `<#${data.channel.id}>`);
+        break;
+
+        case "messageUpdate":
+          embed.setColor(this.colors.err)
+          .setTitle('Изменённое сообщение')
+          .addField('Старое сообщение', `\`\`\`${data.oldContent.replace(/`/g, "")}\`\`\``)
+          .addField('Новое сообщение', `\`\`\`${data.newContent.replace(/`/g, "")}\`\`\``)
+          .addField('Канал', `<#${data.channel.id}>`);
+        break;
+
+        case "voiceStateAdd":
+          embed.setColor(this.colors.suc)
+            .setTitle(`Подключился к "${data.voice.name}"`);
+        break;
+
+        case "voiceStateRemove":
+          embed.setColor(this.colors.err)
+          .setTitle(`Отключился от "${data.voice.name}"`);
+        break;
+
+        case "voiceStateUpdate":
+          embed.setColor(this.colors.inf)
+            .setTitle(`Переместился из "${data.voice.oldName}" в "${data.voice.newName}"`);
+        break;
 			  
 		  default:
-			embed.setTitle('unknown log!');
-			embed.setColor(config.color);
+			embed.setTitle('unknown log!')
+			  .setColor(this.colors.err);
 		}
-		if(text) embed.setDescription(text);
-
-    con.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [guild.id], (err, logchannel) => {
-			if(err) throw err;
-			if(!logchannel) return;
-			return client.channels.get(logchannel).send(embed);
-		});
+    channel.send(embed).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
 	}
 }
