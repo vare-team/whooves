@@ -1,32 +1,30 @@
-
-
 exports.help = {
     name: "ip",
     description: "Данные по IP адресу",
     usage: "ip [ip]",
     flag: 3,
     cooldown: 5000
-}
+};
 
 var request = require('request');
-
 exports.run = (client, msg, args, Discord) => {
+  var embed = new Discord.RichEmbed();
 
-  if (!args[1]) return;
+  let ipaddr = args[0];
+  if (!ipaddr) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы не указали IP адрес!'); return msg.channel.send(embed); }
 
-  request('http://api.sypexgeo.net/json/' + args[1], function (error, response, body) {
-    data = JSON.parse(body);
-    if (!data.country) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('Не корректный IP адрес!').setTimestamp();return msg.channel.send({embed});}
-    embed = new client.discord.RichEmbed()
-    .setColor(client.config.colors.inf)
-    .setTitle('Информация о '+ data.ip)
-    .addField('Страна', data.country.name_ru ? data.country.name_ru : 'Не ясно')
-    .addField('Регион', data.region.name_ru ? data.region.name_ru : 'Не ясно')
-    .addField('Город', data.city.name_ru ? data.city.name_ru : 'Не ясно')
-    .addField('Почовый индекс', data.city.post ? data.city.post : 'Не ясно')
-    .addField('Телефон', data.country.phone ? `+${data.country.phone}${data.city.tel}  ___ __ __` : 'Не ясно')
-    .setTimestamp();
-  msg.channel.send({embed});
-  });
-
-}
+    request('http://ip-api.com/json/' + ipaddr, { json: true }, function (err, res, data) {
+      if (!data.country) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы указали некорректный IP адрес!'); return msg.channel.send(embed); }
+      embed
+        .setColor(client.userLib.config.colors.inf)
+        .setTitle('Информация о '+ data.query)
+        .addField('Провайдер', data.isp)
+        .addField('Организация', data.org)
+        .addField('Страна', data.country ? data.country : 'Не ясно')
+        .addField('Регион', data.regionName ? data.regionName : 'Не ясно')
+        .addField('Город', data.city ? data.city : 'Не ясно')
+        .setTimestamp();
+      
+      return msg.channel.send(embed);
+    });
+};

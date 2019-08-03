@@ -1,4 +1,3 @@
-let embed;
 const fs = require("fs");
 
 exports.help = {
@@ -7,13 +6,12 @@ exports.help = {
     usage: "help (команда)",
     flag: 3,
     cooldown: 500
-}
+};
 
-exports.run = (client, msg, args, Discord) => {
+exports.run = (client, msg, args) => {
 
-    client.userLib.db.queryValue('SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id], (err, prefixtemp) => {
-
-        if (!args[1]) {
+    client.userLib.db.queryValue('SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id], (err, guildprefix) => {
+        if (!args[0]) {
 
     	   fs.readdir("./commands/", (err, files) => {
                 if(err) console.error(err);
@@ -39,15 +37,15 @@ exports.run = (client, msg, args, Discord) => {
                     let desclist = props.help.description;
                     let usage = props.help.usage;
         
-                    if (props.help.flag == 1) gNamelistO += "\`\`" + prefixtemp + namelist + "\`\`, ";
-                    else if (props.help.flag == 2) gNamelistA += "\`\`" + prefixtemp + namelist + "\`\`, ";
-                    else if (props.help.flag == 3) gNamelistU += "\`\`" + prefixtemp + namelist + "\`\`, ";
+                    if (props.help.flag == 1) gNamelistO += "\`\`" + guildprefix + namelist + "\`\`, ";
+                    else if (props.help.flag == 2) gNamelistA += "\`\`" + guildprefix + namelist + "\`\`, ";
+                    else if (props.help.flag == 3) gNamelistU += "\`\`" + guildprefix + namelist + "\`\`, ";
                 });
         
                 embed = new client.userLib.discord.RichEmbed()
-                    .setColor(client.userLib.colors.inf)
-                    .setDescription(`Напиши **${prefixtemp}help (команда)** для получения информации об определенной команде.\n\`\`[] - обязательный аргумент\n() - дополнительный аргумент\`\``)
-                    .setAuthor('Список команд AKin', client.user.avatarURL);
+                    .setColor(client.userLib.config.colors.inf)
+                    .setDescription(`Напиши **${guildprefix}help (команда)** для получения информации об определенной команде.\n\`\`[] - обязательный аргумент\n() - дополнительный аргумент\`\``)
+                    .setAuthor('Список команд Akin', client.user.avatarURL);
         
                 switch (flag) {
                     case 1:
@@ -59,7 +57,7 @@ exports.run = (client, msg, args, Discord) => {
                         break;
                 }
         
-                msg.channel.send({embed});
+                msg.channel.send(embed);
             });
         } else {
 
@@ -74,13 +72,13 @@ exports.run = (client, msg, args, Discord) => {
             if (props.help.flag == 0) return;
 
             embed = new client.userLib.discord.RichEmbed()
-            .setThumbnail(client.user.avatarURL)
-            .setColor(client.userLib.colors.inf)
-            .setTitle(`Команда ${prefixtemp}${namelist}`)
-            .addField('Описание', desclist)
-            .addField('Откат', `**${cooldown/1000}** сек.`)
-            .addField('Использование', `\`\`${prefixtemp}${usage}\`\``);
-            msg.channel.send({embed});
+                .setThumbnail(client.user.avatarURL)
+                .setColor(client.userLib.config.colors.inf)
+                .setTitle(`Команда ${guildprefix}${namelist}`)
+                .addField('Описание', desclist)
+                .addField('Задержка после использования', `**${cooldown/1000}** сек.`)
+                .addField('Использование', `\`\`${guildprefix}${usage}\`\``);
+            msg.channel.send(embed);
         }
     });
 };

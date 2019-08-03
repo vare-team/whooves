@@ -1,7 +1,6 @@
-const { registerFont, createCanvas, loadImage, Image } = require('canvas')
-const rand = require('random')
-registerFont('../akin/ds_moster.ttf', { family: 'Comic Sans' })
-let attachment;
+const { registerFont, createCanvas, loadImage, Image } = require('canvas');
+const rand = require('random');
+registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
 
 function greyscale(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
@@ -85,25 +84,23 @@ exports.help = {
 }
 
 exports.run = async (client, msg, args, Discord) => {
+	var embed = new Discord.RichEmbed();
+	let attachment;
 
 	let use;
-
 	if (msg.mentions.users.first()) use = msg.mentions.users.first().avatarURL;
-
 	if (!use && msg.author.avatarURL) use = msg.author.avatarURL;
-
 	if (msg.attachments.first()) {
-		if (!parseInt(msg.attachments.first().width)) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('Файл должен быть картинкой!').setTimestamp(); return msg.channel.send({embed});}
-		use = msg.attachments.first().url;}
-
+		if (!parseInt(msg.attachments.first().width)) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Файл должен быть картинкой!').setTimestamp(); return msg.channel.send(embed);}
+		use = msg.attachments.first().url; }
 
 	msg.channel.startTyping();
-
 	let ava = await loadImage(use);
-	const canvas = createCanvas(ava.width, ava.height)
-	const ctx = canvas.getContext('2d')
+	const canvas = createCanvas(ava.width, ava.height);
+	const ctx = canvas.getContext('2d');
+
 	ctx.drawImage(ava, 0, 0, ava.width, ava.height);
-	switch (args[1]) {
+	switch (args[0]) {
 		case '1':
 			invert(ctx, 0, 0, ava.width, ava.height);
 			attachment = canvas.toBuffer();
@@ -130,17 +127,15 @@ exports.run = async (client, msg, args, Discord) => {
 			attachment = canvas.toBuffer('image/jpeg', { quality: rand.int(0, 100) });
 			break;
 		case '7':
-			let plevok = await loadImage('/home/pi/Bots/Akin/images/plevok.png');
+			let plevok = await loadImage('./images/plevok.png');
 			greyscale(ctx, 0, 0, ava.width, ava.height);
 			ctx.drawImage(plevok, 0, 0, ava.width, ava.height);
 			attachment = canvas.toBuffer();
 			break;
 		default:
-			embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('Не указан номер фильтра!').setTimestamp();return msg.channel.send({embed});
+			embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Не указан номер фильтра!'); return msg.channel.send(embed);
 	}
-
-
-	msg.channel.send({ files: [{ attachment, name: `filter.jpeg` }] });
+	
+	msg.channel.send({ files: [{ attachment, name: "filter.jpeg" }] });
 	msg.channel.stopTyping();
-
 }; 

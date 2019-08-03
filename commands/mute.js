@@ -1,75 +1,65 @@
-
 exports.help = {
     name: "mute",
     description: "Замьютить участника",
     usage: "mute [@кто] (кол-во мин)",
     flag: 2,
     cooldown: 5000
-}
-
-let embed;
+};
 
 exports.run = (client, msg, args, Discord) => {
+	var embed = new Discord.RichEmbed();
+
+	var user = msg.guild.member(msg.mentions.users.first() || msg.guild.members.get(args[0]));
+	if (!user) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы не указали участника сервера!'); return msg.channel.send(embed);}
+	if (msg.author.id == user.id) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы не можете замутить самого себя!'); return msg.channel.send(embed);}
+	if (user.user.bot) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы не можете замутить бота!'); return msg.channel.send(embed);}
 	
-	if (!msg.mentions.members.first()) return;
+	var time = args[1];
+	if (!time) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы не указали время мута!'); return msg.channel.send(embed);}
+	if (time > 60 || time < 0) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Нельзя выдать мут больше чем на час!'); return msg.channel.send(embed);}
 
-	if (msg.author.id == msg.mentions.members.first().id) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('Администратор не может замутить сам себя!').setTimestamp();return msg.channel.send({embed});}
-
-
-	if (parseInt(args[2]) && (parseInt(args[2]) > 60 || parseInt(args[2]) < 0)) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('Нельзя выдать мут больше чем на час!').setTimestamp();return msg.channel.send({embed});}
-
-
-	client.db.queryValue('SELECT muterole FROM users WHERE id = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
-
-		if (parseInt(muterole)) {embed = new Discord.RichEmbed()
-			.setColor(client.config.colors.err)
-			.setTitle('Ошибка!')
-			.setDescription(`У <@${msg.mentions.members.first().id}> уже есть мут`)
-			.setTimestamp();
-			console.log(`Suka is "${muterole}"`)
+	client.userLib.db.queryValue('SELECT muterole FROM guilds WHERE id = ? AND serid = ?', [user.id, msg.guild.id], (err, muterole) => {
+		if (parseInt(muterole)) {embed
+				.setColor(client.userLib.config.colors.err)
+				.setTitle('Ошибка!')
+				.setDescription(`У <@${user.id}> уже есть мут`);
 			return msg.channel.send({embed});}
 
 		msg.delete();
-	
 		msg.guild.createRole({
-			name: `Mute ${msg.mentions.members.first().user.username}`
+			name: `Akin | Mute | ${user.user.username}`
 		}).then(role => {
-	
 			msg.member.guild.channels.filter(channel => channel.type == 'text').forEach(channel => channel.overwritePermissions(role, {
 				SEND_MESSAGES: false
-			}))
+			}));
 	
 			msg.member.guild.channels.filter(channel => channel.type == 'voice').forEach(channel => channel.overwritePermissions(role, {
 				SPEAK: false
-			}))
+			}));
 	
-			msg.mentions.members.first().addRole(role);
-			
-			embed = new Discord.RichEmbed()
-				.setColor(client.config.colors.suc)
+			user.addRole(role);
+			embed
+				.setColor(client.userLib.config.colors.suc)
 				.setTitle('Участнику выдан мут!')
-				.setDescription(`<@${msg.mentions.members.first().id}> отправлен в мут`);
-			if (parseInt(args[2])) embed.setDescription(`<@${msg.mentions.members.first().id}> отправлен в мут на **${parseInt(args[2])}** мин.`);
+				.setDescription(`<@${user.id}> отправлен в мут`);
+			if (time) embed.setDescription(`<@${user.id}> отправлен в мут на **${time}** мин.`);
 	
-			client.db.query(`UPDATE users SET muterole = ? WHERE id = ? AND serid = ?`, [role.id, msg.mentions.members.first().id, msg.guild.id], () => {
-
-				if (parseInt(args[2])) {
+			client.userLib.db.query(`UPDATE guilds SET muterole = ? WHERE id = ? AND serid = ?`, [role.id, user.id, msg.guild.id], () => {
+				if (time) {
 					setTimeout(function() {
 
-						client.db.queryValue('SELECT muterole FROM users WHERE id = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
+						client.userLib.db.queryValue('SELECT muterole FROM guilds WHERE id = ? AND serid = ?', [user.id, msg.guild.id], (err, muterole) => {
 							if (muterole == '0') return;
 							if (client.guilds.get(msg.guild.id).roles.get(muterole)) return;
 							role.delete();
-							client.db.query(`UPDATE users SET muterole = 0 WHERE id = ? AND serid = ?`, [msg.mentions.members.first().id, msg.guild.id], () => {});
+							client.userLib.db.query(`UPDATE guilds SET muterole = 0 WHERE id = ? AND serid = ?`, [user.id, msg.guild.id], () => {});
 						});
 
-					}, parseInt(args[2])*60*1000)
+					}, time*60*1000)
 				}
 				embed.setTimestamp();
-				return msg.channel.send({embed}).then(msg => msg.delete(5000));
-
+				return msg.channel.send(embed).then(msg => msg.delete(15000));
 			});
 		});
 	});
-
-}
+};

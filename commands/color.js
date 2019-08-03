@@ -1,21 +1,25 @@
+function isValidHEX(code) {
+    if(!code) return console.error("isValidHEX | Не указан HEX-код.");
+    var re = (code.includes("#")) ? /#[0-9A-Fa-f]{6}/g : /[0-9A-Fa-f]{6}/g;
+    
+    if(re.test(code)) return true;
+    else return false;
+}
 
 exports.help = {
     name: "color",
-    description: "Выводит эмбент с указанным цветом",
+    description: "Выводит эмбед с указанным цветом",
     usage: "color [#HEX]",
     flag: 3,
     cooldown: 1000
-}
-
+};
 
 exports.run = (client, msg, args, Discord) => {
+    var embed = new Discord.RichEmbed();
 
-	let color = parseInt(msg.content.split("#")[1], 16);
-
-	if (!color || 16777215 < color || 0 > color) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('Не корректный цвет!').setTimestamp();return msg.channel.send({embed});}
-
-	embed = new Discord.RichEmbed().setColor(color).setTitle("#" + msg.content.split("#")[1].toUpperCase())
-
-	msg.channel.send({embed})
-
+	let color = args[0];
+	if (!color) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы не указали цвет!'); return msg.channel.send(embed);}
+    if (isValidHEX(color) !== true) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription('Вы указали некорректный цвет!').setTimestamp(); return msg.channel.send(embed);}
+    embed.setColor(color).setTitle("Цвет " + color);
+	return msg.channel.send(embed);
 };

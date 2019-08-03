@@ -1,13 +1,11 @@
-
 exports.help = {
     name: "dbget",
     description: "",
     usage: "",
     flag: 0
-}
+};
 
 exports.run = (client, msg, args) => {
-
 	let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
     word = '';
 
@@ -17,5 +15,4 @@ exports.run = (client, msg, args) => {
 	};
 
 	msg.channel.send(`Key is \`\`${word}\`\`\nKey owner \`\`${msg.author.tag}\`\``);
-
 };

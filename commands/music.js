@@ -6,10 +6,9 @@ exports.help = {
     usage: "music [play/stop/rd]",
     flag: 0,
     cooldown: 5000
-}
+};
 
 exports.run = (client, msg, args, Discord) => {
-
 	if (!msg.member.voiceChannel) return msg.reply("Нужно быть в голосовом канале");
 
 	switch (args[1]) {
@@ -20,7 +19,7 @@ exports.run = (client, msg, args, Discord) => {
 			break;
 		case "stop":
 			if (!msg.guild.voiceConnection) return msg.reply('Я не в голосовом канале.');
-			const dispatcher_lv = msg.guild.voiceConnection.playFile('/home/pi/Bots/Akin/sounds/gg.wav');
+			const dispatcher_lv = msg.guild.voiceConnection.playFile('./sounds/gg.wav');
 			dispatcher_lv.on('end', () => msg.member.voiceChannel.leave());
 			break;
 		case "rd":
@@ -49,14 +48,14 @@ exports.run = (client, msg, args, Discord) => {
 					break;
 			}
 			msg.member.voiceChannel.join().then(connection => {
-			    let dispatcher = connection.playFile('/home/pi/Bots/Akin/sounds/' + speach + ".wav");
+			    let dispatcher = connection.playFile('./sounds/' + speach + ".wav");
 			    dispatcher.setVolume(1);
 			    dispatcher.on('end', () => {if (err) connection.channel.leave(); else dispatcher = connection.playArbitraryInput(http_rd); dispatcher.setVolume(0.1);});
 			});
 			break;
 		case "tts":
 			msg.member.voiceChannel.join().then(connection => {
-			    let dispatcher = connection.playFile('/home/pi/Bots/Akin/sounds/' + args[2]);
+			    let dispatcher = connection.playFile('./sounds/' + args[2]);
 			    dispatcher.setVolume(1);
 			    dispatcher.on('end', () => {connection.channel.leave();});
 			});
