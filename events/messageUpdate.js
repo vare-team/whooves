@@ -10,7 +10,7 @@ module.exports = (client, oldmsg, newmsg) => {
 		if (logchannel == '0') return;
     	let av = oldmsg.member.user.avatarURL;
     	if (!oldmsg.member.user.avatarURL) av = oldmsg.member.user.defaultAvatarURL;
-		embed = new Discord.RichEmbed()
+		embed = new client.userLib.discord.RichEmbed()
 		.setColor(client.config.colors.inf)
 		.setTitle('Изменённое сообщение')
 		.setAuthor(oldmsg.author.tag, av)

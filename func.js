@@ -1,25 +1,38 @@
-module.exports = {
-	'sendlog': (client, guild) => {
-		client.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [guild.id], (err, logchannel) =>   {
-			if (logchannel == '0') return;
+module.exports = function(Discord, client, con) {
 
-			let av = member.user.avatarURL ? member.user.avatarURL : member.user.defaultAvatarURL;
+	this.colors = {
+		err: "#F04747",
+		suc: "#43B581",
+		inf: "#3492CC",
+		war: "#FAA61A"
+  };
+  this.owners = ["166610390581641217", "194384673672003584", "532196405612380171", "178404926869733376"];
+	this.discord = Discord;
+	this.db = con;
+	this.moment = require('moment');
+  this.moment.locale("ru");
+	// this.cooldown = new Map();
 
-			let embed = new client.discord.RichEmbed()
-				.setColor(client.config.colors.inf)
-				.setTitle('Новый участник на сервере!')
-				.setAuthor(member.user.tag, av)
-				.setDescription(`Аккаунт зарегистрирован **${moment(member.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`)
-				.setFooter(`ID: ${member.user.id}`)
-				.setTimestamp();
-			
-			let sendlogchannel = client.channels.get(logchannel);
-			if (!sendlogchannel) return client.db.upsert(`servers`, {id: guild.id, logchannel: 0}, (err) => {});
+  this.sendLog = (log) => {
+	  const now = new Date();
+	  console.log(`${('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
+	};
 
-			sendlogchannel.send({embed}).catch(err => console.log(`\nОшибка!\nСервер: ${guild.name} (ID: ${guild.id})\nПользователь: ${member.user.tag} (ID: ${member.user.id})\nТекст ошибки: ${err}`));
-		})
-	},
-	'logiSend': (guild, type, text) => {
+	this.presenseCount = 0;
+	this.presenseFunc = () => {
+		switch (this.presenseCount) {
+			case 0:
+			client.user.setPresence({ game: { name: `a.help`, type: 'WATCHING' }});
+			break;
+			case 1:
+		client.user.setPresence({ game: { name: `серверов: ${client.guilds.size}`, type: 'WATCHING' }});
+			this.presenseCount = 0;
+			break;
+		}
+		this.presenseCount++;
+	};
+
+	this.sendLogChannel = (guild, type, text) => {
 		let embed = new Discord.RichEmbed();
 
 		if(!type) return console.error('Error! Тип не указан');
@@ -40,12 +53,12 @@ module.exports = {
 		  break;
 			  
 		  default:
-			embed.setTitle('unknown logi!');
+			embed.setTitle('unknown log!');
 			embed.setColor(config.color);
 		}
 		if(text) embed.setDescription(text);
 
-		client.db.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [guild.id], (err, logchannel) => {
+    con.queryValue('SELECT logchannel FROM guilds WHERE id = ?', [guild.id], (err, logchannel) => {
 			if(err) throw err;
 			if(!logchannel) return;
 			return client.channels.get(logchannel).send(embed);

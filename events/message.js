@@ -27,7 +27,7 @@ module.exports = (client, msg) => {
     client.userLib.db.query(`UPDATE account SET coins = coins + ? WHERE id = ?`, [rand.int(10, 25), msg.author.id])
   }
   
-  const args = msg.content.slice(client.userLib.config.prefix.length).trim().split(/ +/g);
+  const args = msg.content.slice(2).trim().split(/ +/g);
 
   if (isUrl(msg.content.toLowerCase())) {
     if (msg.author.bot || msg.guild.ownerID == msg.author.id || msg.member.hasPermission('ADMINISTRATOR')) return;
@@ -35,11 +35,11 @@ module.exports = (client, msg) => {
     return cmd.run(client, msg, args, client.discord, true);
   };
 
-  if (msg.content.toLowerCase().startsWith(';help')) {const cmd = client.commands.get('help'); return cmd.run(client, msg, args, client.discord);};
+  if (msg.content.toLowerCase().startsWith('a.help')) {const cmd = client.commands.get('help'); return cmd.run(client, msg, args, client.discord);};
 
   client.userLib.db.queryValue('SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id], (err, prefix) => {
     if (err) throw err;
-    if (!msg.content.startsWith(prefix)) return addmoney();
+    if (!msg.content.startsWith('a.')) return addmoney();
     
     const command = args[0].toLowerCase();
     const cmd = client.commands.get(command);
