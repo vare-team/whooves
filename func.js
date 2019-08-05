@@ -11,7 +11,8 @@ module.exports = function(Discord, client, con) {
 	this.db = con;
 	this.moment = require('moment');
   this.moment.locale("ru");
-	// this.cooldown = new Map();
+  // this.cooldown = new Map();
+  this.promise = require('./promise');
 
   this.sendLog = (log) => {
 	  const now = new Date();
@@ -33,8 +34,9 @@ module.exports = function(Discord, client, con) {
 	};
 
 	this.sendLogChannel = async (type, guild, data) => {
-    let [logchannel] = await con.promise().queryValue('SELECT logchannel FROM guilds WHERE id = ?', [guild.id]);
-    if(!logchannel[0]) return;
+    let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE id = ?', [guild.id]);
+    logchannel = logchannel.res;
+    if(!logchannel) return;
     let channel = guild.channels.get(logchannel);
 
     if(!channel) {
