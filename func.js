@@ -74,17 +74,17 @@ module.exports = function(Discord, client, con) {
 
         case "voiceStateAdd":
           embed.setColor(this.colors.suc)
-            .setTitle(`Подключился к "${data.voice.name}"`);
+            .setTitle(`Подключился к "${data.channel.name}"`);
         break;
 
         case "voiceStateRemove":
           embed.setColor(this.colors.err)
-          .setTitle(`Отключился от "${data.voice.name}"`);
+          .setTitle(`Отключился от "${data.channel.name}"`);
         break;
 
         case "voiceStateUpdate":
           embed.setColor(this.colors.inf)
-            .setTitle(`Переместился из "${data.voice.oldName}" в "${data.voice.newName}"`);
+            .setTitle(`Переместился из "${data.channel.oldName}" в "${data.channel.newName}"`);
         break;
 			  
 		  default:

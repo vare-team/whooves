@@ -1,38 +1,34 @@
-let embed;
-
 module.exports = async (client, oldMember, newMember) => {
     if (!oldMember.voiceChannel) {
-
       client.userLib.sendLogChannel("voiceStateAdd", newMember.guild, {user: {
         tag: oldMember.user.tag,
         id: oldMember.id,
-        avatar: oldMember.user.displayAvatarURL,
-        voice: newMember.voiceChannel
-      }});
-
+        avatar: oldMember.user.displayAvatarURL 
+      },
+        channel: { name: newMember.voiceChannel.name }
+      });
     };
-    if (!newMember.voiceChannel) {
 
+    if (!newMember.voiceChannel) {
       client.userLib.sendLogChannel("voiceStateRemove", oldMember.guild, {user: {
         tag: oldMember.user.tag,
         id: oldMember.id,
-        avatar: oldMember.user.displayAvatarURL,
-        voice: oldMember.voiceChannel
-      }});
-
+        avatar: oldMember.user.displayAvatarURL 
+      },
+        channel: { name: oldMember.voiceChannel.name}
+      });
     };
 
     if (oldMember.voiceChannel && newMember.voiceChannel) {
-
       client.userLib.sendLogChannel("voiceStateUpdate", oldMember.guild, {user: {
-        tag: oldMember.user.tag,
-        id: oldMember.id,
-        avatar: oldMember.user.displayAvatarURL,
-        voice: {
+          tag: oldMember.user.tag,
+          id: oldMember.id,
+          avatar: oldMember.user.displayAvatarURL 
+        },
+        channel: {
           oldName: oldMember.voiceChannel.name,
           newName: newMember.voiceChannel.name
         }
-      }});
-      
+      });
     }
 };
