@@ -1,25 +1,23 @@
-
 exports.help = {
     name: "setbalance",
     description: "Установить баланс участнику",
     usage: "setbalance [@кто] [кол-во]",
-    flag: 1,
-    cooldown: 500
-}
-
-let embed;
+    flag: 0,
+    cooldown: 0
+};
 
 exports.run = (client, msg, args, Discord) => {
-	
-	if (!args[2]) return;
-	if (!parseInt(args[2]) && args[2] != 0) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Баланс может быть только числом!`).setTimestamp();return msg.channel.send({embed});}
-	
-	let money = parseInt(args[1]);
+	var embed = new Discord.RichEmbed();
 
-	if (!msg.mentions.members.first()) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Нужно указать, кому установить баланс!`).setTimestamp();return msg.channel.send({embed});}
+	let user = msg.guild.member(msg.mentions.users.first() || msg.guild.members.get(args[0]));
+	if(!user) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription(`Вы не указали пользователя!`);return msg.channel.send(embed);}
 	
-	client.db.query(`UPDATE users SET coins = ? WHERE id = ? AND serid = ?`, [money, msg.mentions.members.first().id, msg.guild.id])
-	embed = new Discord.RichEmbed().setColor(client.config.colors.suc).setTitle('Установка баланса').setDescription(`<@${msg.author.id}> установил <@${msg.mentions.members.first().id}> баланс **${args[2]}**`).setTimestamp();
-	msg.channel.send({embed});
+	let money = args[1];
+	if (!money) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription(`Вы не указали баланс!`);return msg.channel.send(embed);}
+	if(!Number(money)) {embed.setColor(client.userLib.config.colors.err).setTitle('Ошибка!').setDescription(`Баланс должен быть числом`);return msg.channel.send(embed);}
 
+	client.userLib.db.query("UPDATE account SET money = ? WHERE id = ?", [money, user.id]);
+	embed.setColor(client.userLib.config.colors.suc).setTitle('Установка баланса').setDescription(`${msg.author}> установил ${user} баланс **${money}**`).setTimestamp();
+	
+	return msg.channel.send(embed);
 };
