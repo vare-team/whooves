@@ -16,10 +16,8 @@ module.exports = (client, msg) => {
     if (!cmd) return;
 
     if(!msg.channel.memberPermissions(client.user).has('EMBED_LINKS')) return msg.reply('Хмм... Ошибочка. Вы не дали мне право на отправку ссылок (EMBED_LINKS)!\n**Не надо так!**')
-
-    let flag = cmd.help.flag;
   
-    switch (flag){
+    switch (cmd.help.flag){
       case 2:
         if (!msg.member.hasPermission('ADMINISTRATOR')) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('У тебя не достаточно прав!').setTimestamp();return msg.channel.send({embed});}
         break;
