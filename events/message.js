@@ -30,11 +30,11 @@ module.exports = (client, msg) => {
         if (client.config.owners.indexOf(msg.author.id) == -1) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Эту команду может использовать только разработчик бота!`).setTimestamp();return msg.channel.send({embed});}
         break;
     }
-    
+
     try {
       cmd.run(client, msg, args, client.discord)
     } catch (err) {
-      console.log(`\nОшибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`)
+      client.userLib.sendLog(`\nОшибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`);
     };
     
 
