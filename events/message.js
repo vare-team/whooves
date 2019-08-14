@@ -34,6 +34,9 @@ module.exports = async (client, msg) => {
     msg.reply('используйте команду позже');
   }*/
 
+
+
+
   if(!client.userLib.cooldown.has(cmd.help.name)) {
     client.userLib.cooldown.set(cmd.help.name, new Map() );
   }
@@ -43,6 +46,11 @@ module.exports = async (client, msg) => {
   if(times.has(msg.author.id)) {
     let timeLeft = (times.get(msg.author.id) + cmd.help.cooldown * 1000 - now) / 1000;
     msg.reply('используйте команду позже! Вы сможете использовать команду через: ' + timeLeft + ' секунд');
+    return;
+  }
+
+  if(cmd.help.args && !args.length) {
+    msg.reply('отсутствует аргументы!');
     return;
   }
 
