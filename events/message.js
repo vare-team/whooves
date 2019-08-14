@@ -19,6 +19,11 @@ module.exports = async (client, msg) => {
   const cmd = client.commands.get(command);
 
   if (!cmd) return;
+  
+  if(cmd.help.args && !args.length) {
+    msg.reply('отсутствует аргументы!');
+    return;
+  }
 
   if(msg.channel.type == 'dm' && !cmd.help.dm) {
     msg.reply('Недоступно в личных сообщениях');
