@@ -1,4 +1,21 @@
 module.exports = function(Discord, client, con) {
+  // con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
+  this.admins = {
+    "321705723216134154": 0,
+    "532196405612380171": 1,
+    "166610390581641217": 0,
+    "178404926869733376": 1
+  };
+
+  this.checkPerm = (tier, ownerID, member) => {
+    if(this.admins.hasOwnProperty(member.id) && this.admins[member.id] == 0) return true;
+    if(this.admins.hasOwnProperty(member.id) && tier < 0 && tier > this.admins[member.id]) return true;
+    if(tier == -3 && (ownerID == member.id)) return true;
+    if(tier == -2 && member.hasPermission('ADMINISTRATOR')) return true;
+    if(tier == -1 && member.hasPermission('MANAGE_MESSAGES')) return true;      
+
+    return false;
+  };
 
 	this.colors = {
 		err: "#F04747",
@@ -11,7 +28,7 @@ module.exports = function(Discord, client, con) {
 	this.db = con;
 	this.moment = require('moment');
   this.moment.locale("ru");
-  // this.cooldown = new Map();
+  this.cooldown = new Map();
   this.promise = require('./promise');
 
   this.sendLog = (log) => {

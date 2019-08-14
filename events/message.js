@@ -1,41 +1,74 @@
-module.exports = (client, msg) => {
+module.exports = async (client, msg) => {
+  if (msg.author.bot) return;
 
-  if (msg.author.bot || msg.channel.type == 'dm') return;
-  
-  const args = msg.content.slice(2).trim().split(/ +/g);
+  if(msg.mentions.users.first() && msg.mentions.users.first().id == client.user.id) {
+    msg.channel.send('Префикс: ' + prefix);
+    return;
+  }
 
-  if (msg.content.toLowerCase().startsWith('a.help')) {const cmd = client.commands.get('help'); return cmd.run(client, msg, args, client.discord);};
+  let prefix = msg.channel.type == 'dm' ? 'a.' : (await client.userLib.db.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id])).res;
+  prefix = prefix ? prefix : 'a.';
 
-  client.userLib.db.queryValue('SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id], (err, prefix) => {
-    if (err) throw err;
-    if (!msg.content.startsWith('a.')) return;
-    
-    const command = args[0].toLowerCase();
-    const cmd = client.commands.get(command);
-  
-    if (!cmd) return;
+  if(!msg.content.toLowerCase().startsWith(prefix)) return;
 
-    if(!msg.channel.memberPermissions(client.user).has('EMBED_LINKS')) return msg.reply('Хмм... Ошибочка. Вы не дали мне право на отправку ссылок (EMBED_LINKS)!\n**Не надо так!**')
-  
-    switch (cmd.help.flag){
-      case 2:
-        if (!msg.member.hasPermission('ADMINISTRATOR')) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('У тебя не достаточно прав!').setTimestamp();return msg.channel.send({embed});}
-        break;
-      case 1:
-        if (msg.guild.ownerID !== msg.author.id) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Эту команду может использовать только владелец сервера <@${msg.guild.ownerID}>!`). setTimestamp();return msg.channel.send({embed});}
-        break;
-      case 0:
-        if (client.userLib.admins.indexOf(msg.author.id) == -1) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Эту команду может использовать только разработчик бота!`).setTimestamp();return msg.channel.send({embed});}
-        break;
-    }
+  if(!msg.channel.memberPermissions(client.user).has('ADMINISTRATOR')) return msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
 
-    try {
-      cmd.run(client, msg, args, client.discord)
-    } catch (err) {
-      client.userLib.sendLog(`\nОшибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`);
-    };
-    
+  const args = msg.content.slice(prefix.length).trim().split(/ +/g);
 
-  });
+  const command = args.shift().toLowerCase();
+  const cmd = client.commands.get(command);
+
+  if (!cmd) return;
+
+  if(msg.channel.type == 'dm' && !cmd.help.dm) {
+    msg.reply('Недоступно в личных сообщениях');
+    return;
+  }
+
+  if(cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier, msg.guild.ownerID, msg.member)) {
+    msg.reply('недостаточно прав!');
+    return;
+  }
+
+  /*if(client.userLib.cooldown.has(msg.author.id)) {
+    msg.reply('используйте команду позже');
+  }*/
+
+  if(!client.userLib.cooldown.has(cmd.help.name)) {
+    client.userLib.cooldown.set(cmd.help.name, new Map() );
+  }
+
+  const now = Date.now();
+  const times = client.userLib.cooldown.get(cmd.help.name);
+  if(times.has(msg.author.id)) {
+    let timeLeft = (times.get(msg.author.id) + cmd.help.cooldown * 1000 - now) / 1000;
+    msg.reply('используйте команду позже! Вы сможете использовать команду через: ' + timeLeft + ' секунд');
+    return;
+  }
+
+  times.set(msg.author.id, now);
+  setTimeout(() => { times.delete(msg.author.id); }, cmd.help.cooldown * 1000);
+
+  try {
+    cmd.run(client, msg, args);
+  } catch (err) {
+    client.userLib.sendLog(`\nОшибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`);
+  };
 
 };
+
+/* 
+  flag
+  
+  -3 - Owner guild
+
+  -2 - Admin guild
+
+  -1 - Moderator guild
+
+  0 - user
+
+  1 - admin tier 0
+
+  2 - admin tier 1
+*/

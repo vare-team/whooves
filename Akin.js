@@ -12,8 +12,6 @@ require('mysql-utilities').introspection(con);
 
 client.userLib = new func(Discord, client, con);
 
-// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
-
 fs.readdir("./events/", (err, files) => {
   if (err) return console.error(err);
   files.filter(file => file.endsWith('.js')).forEach(file => {
