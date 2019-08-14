@@ -1,7 +1,3 @@
-var moment = require('moment');
-moment.locale('ru');
-
-
 exports.help = {
     name: "info",
     description: "Информация о боте",

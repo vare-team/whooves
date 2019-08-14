@@ -11,7 +11,7 @@ exports.help = {
 
 exports.run = (client, msg, args, Discord) => {
 
-    client.db.queryValue('SELECT prefix FROM servers WHERE id = ?', [msg.guild.id], (err, prefixtemp) => {
+    client.userLib.db.queryValue('SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id], (err, prefixtemp) => {
 
         if (!args[1]) {
 
@@ -44,8 +44,8 @@ exports.run = (client, msg, args, Discord) => {
                     else if (props.help.flag == 3) gNamelistU += "\`\`" + prefixtemp + namelist + "\`\`, ";
                 });
         
-                embed = new Discord.RichEmbed()
-                    .setColor(client.config.colors.inf)
+                embed = new client.userLib.discord.RichEmbed()
+                    .setColor(client.userLib.colors.inf)
                     .setDescription(`Напиши **${prefixtemp}help (команда)** для получения информации об определенной команде.\n\`\`[] - обязательный аргумент\n() - дополнительный аргумент\`\``)
                     .setAuthor('Список команд AKin', client.user.avatarURL);
         
@@ -73,9 +73,9 @@ exports.run = (client, msg, args, Discord) => {
 
             if (props.help.flag == 0) return;
 
-            embed = new Discord.RichEmbed()
+            embed = new client.userLib.discord.RichEmbed()
             .setThumbnail(client.user.avatarURL)
-            .setColor(client.config.colors.inf)
+            .setColor(client.userLib.colors.inf)
             .setTitle(`Команда ${prefixtemp}${namelist}`)
             .addField('Описание', desclist)
             .addField('Откат', `**${cooldown/1000}** сек.`)

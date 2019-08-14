@@ -1,81 +1,74 @@
-const rand = require('random');
+module.exports = async (client, msg) => {
+  if (msg.author.bot) return;
 
-talkedMoney = new Set();
-talkedcool = new Set();
-
-function isUrl(s) {
-    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-    return regexp.test(s);
-}
-
-let embed;
-
-permissions = ['ADMINISTRATOR' ,'VIEW_CHANNEL', 'SEND_MESSAGES', 'ATTACH_FILES', 'MANAGE_ROLES']
-
-module.exports = (client, msg) => {
-
-  if (msg.author.bot || msg.channel.type == 'dm') return;
-
-  client.db.count('users', {id: msg.author.id, serid: msg.guild.id}, (err, count) => {
-    if (!count) client.db.insert(`users`, {id: msg.author.id, serid: msg.guild.id}, () => {})
-  });
-
-  function addmoney() {
-    if (talkedMoney.has(`${msg.guild.id}_${msg.author.id}`)) return;
-    talkedMoney.add(`${msg.guild.id}_${msg.author.id}`);
-    setTimeout(() => {talkedMoney.delete(`${msg.guild.id}_${msg.author.id}`);}, 60000);
-    client.db.query(`UPDATE users SET coins = coins + ? WHERE id = ? AND serid = ?`, [rand.int(10, 25), msg.author.id, msg.guild.id])
+  if(msg.mentions.users.first() && msg.mentions.users.first().id == client.user.id) {
+    msg.channel.send('Префикс: ' + prefix);
+    return;
   }
-  
-  const args = msg.content.slice(client.config.prefix.length).trim().split(/ +/g);
 
-  if (isUrl(msg.content.toLowerCase())) {
-    if (msg.author.bot || msg.guild.ownerID == msg.author.id || msg.member.hasPermission('ADMINISTRATOR')) return;
-    const cmd = client.commands.get('warn');
-    return cmd.run(client, msg, args, client.discord, true);
+  let prefix = msg.channel.type == 'dm' ? 'a.' : (await client.userLib.db.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id])).res;
+  prefix = prefix ? prefix : 'a.';
+
+  if(!msg.content.toLowerCase().startsWith(prefix)) return;
+
+  if(!msg.channel.memberPermissions(client.user).has('ADMINISTRATOR')) return msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
+
+  const args = msg.content.slice(prefix.length).trim().split(/ +/g);
+
+  const command = args.shift().toLowerCase();
+  const cmd = client.commands.get(command);
+
+  if (!cmd) return;
+
+  if(msg.channel.type == 'dm' && !cmd.help.dm) {
+    msg.reply('Недоступно в личных сообщениях');
+    return;
+  }
+
+  if(cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier, msg.guild.ownerID, msg.member)) {
+    msg.reply('недостаточно прав!');
+    return;
+  }
+
+  /*if(client.userLib.cooldown.has(msg.author.id)) {
+    msg.reply('используйте команду позже');
+  }*/
+
+  if(!client.userLib.cooldown.has(cmd.help.name)) {
+    client.userLib.cooldown.set(cmd.help.name, new Map() );
+  }
+
+  const now = Date.now();
+  const times = client.userLib.cooldown.get(cmd.help.name);
+  if(times.has(msg.author.id)) {
+    let timeLeft = (times.get(msg.author.id) + cmd.help.cooldown * 1000 - now) / 1000;
+    msg.reply('используйте команду позже! Вы сможете использовать команду через: ' + timeLeft + ' секунд');
+    return;
+  }
+
+  times.set(msg.author.id, now);
+  setTimeout(() => { times.delete(msg.author.id); }, cmd.help.cooldown * 1000);
+
+  try {
+    cmd.run(client, msg, args);
+  } catch (err) {
+    client.userLib.sendLog(`\nОшибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`);
   };
 
-  if (msg.content.toLowerCase().startsWith(';help')) {const cmd = client.commands.get('help'); return cmd.run(client, msg, args, client.discord);};
-
-  client.db.queryValue('SELECT prefix FROM servers WHERE id = ?', [msg.guild.id], (err, prefix) => {
-    if (!msg.content.startsWith(prefix)) return addmoney();
-    
-    const command = args[0].toLowerCase();
-    const cmd = client.commands.get(command);
-  
-    if (!cmd) return;
-
-    if(!msg.channel.memberPermissions(client.user).has('EMBED_LINKS')) return msg.reply('Хмм... Ошибочка. Вы не дали мне право на отправку ссылок (EMBED_LINKS)!\n**Не надо так!**')
-
-    let flag = cmd.help.flag, cooldown = cmd.help.cooldown;
-  
-    switch (flag){
-      case 2:
-        if (!msg.member.hasPermission('ADMINISTRATOR')) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('У тебя не достаточно прав!').setTimestamp();return msg.channel.send({embed});}
-        break;
-      case 1:
-        if (msg.guild.ownerID !== msg.author.id) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Эту команду может использовать только владелец сервера <@${msg.guild.ownerID}>!`). setTimestamp();return msg.channel.send({embed});}
-        break;
-      case 0:
-        if (client.config.owners.indexOf(msg.author.id) == -1) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Эту команду может использовать только разработчик бота!`).setTimestamp();return msg.channel.send({embed});}
-        break;
-    }
-
-    let temp = `${msg.guild.id}${msg.author.id}${cmd.help.name}`;
-
-    if (talkedcool.has(temp)) return;
-    talkedcool.add(temp);
-    setTimeout(() => {talkedcool.delete(temp);}, cooldown);
-
-    // if(!msg.channel.memberPermissions(client.user).has(permissions)) return console.log(`Ошибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`)
-
-    try {
-      cmd.run(client, msg, args, client.discord)
-    } catch (err) {
-      console.log(`\nОшибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`)
-    };
-    
-
-  });
-
 };
+
+/* 
+  flag
+  
+  -3 - Owner guild
+
+  -2 - Admin guild
+
+  -1 - Moderator guild
+
+  0 - user
+
+  1 - admin tier 0
+
+  2 - admin tier 1
+*/
