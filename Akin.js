@@ -39,6 +39,7 @@ readdir('./commands/', (error, directories) => {
             try {
               const props = require(`./commands/${module}/${file}`);
               const commandName = file.split(".")[0];
+              props.help.module = module;
 
               client.commands.set(commandName, props);
             } catch (e) { console.warn(e) };
