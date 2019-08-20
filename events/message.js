@@ -13,10 +13,9 @@ module.exports = async (client, msg) => {
 
   if(!msg.channel.memberPermissions(client.user).has('ADMINISTRATOR')) return msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
 
-  const args = msg.content.slice(prefix.length).trim().split(/ +/g);
-
-  const command = args.shift().toLowerCase();
-  const cmd = client.commands.get(command);
+  const [command, ...args] = msg.content.slice(prefix.length).trim().split(/ +/g);
+  
+  const cmd = client.commands.get(command.toLowerCase());
 
   if (!cmd) return;
 
@@ -29,13 +28,6 @@ module.exports = async (client, msg) => {
     msg.reply('недостаточно прав!');
     return;
   }
-
-  /*if(client.userLib.cooldown.has(msg.author.id)) {
-    msg.reply('используйте команду позже');
-  }*/
-
-
-
 
   if(!client.userLib.cooldown.has(cmd.help.name)) {
     client.userLib.cooldown.set(cmd.help.name, new Map() );
