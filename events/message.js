@@ -42,7 +42,7 @@ module.exports = async (client, msg) => {
   }
 
   if(cmd.help.args && !args.length) {
-    msg.reply('отсутствует аргументы!');
+    msg.reply('отсутствуют аргументы!');
     return;
   }
 
