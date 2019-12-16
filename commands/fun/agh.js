@@ -1,7 +1,7 @@
 exports.help = {
 	name: "agh",
 	description: "Перевернуть это чёртов стол!",
-	usage: "agh",
+	usage: "",
 	tier: 0,
 	cooldown: 5000
 };

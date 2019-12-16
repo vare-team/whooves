@@ -1,5 +1,13 @@
+/**
+ * Generate userLib.
+ * @module
+ * @param Discord
+ * @param client - Discord client
+ * @param con - mysql connection
+ */
 module.exports = function (Discord, client, con) {
   // con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
+
   this.admins = {
     "321705723216134154": 0,
     "532196405612380171": 1,
@@ -7,14 +15,19 @@ module.exports = function (Discord, client, con) {
     "178404926869733376": 1
   };
 
+  /**
+   * @function
+   * @param {number} tier
+   * @param {string} ownerID
+   * @param member
+   * @returns {boolean}
+   */
   this.checkPerm = (tier, ownerID, member) => {
     if (this.admins.hasOwnProperty(member.id) && this.admins[member.id] == 0) return true;
     if (this.admins.hasOwnProperty(member.id) && tier < 0 && tier > this.admins[member.id]) return true;
     if (tier == -3 && (ownerID == member.id)) return true;
     if (tier == -2 && member.hasPermission('ADMINISTRATOR')) return true;
-    if (tier == -1 && member.hasPermission('MANAGE_MESSAGES')) return true;
-
-    return false;
+    return tier == -1 && member.hasPermission('MANAGE_MESSAGES');
   };
 
   this.colors = {
@@ -27,15 +40,35 @@ module.exports = function (Discord, client, con) {
   this.owners = ["166610390581641217", "194384673672003584", "532196405612380171", "178404926869733376"];
   this.discord = Discord;
   this.db = con;
+
+  this.request = require('request');
+
   this.moment = require('moment');
   this.moment.locale("ru");
-  this.cooldown = new Map();
-  this.promise = require('./promise');
 
+  this.cooldown = new Map();
+
+  this.promise = require('../SDCBotsModules/promise');
+
+  /**
+   * @function
+   * @param {string} log
+   */
   this.sendLog = (log) => {
     const now = new Date();
     console.log(`${('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
   };
+
+  /**
+   * @function
+   * @param {number} low
+   * @param {number} high
+   * @returns {number}
+   */
+  this.randomIntInc = (low, high) => {
+    return Math.floor(Math.random() * (high - low + 1) + low)
+  };
+
 
   this.presenseCount = 0;
   this.presenseFunc = () => {
@@ -51,6 +84,24 @@ module.exports = function (Discord, client, con) {
     this.presenseCount++;
   };
 
+  /**
+   * Send Guild custom log
+   * @function
+   * @param {string} type - Type of log
+   * @param guild
+   * @param {object} data - Nedded data
+   * @param {object} data.user - User data
+   * @param {string} data.user.id - User id
+   * @param {Date} data.user.createdAt - User created data
+   * @param {object} data.channel - Channel data
+   * @param {string} data.channel.id - Channel id
+   * @param {string} data.channel.name - Channel name
+   * @param {string} data.channel.oldName - Channel name
+   * @param {string} data.channel.newName - Channel name
+   * @param {string} data.content - Message
+   * @param {string} data.oldContent - Old Message
+   * @param {string} data.newContent - New Message
+   */
   this.sendLogChannel = async (type, guild, data) => {
     let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE id = ?', [guild.id]);
     logchannel = logchannel.res;
@@ -60,7 +111,7 @@ module.exports = function (Discord, client, con) {
     if (!channel) {
       con.update('guilds', { id: guild.id, logchannel: null }, () => { });
       return;
-    };
+    }
 
     const embed = new Discord.RichEmbed().setTimestamp().setAuthor(data.user.tag, data.user.avatar).setFooter(`ID: ${data.user.id}`);
 
@@ -122,4 +173,4 @@ module.exports = function (Discord, client, con) {
 
     channel.send(embed).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
   }
-}
+};

@@ -1,23 +1,21 @@
-
 exports.help = {
     name: "randog",
     description: "Случайная картинка с собакеным",
-    usage: "randog",
+    usage: "",
     flag: 3,
     cooldown: 5000
-}
+};
 
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-
-exports.run = async(client, msg, args, Discord) => {
+exports.run = async (client, msg, args) => {
 	msg.channel.startTyping();
-	var req = new XMLHttpRequest();
-	req.open('GET','https://api.thedogapi.com/v1/images/search', false);
-	req.send();
-	var data = JSON.parse(req.responseText)[0];
-	embed = new Discord.RichEmbed()
-    .setAuthor(`Вот тебе случайный собакен 😄`)
-    .setImage(data.url);
-    msg.channel.stopTyping();
-	return msg.channel.send({embed});
-}
+	client.userLib.request('https://api.thedogapi.com/v1/images/search', {json: true}, (err, res, body) => {
+		if(err) throw err;
+
+		const embed = new client.userLib.discord.RichEmbed()
+			.setAuthor(`Вот тебе случайный собакен 😄`)
+			.setImage(body[0].url);
+
+		msg.channel.stopTyping();
+		msg.channel.send(embed);
+	});
+};

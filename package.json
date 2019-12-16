@@ -1,25 +1,27 @@
 {
-  "name": "akin",
+  "name": "whooves",
   "version": "1.0.0",
   "description": "Discord Bot",
-  "main": "Akin.js",
+  "main": "whooves.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MegaVasiliy007/akin.git"
+    "url": "git+https://github.com/MegaVasiliy007/whooves.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MegaVasiliy007/akin/issues"
+    "url": "https://github.com/MegaVasiliy007/whooves/issues"
   },
-  "homepage": "https://github.com/MegaVasiliy007/akin#readme",
+  "homepage": "https://github.com/MegaVasiliy007/whooves#readme",
   "dependencies": {
     "canvas": "^2.5.0",
+    "discord.js": "^11.5.1",
     "moment": "^2.24.0",
-    "mysql-utilities": "^1.1.0-alpha.2",
-    "mysql2": "^1.6.5",
+    "mysql-utilities": "^1.1.0-alpha.3",
+    "mysql2": "^2.0.2",
     "overwatch-js": "^1.8.0",
-    "random": "^2.1.1",
-    "request": "^2.88.0",
-    "xmlhttprequest": "^1.8.0"
+    "request": "^2.88.0"
+  },
+  "scripts": {
+    "debug": "node ."
   }
 }
