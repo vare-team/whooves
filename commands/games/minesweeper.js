@@ -1,49 +1,41 @@
-const rand = require('random')
-
 exports.help = {
-    name: "minesweeper",
-    description: "Генерирует поле игры \"Сапёр\"",
-    usage: "minesweeper [5 - 10]",
-    flag: 3,
-    cooldown: 1000
-}
+  name: "minesweeper",
+  description: "Генерирует поле игры \"Сапёр\"",
+	aliases: [],
+  usage: "[5 - 10]",
+	dm: 1,
+	args: 1,
+  tier: 0,
+  cooldown: 1
+};
 
-exports.run = (client, msg, args, Discord) => {
+//TODO сделать нормальную генерацию
 
-	let embed, pole = 0, terr = '', trans = 0, bombs = 0;
+exports.run = (client, msg, args) => {
 
-	args[1] = parseInt(args[1]);
+	let pole = +args[0];
+	if (isNaN(pole) || pole < 4 || pole > 11) {
+		let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.err).setTitle('Ошибка!').setDescription(`Ваше число вышло из допустимого диапозона!`);
+		msg.channel.send(embed);
+		return;
+	}
 
-	if (!args[1] || args[1] < 4 || args[1] > 11) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Ваше число вышло из допустимого диапозона!`); return msg.channel.send({embed})};
+	let terr = '', bombs = 0;
 
-	pole = args[1];
-
-	let calculated = pole * pole;
-
-	trans = pole;
-
-	for (var i = 1; i <= calculated; i++) {
-		switch (rand.int(0, 10)) {
-			case 10 :
-				terr += '||💣||';
-				bombs++;
-				break;
-
-			default :
-				terr += '||#⃣||';
-				break;
-		}
-		if (trans == i) {
-			trans += pole;
+	for (var i = 1, calc = pole * pole; i <= calc; i++) {
+		if (client.userLib.randomIntInc(0, 10) == 10) {
+			terr += '||💣||';
+			bombs++;
+		} else {terr += '||#⃣||';}
+		if (i % pole == 0) {
 			terr += '\n';
 		}
 	}
 
-		embed = new Discord.RichEmbed()
-	.setColor(client.config.colors.inf)
-	.setTitle(`Сапёр ${pole}x${pole}\nБомб на уровне: ${bombs}`)
-	.setDescription(terr)
+	let	embed = new client.userLib.discord.RichEmbed()
+		.setColor(client.userLib.colors.inf)
+		.setTitle(`Сапёр ${pole}x${pole}\nБомб на уровне: ${bombs}`)
+		.setDescription(terr);
 	
-	msg.channel.send({embed});
-
+	msg.channel.send(embed);
 };
