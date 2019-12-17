@@ -1,11 +1,13 @@
-
 exports.help = {
-    name: "setmoneyico",
-    description: "Задать иконку валюты на сервере",
-    usage: "setmoneyico [символ]",
-    flag: 1,
-    cooldown: 500
-}
+  name: "setmoneyico",
+  description: "Задать иконку валюты на сервере",
+	aliases: ['smi', 'setmi'],
+  usage: "[символ]",
+	dm: 0,
+	args: 1,
+  tier: -3,
+  cooldown: 15
+};
 
 let embed;
 

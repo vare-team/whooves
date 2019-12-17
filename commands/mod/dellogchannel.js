@@ -1,11 +1,13 @@
-
 exports.help = {
-    name: "dellogchannel",
-    description: "Отключить Лог-канал",
-    usage: "dellogchannel",
-    flag: 1,
-    cooldown: 30000
-}
+  name: "dellogchannel",
+  description: "Отключить Лог-канал",
+	aliases: ['dlc', 'dellc'],
+  usage: "",
+	dm: 0,
+	args: 1,
+  tier: -3,
+  cooldown: 10
+};
 
 let embed;
 

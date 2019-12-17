@@ -1,11 +1,13 @@
-
 exports.help = {
-    name: "setprefix",
-    description: "Задать префикс для бота на сервере",
-    usage: "setprefix [символ]",
-    flag: 1,
-    cooldown: 500
-}
+  name: "setprefix",
+  description: "Задать префикс для бота на сервере",
+	aliases: ['setp'],
+  usage: "[символ]",
+	dm: 0,
+	args: 1,
+  tier: -3,
+  cooldown: 15
+};
 
 let embed;
 

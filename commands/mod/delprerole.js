@@ -1,23 +1,30 @@
-
 exports.help = {
-    name: "delprerole",
-    description: "Удаляет все роли, созданные интеграцией\n**Роль AKin'а должна быть выше всех!**",
-    usage: "delprerole",
-    flag: 1,
-    cooldown: 10000
-}
+  name: "delprerole",
+  description: "Удаляет все роли, созданные интеграцией\n**Роль бота должна быть выше всех!**",
+	aliases: ['dpr', 'delpr'],
+  usage: "",
+	dm: 0,
+	args: 0,
+  tier: -3,
+  cooldown: 60,
+	hide: 1
+};
+
+//дискорд что-то у себя сломал
 
 exports.run = async (client, msg, args) => {
 
-	let count, i;
-
-	await msg.guild.roles.forEach((role)=>{if (role.managed) count += 1;});
-	await msg.guild.roles.forEach((role)=>{if (role.managed) {role.delete('Автогенерируемая роль'); i++;}});
-
-	embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Не возможно удалить роль так как не хватает прав!\n**Роль AKin'а должна быть выше всех!**`)
-  		
-	if (i == count) embed = new client.discord.RichEmbed().setColor(client.config.colors.suc).setTitle('Все роли, созданные интеграциями, были успешно удалены!')
-
-	msg.channel.send({embed});
-
+	// let count = msg.guild.roles.filter(el => el.managed).size
+	// 	, i = 0
+	// 	;
+	//
+	// for (let role of msg.guild.roles.filter(el => el.managed).array()) await role.delete('Автогенерируемая роль').then(() => i++).catch();
+	//
+	// if (i != count) {
+	// 	client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Недостаточно прав для удаления!');
+	// 	return;
+	// }
+	//
+	// let embed = new client.userLib.discord.setColor(client.userLib.colors.suc).setTitle('Успех!').setDescription('Все роли, созданные интеграциями, были успешно удалены!');
+	// msg.channel.send(embed);
 };

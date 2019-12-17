@@ -1,11 +1,13 @@
-
 exports.help = {
-    name: "mute",
-    description: "Замьютить участника",
-    usage: "mute [@кто] (кол-во мин)",
-    flag: 2,
-    cooldown: 5000
-}
+  name: "mute",
+  description: "Замьютить участника",
+	aliases: ['mt'],
+  usage: "[@кто] (кол-во мин)",
+	dm: 0,
+	args: 1,
+  tier: -1,
+  cooldown: 5000
+};
 
 let embed;
 

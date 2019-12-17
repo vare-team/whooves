@@ -1,12 +1,13 @@
-
 exports.help = {
-    name: "warn",
-    description: "Выдать предупреждение участнику",
-    usage: "warn [@кто]",
-    flag: 2,
-    cooldown: 5000   
-}
-
+  name: "warn",
+  description: "Выдать предупреждение участнику",
+	aliases: ['w'],
+  usage: "[@кто]",
+	dm: 1,
+  args: 1,
+	tier: -1,
+  cooldown: 5
+};
 
 let embed;
 

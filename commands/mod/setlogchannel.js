@@ -1,11 +1,13 @@
-
 exports.help = {
-    name: "setlogchannel",
-    description: "Задать канал для Логирования",
-    usage: "setlogchannel [#текстовый канал]",
-    flag: 1,
-    cooldown: 500
-}
+  name: "setlogchannel",
+  description: "Задать канал для Логирования",
+	aliases: ['slc', 'setlc'],
+  usage: "[#текстовый канал]",
+	dm: 1,
+	args: 1,
+  tier: -3,
+  cooldown: 5
+};
 
 let embed;
 

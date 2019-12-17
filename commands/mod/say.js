@@ -1,13 +1,16 @@
 exports.help = {
-    name: "say",
-    description: "Написать от имени бота.",
-    usage: "say [Текст]",
-	tier: 2,
+  name: "say",
+  description: "Написать от имени бота.",
+	aliases: ['s'],
+  usage: "[текст]",
+	dm: 0,
 	args: 1,
-    cooldown: 500
+	tier: -2,
+	cooldown: 5
 };
 
 exports.run = (client, msg, args) => {
 	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.inf).setDescription(args.join(" "));
 	msg.channel.send(embed);
-}; 
+	msg.delete();
+};

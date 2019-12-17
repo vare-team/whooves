@@ -1,12 +1,13 @@
-
 exports.help = {
-    name: "delwarn",
-    description: "Снять предупреждение с участника",
-    usage: "delwarn [@кто]",
-    flag: 2,
-    cooldown: 15000
+  name: "delwarn",
+  description: "Снять предупреждение с учасика",
+	aliases: ['delw', 'dw'],
+  usage: "[@кто]",
+	dm: 0,
+	args: 1,
+  tier: -1,
+  cooldown: 15
 }
-
 
 let embed;
 
