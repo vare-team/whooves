@@ -1,21 +1,22 @@
-const rand = require('random')
-
-let embed;
-
 exports.help = {
-    name: "betroll",
-    description: "Делает ставку на определенное количество валюты. Генерируется число от 0 до 100. 66 дает X2 вашей валюты, более 90-X4 и 100 X10.",
-    usage: "betroll [кол-во]",
-    flag: 3,
-    cooldown: 1000
-}
+  name: "betroll",
+  description: "Делает ставку на определенное количество валюты. Генерируется число от 0 до 100. 66 дает X2 вашей валюты, более 90-X4 и 100 X10.",
+	aliases: ['bet', 'b'],
+  usage: "[кол-во]",
+	dm: 0,
+	args: 1,
+  tier: 0,
+  cooldown: 1
+};
 
 exports.run = (client, msg, args, Discord) => {
 
-	function stablem(money, ico) {
-		money = money.toString().replace(/(\d)(?=(\d{3})+(\D|$))/g, '$1.')+' '+ico;
-		return money;
-	};
+	// function stablem(money, ico) {
+	// 	money = money.toString().replace(/(\d)(?=(\d{3})+(\D|$))/g, '$1.')+' '+ico;
+	// 	return money;
+	// };
+
+	let embed;
 
 	if (!parseInt(args[1])) return;
 
