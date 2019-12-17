@@ -1,9 +1,12 @@
 exports.help = {
 	name: "agh",
 	description: "Перевернуть это чёртов стол!",
+	aliases: [],
 	usage: "",
+	dm: 0,
+	args: 0,
 	tier: 0,
-	cooldown: 5000
+	cooldown: 5
 };
 
 const stages = [
@@ -13,10 +16,10 @@ const stages = [
 	"(°-°)                   ┻━┻"
 ];
 
-exports.run = (client, msg, args) => {
+exports.run = async (client, msg, args) => {
 	msg.delete();
-	let mess = msg.channel.send(stages[0]);
-	let value = 0;
+	let mess = await msg.channel.send(stages[0]);
+	let value = 1;
 	let interval = setInterval(() => {
 		mess.edit(stages[value]);
 		if (value == 3) { clearInterval(interval); }

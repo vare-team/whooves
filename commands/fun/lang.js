@@ -7,11 +7,14 @@ let replacer = {
 };
 
 exports.help = {
-    name: "lang",
-    description: "Перевести текст в русскую раскладку.",
-    usage: "[текст]",
-    flag: 3,
-    cooldown: 5000
+  name: "lang",
+  description: "Перевести текст в русскую раскладку.",
+  aliases: ['l'],
+  usage: "[текст]",
+  dm: 1,
+  args: 1,
+  tier: 0,
+  cooldown: 5
 };
 
 function translate(str = '') {

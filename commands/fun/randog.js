@@ -1,9 +1,12 @@
 exports.help = {
-    name: "randog",
-    description: "Случайная картинка с собакеным",
-    usage: "",
-    flag: 3,
-    cooldown: 5000
+  name: "randog",
+  description: "Случайная картинка с собакеным",
+	aliases: ['dog'],
+  usage: "",
+	dm: 0,
+	args: 0,
+  tier: 0,
+  cooldown: 5
 };
 
 exports.run = async (client, msg, args) => {
