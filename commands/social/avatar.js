@@ -1,22 +1,23 @@
-let embed;
-
 exports.help = {
-    name: "avatar",
-    description: "Получить исходный файл аватара",
-    usage: "avatar (@кто)",
-    flag: 3,
-    cooldown: 500
-}
+  name: "avatar",
+  description: "Ссылка на аватара пользователя",
+	aliases: ['a'],
+  usage: "(@кто)",
+	dm: 0,
+	args: 0,
+  tier: 0,
+  cooldown: 1
+};
 
+exports.run = (client, msg, args) => {
 
-exports.run = (client, msg, args, Discord) => {
+	let user = msg.mentions.users.first() ? msg.mentions.users.first() : msg.guild.members.get(args[0]) ? msg.guild.members.get(args[0]).user : msg.author;
 
-	if (msg.mentions.users.first()) msg.author = msg.mentions.users.first();
-
-	embed = new Discord.RichEmbed()
-		.setTitle("Аватар " + msg.author.username)
-		.setColor(client.config.colors.inf)
-		.setThumbnail(msg.author.avatarURL)
+	let embed = new client.userLib.discord.RichEmbed()
+		.setDescription("Аватар " + user)
+		.setColor(client.userLib.colors.inf)
+		.setImage(user.avatarURL + '?size=512')
 		.setTimestamp();
-	return msg.channel.send({embed});
+	if (user.avatar.startsWith('a_')) embed.setFooter('GIF');
+	msg.channel.send(embed);
 };

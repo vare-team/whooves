@@ -1,7 +1,18 @@
+exports.help = {
+	name: "profile",
+	description: "Сгенерировать профиль-карточку.",
+	aliases: ['pr'],
+	usage: "(@кто)",
+	dm: 0,
+	args: 0,
+	tier: 0,
+	cooldown: 10
+};
+
 const { registerFont, createCanvas, loadImage, Image } = require('canvas')
 const canvas = createCanvas(400, 600)
 const ctx = canvas.getContext('2d')
-registerFont('../Akin/ds_moster.ttf', { family: 'Comic Sans' })
+registerFont('./ds_moster.ttf', { family: 'Comic Sans' })
 
 const applyText = (text, x, y, fontSize, width, flag = false) => {
     do {
@@ -10,14 +21,6 @@ const applyText = (text, x, y, fontSize, width, flag = false) => {
     if (flag) x = canvas.width / 2 - (ctx.measureText(text).width / 2)
     ctx.fillText(text, x, y)
 };
-
-exports.help = {
-    name: "profile",
-    description: "Сгенерировать профиль-карточку.",
-    usage: "profile (@кто)",
-    flag: 3,
-    cooldown: 10000
-}
 
 exports.run = (client, msg, args, Discord) => {
 

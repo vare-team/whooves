@@ -1,12 +1,15 @@
-let embed;
-
 exports.help = {
-    name: "lb",
-    description: "Таблица лидеров по валюте на сервере",
-    usage: "lb",
-    flag: 3,
-    cooldown: 5000
-}
+  name: "leaderboard",
+  description: "Таблица лидеров по валюте на сервере",
+	aliases: ['lb'],
+  usage: "",
+	dm: 0,
+	args: 0,
+  tier: 0,
+  cooldown: 10
+};
+
+let embed;
 
 exports.run = (client, msg, args, Discord) => {
 

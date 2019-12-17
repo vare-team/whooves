@@ -1,12 +1,17 @@
-let embed, user;
-
 exports.help = {
-    name: "balance",
-    description: "Показать баланс",
-    usage: "balance (@кто)",
-    flag: 3,
-    cooldown: 1000
-}
+  name: "balance",
+  description: "Показать баланс",
+	aliases: ['bal'],
+  usage: "(@кто)",
+	dm: 0,
+	args: 0,
+  tier: 0,
+  cooldown: 5
+};
+
+
+
+let embed, user;
 
 exports.run = (client, msg, args, Discord) => {
 
