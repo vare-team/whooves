@@ -57,6 +57,11 @@ module.exports = function (Discord, client, con) {
 		console.log(`${now.getDay() + '.' + now.getMonth() + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
 	};
 
+	this.sendSDC = (servers, shards) => {
+		this.request.post({url: 'https://api.server-discord.com/v2/bots/'+client.user.id+'/stats', form: {servers, shards}, headers: {'Authorization':'SDC '+process.env.sdc}});
+		this.sendlog('{SDC} Send stats data');
+	};
+
 	/**
 	 * @function
 	 * @param {number} low
