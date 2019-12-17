@@ -36,8 +36,10 @@ readdir('./commands/', (error, directories) => {
           .forEach(file => {
             try {
               const props = require(`./commands/${module}/${file}`);
-              props.help.module = module;
-              client.commands.set(file.split(".")[0], props);
+              if (!props.help.hide) {
+                props.help.module = module;
+                client.commands.set(file.split(".")[0], props);
+              }
             } catch (e) { console.warn(e) }
           });
       });

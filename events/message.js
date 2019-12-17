@@ -1,7 +1,9 @@
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
+	msg.flags = {};
 
 	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.db.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id])).res || 'w.';
+	msg.flags.prefix = prefix;
 
 	if(msg.mentions.users.first() && msg.mentions.users.first().id == client.user.id) {
 		msg.reply(`Мой префикс \`\`${prefix}\`\`\nМожешь написать \`\`${prefix}help\`\` для помощи.`);
@@ -24,11 +26,11 @@ module.exports = async (client, msg) => {
 	}
 
 	if(cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier, msg.guild.ownerID, msg.member)) {
-		client.userLib.retError(msg.channel, msg.author, 'Не достаточно прав!'); return;
+		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Не достаточно прав!'); return;
 	}
 
 	if(cmd.help.args && !args.length) {
-		client.userLib.retError(msg.channel, msg.author, `Аргументы команды введены не верно!${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
+		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, `Аргументы команды введены не верно!${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
 	}
 
 	if(!client.userLib.cooldown.has(cmd.help.name)) {
@@ -41,7 +43,7 @@ module.exports = async (client, msg) => {
 		let expirationTime = times.get(msg.author.id) + cmd.help.cooldown * 1000;
 		if (now <= expirationTime) {
 			let timeLeft = (expirationTime - now) / 1000;
-			client.userLib.retError(msg.channel, msg.author, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
+			client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
 			return;
 		}
 		// else {times.delete(msg.author.id)}
@@ -54,7 +56,7 @@ module.exports = async (client, msg) => {
 		cmd.run(client, msg, args);
 	} catch (err) {
 		client.userLib.sendLog(`Ошибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`);
-		client.userLib.retError(msg.channel, msg.author, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
+		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
 	}
 
 };
