@@ -6,171 +6,193 @@
  * @param con - mysql connection
  */
 module.exports = function (Discord, client, con) {
-  // con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
+	// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
 
-  this.admins = {
-    "321705723216134154": 0,
-    "532196405612380171": 1,
-    "166610390581641217": 0,
-    "178404926869733376": 1
-  };
+	this.admins = {
+		"321705723216134154": 0,
+		"166610390581641217": 0
+	};
 
-  /**
-   * @function
-   * @param {number} tier
-   * @param {string} ownerID
-   * @param member
-   * @returns {boolean}
-   */
-  this.checkPerm = (tier, ownerID, member) => {
-    if (this.admins.hasOwnProperty(member.id) && this.admins[member.id] == 0) return true;
-    if (this.admins.hasOwnProperty(member.id) && tier < 0 && tier > this.admins[member.id]) return true;
-    if (tier == -3 && (ownerID == member.id)) return true;
-    if (tier == -2 && member.hasPermission('ADMINISTRATOR')) return true;
-    return tier == -1 && member.hasPermission('MANAGE_MESSAGES');
-  };
+	/**
+	 * @function
+	 * @param {number} tier
+	 * @param {string} ownerID
+	 * @param member
+	 * @returns {boolean}
+	 */
+	this.checkPerm = (tier, ownerID, member) => {
+		if (this.admins.hasOwnProperty(member.id) && this.admins[member.id] == 0) return true;
+		if (this.admins.hasOwnProperty(member.id) && tier < 0 && tier > this.admins[member.id]) return true;
+		if (tier == -3 && (ownerID == member.id)) return true;
+		if (tier == -2 && member.hasPermission('ADMINISTRATOR')) return true;
+		return tier == -1 && member.hasPermission('MANAGE_MESSAGES');
+	};
 
-  this.colors = {
-    err: "#F04747",
-    suc: "#43B581",
-    inf: "#3492CC",
-    war: "#FAA61A"
-  };
+	this.colors = {
+		err: "#F04747",
+		suc: "#43B581",
+		inf: "#3492CC",
+		war: "#FAA61A"
+	};
 
-  this.owners = ["166610390581641217", "194384673672003584", "532196405612380171", "178404926869733376"];
-  this.discord = Discord;
-  this.db = con;
+	this.discord = Discord;
+	this.db = con;
 
-  this.request = require('request');
+	this.request = require('request');
 
-  this.moment = require('moment');
-  this.moment.locale("ru");
+	this.moment = require('moment');
+	this.moment.locale("ru");
 
-  this.cooldown = new Map();
+	this.cooldown = new Map();
 
-  this.promise = require('../SDCBotsModules/promise');
+	this.promise = require('../SDCBotsModules/promise');
 
-  /**
-   * @function
-   * @param {string} log
-   */
-  this.sendLog = (log) => {
-    const now = new Date();
-    console.log(`${('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
-  };
+	/**
+	 * @function
+	 * @param {string} log
+	 * @param {string} type
+	 */
+	this.sendLog = (log = 'Clap one hand', type = '') => {
+		const now = new Date;
+		console.log(`${now.getDay() + '.' + now.getMonth() + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
+	};
 
-  /**
-   * @function
-   * @param {number} low
-   * @param {number} high
-   * @returns {number}
-   */
-  this.randomIntInc = (low, high) => {
-    return Math.floor(Math.random() * (high - low + 1) + low)
-  };
+	/**
+	 * @function
+	 * @param {number} low
+	 * @param {number} high
+	 * @returns {number}
+	 */
+	this.randomIntInc = (low, high) => {
+		return Math.floor(Math.random() * (high - low + 1) + low)
+	};
 
 
-  this.presenseCount = 0;
-  this.presenseFunc = () => {
-    switch (this.presenseCount) {
-      case 0:
-        client.user.setPresence({ game: { name: `a.help`, type: 'WATCHING' } });
-        break;
-      case 1:
-        client.user.setPresence({ game: { name: `серверов: ${client.guilds.size}`, type: 'WATCHING' } });
-        this.presenseCount = 0;
-        break;
-    }
-    this.presenseCount++;
-  };
+	this.presenseCount = 0;
+	this.presenseFunc = () => {
+		switch (this.presenseCount) {
+			case 0:
+				client.user.setPresence({ game: { name: `w.help`, type: 'WATCHING' } });
+				break;
+			case 1:
+				client.user.setPresence({ game: { name: `серверов: ${client.guilds.size}`, type: 'WATCHING' } });
+				break;
+			case 2:
+				client.user.setPresence({ game: { name: 'время', type: 'WATCHING' } });
+				break;
+			case 3:
+				client.user.setPresence( { game: { name: 'хуффингтон', type: 'STREAMING' } } );
+				this.presenseCount = 0;
+		}
+		this.presenseCount++;
+	};
 
-  /**
-   * Send Guild custom log
-   * @function
-   * @param {string} type - Type of log
-   * @param guild
-   * @param {object} data - Nedded data
-   * @param {object} data.user - User data
-   * @param {string} data.user.id - User id
-   * @param {Date} data.user.createdAt - User created data
-   * @param {object} data.channel - Channel data
-   * @param {string} data.channel.id - Channel id
-   * @param {string} data.channel.name - Channel name
-   * @param {string} data.channel.oldName - Channel name
-   * @param {string} data.channel.newName - Channel name
-   * @param {string} data.content - Message
-   * @param {string} data.oldContent - Old Message
-   * @param {string} data.newContent - New Message
-   */
-  this.sendLogChannel = async (type, guild, data) => {
-    let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE id = ?', [guild.id]);
-    logchannel = logchannel.res;
-    if (!logchannel) return;
-    let channel = guild.channels.get(logchannel);
+	/**
+	 * @function
+	 * @param channel
+	 * @param {Object} author
+	 * @param {string} reason
+	 */
+	this.retError = (channel, author, reason = 'Какая разница вообще?') => {
+		let embed = new Discord.RichEmbed().setColor(this.colors.err).setTitle('Ошибка!').setDescription(reason).setFooter(author.tag, author.displayAvatarURL).setTimestamp();
+		channel.send(`<@${author.id}>`, embed).then((msgErr) => msgErr.delete(10000));
+	};
 
-    if (!channel) {
-      con.update('guilds', { id: guild.id, logchannel: null }, () => { });
-      return;
-    }
+	/**
+	 * Send Guild custom log
+	 * @function
+	 * @param {string} type - Type of log
+	 * @param guild
+	 * @param {object} data - Nedded data
+   // * @param {object} data.user - User data
+   // * @param {*} data.user.id - User id
+   // * @param {Date} data.user.createdAt - User created data
+   // * @param {object} data.channel - Channel data
+   // * @param {string} data.channel.id - Channel id
+   // * @param {string} data.channel.name - Channel name
+   // * @param {string} data.channel.oldName - Channel name
+   // * @param {string} data.channel.newName - Channel name
+   // * @param {string} data.content - Message
+   // * @param {string} data.oldContent - Old Message
+   // * @param {string} data.newContent - New Message
+	 */
+	this.sendLogChannel = async (type, guild, data) => {
+		let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE id = ?', [guild.id]);
+		logchannel = logchannel.res;
+		if (!logchannel) return;
+		let channel = guild.channels.get(logchannel);
 
-    const embed = new Discord.RichEmbed().setTimestamp().setAuthor(data.user.tag, data.user.avatar).setFooter(`ID: ${data.user.id}`);
+		if (!channel) {
+			con.update('guilds', { id: guild.id, logchannel: null }, () => { });
+			return;
+		}
 
-    if (!type) return console.warn('Error! Тип не указан');
-    switch (type) {
-      case "memberAdd":
-        embed
-          .setColor(this.colors.suc)
-          .setTitle('Новый участник на сервере!')
-          .setDescription(`Аккаунт зарегистрирован **${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`);
-        break;
+		const embed = new Discord.RichEmbed().setTimestamp().setAuthor(data.user.tag, data.user.avatar).setFooter(`ID: ${data.user.id}`);
 
-      case "memberRemove":
-        embed
-          .setColor(this.colors.err)
-          .setTitle('Участник покинул сервер!');
-        break;
+		if (!type) return console.warn('Error! Тип не указан');
+		switch (type) {
+			case "memberAdd":
+				embed
+					.setColor(this.colors.suc)
+					.setTitle('Новый участник на сервере!')
+					.setDescription(`Аккаунт зарегистрирован **${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`);
+				break;
 
-      case "messageDelete":
-        embed
-          .setColor(this.colors.err)
-          .setTitle('Удалённое сообщение')
-          .setDescription(`\`\`\`${data.content.replace(/`/g, "")}\`\`\``)
-          .addField('Канал', `<#${data.channel.id}>`);
-        break;
+			case "memberRemove":
+				embed
+					.setColor(this.colors.err)
+					.setTitle('Участник покинул сервер!');
+				break;
 
-      case "messageUpdate":
-        embed
-          .setColor(this.colors.err)
-          .setTitle('Изменённое сообщение')
-          .addField('Старое сообщение', `\`\`\`${data.oldContent.replace(/`/g, "")}\`\`\``)
-          .addField('Новое сообщение', `\`\`\`${data.newContent.replace(/`/g, "")}\`\`\``)
-          .addField('Канал', `<#${data.channel.id}>`);
-        break;
+			case "messageDelete":
+				embed
+					.setColor(this.colors.err)
+					.setTitle('Удалённое сообщение')
+					.setDescription(`\`\`\`${data.content.replace(/`/g, "")}\`\`\``)
+					.addField('Канал', `<#${data.channel.id}>`);
+				break;
 
-      case "voiceStateAdd":
-        embed
-          .setColor(this.colors.suc)
-          .setTitle(`Подключился к "${data.channel.name}"`);
-        break;
+			case "messageDeleteBulk":
+				embed
+					.setColor(this.colors.inf)
+					.setTitle(`Массовое удаление сообщений`)
+					.setDescription(`Было удалено **${data.size}**`)
+					.addField('Канал', `<#${data.channel.id}>`);
+				break;
 
-      case "voiceStateRemove":
-        embed
-          .setColor(this.colors.err)
-          .setTitle(`Отключился от "${data.channel.name}"`);
-        break;
+			case "messageUpdate":
+				embed
+					.setColor(this.colors.err)
+					.setTitle('Изменённое сообщение')
+					.addField('Старое сообщение', `\`\`\`${data.oldContent.replace(/`/g, "")}\`\`\``)
+					.addField('Новое сообщение', `\`\`\`${data.newContent.replace(/`/g, "")}\`\`\``)
+					.addField('Канал', `<#${data.channel.id}>`);
+				break;
 
-      case "voiceStateUpdate":
-        embed
-          .setColor(this.colors.inf)
-          .setTitle(`Переместился из "${data.channel.oldName}" в "${data.channel.newName}"`);
-        break;
+			case "voiceStateAdd":
+				embed
+					.setColor(this.colors.suc)
+					.setTitle(`Подключился к "${data.channel.name}"`);
+				break;
 
-      default:
-        embed
-          .setTitle('unknown log!')
-          .setColor(this.colors.err);
-    }
+			case "voiceStateRemove":
+				embed
+					.setColor(this.colors.err)
+					.setTitle(`Отключился от "${data.channel.name}"`);
+				break;
 
-    channel.send(embed).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
-  }
+			case "voiceStateUpdate":
+				embed
+					.setColor(this.colors.inf)
+					.setTitle(`Переместился из "${data.channel.oldName}" в "${data.channel.newName}"`);
+				break;
+
+			default:
+				embed
+					.setTitle('unknown log!')
+					.setColor(this.colors.err);
+		}
+
+		channel.send(embed).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
+	}
 };

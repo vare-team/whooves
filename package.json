@@ -2,7 +2,7 @@
   "name": "whooves",
   "version": "1.0.0",
   "description": "Discord Bot",
-  "main": "whooves.js",
+  "main": "shard.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MegaVasiliy007/whooves.git"
