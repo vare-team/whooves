@@ -4,7 +4,7 @@ exports.help = {
     description: "",
     usage: "",
     flag: 0
-}
+};
 
 exports.run = (client, msg, args) => {
 
@@ -14,7 +14,7 @@ exports.run = (client, msg, args) => {
 	for(let i = 0; i < 12; i++) {
 	    word += alphabet[Math.round(Math.random() * (alphabet.length - 1))];
 	    if (i == 3 || i == 7) word += "-";
-	};
+	}
 
 	msg.channel.send(`Key is \`\`${word}\`\`\nKey owner \`\`${msg.author.tag}\`\``);
 

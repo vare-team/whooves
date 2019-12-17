@@ -1,11 +1,13 @@
-
 exports.help = {
-    name: "setbalance",
-    description: "Установить баланс участнику",
-    usage: "setbalance [@кто] [кол-во]",
-    flag: 1,
-    cooldown: 500
-}
+  name: "setbalance",
+  description: "Установить баланс участнику",
+	aliases: ['sb'],
+  usage: "[@кто] [кол-во]",
+	dm: 0,
+	args: 1,
+  tier: 1,
+  cooldown: 5
+};
 
 let embed;
 
@@ -18,7 +20,7 @@ exports.run = (client, msg, args, Discord) => {
 
 	if (!msg.mentions.members.first()) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Нужно указать, кому установить баланс!`).setTimestamp();return msg.channel.send({embed});}
 	
-	client.db.query(`UPDATE users SET coins = ? WHERE id = ? AND serid = ?`, [money, msg.mentions.members.first().id, msg.guild.id])
+	client.db.query(`UPDATE users SET coins = ? WHERE id = ? AND serid = ?`, [money, msg.mentions.members.first().id, msg.guild.id]);
 	embed = new Discord.RichEmbed().setColor(client.config.colors.suc).setTitle('Установка баланса').setDescription(`<@${msg.author.id}> установил <@${msg.mentions.members.first().id}> баланс **${args[2]}**`).setTimestamp();
 	msg.channel.send({embed});
 
