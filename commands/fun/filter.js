@@ -1,6 +1,5 @@
 const { registerFont, createCanvas, loadImage, Image } = require('canvas')
-const rand = require('random')
-registerFont('../akin/ds_moster.ttf', { family: 'Comic Sans' })
+registerFont('./ds_moster.ttf', { family: 'Comic Sans' })
 let attachment;
 
 function greyscale(ctx, x, y, width, height) {
@@ -76,13 +75,17 @@ function distort(ctx, amplitude, x, y, width, height, strideLevel = 4) {
 	return ctx;
 }
 
+
 exports.help = {
-    name: "filter",
-    description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
-    usage: "filter [1-7] (@кто/вложение)",
-    flag: 3,
-    cooldown: 10000
-}
+  name: "filter",
+  description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
+	aliases: ['f'],
+  usage: "[1-7] (@кто/вложение)",
+	dm: 0,
+	args: 1,
+	tier: 0,
+  cooldown: 10
+};
 
 exports.run = async (client, msg, args, Discord) => {
 
@@ -93,7 +96,7 @@ exports.run = async (client, msg, args, Discord) => {
 	if (!use && msg.author.avatarURL) use = msg.author.avatarURL;
 
 	if (msg.attachments.first()) {
-		if (!parseInt(msg.attachments.first().width)) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('Файл должен быть картинкой!').setTimestamp(); return msg.channel.send({embed});}
+		if (!parseInt(msg.attachments.first().width)) {client.userLib.retError(msg.channel, msg.author, 'Файл должен быть изображением.'); return;}
 		use = msg.attachments.first().url;}
 
 
@@ -127,7 +130,7 @@ exports.run = async (client, msg, args, Discord) => {
 		case '6':
 			contrast(ctx, 0, 0, ava.width, ava.height);
 			distort(ctx, rand.int(5, 15), 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer('image/jpeg', { quality: rand.int(0, 100) });
+			attachment = canvas.toBuffer('image/jpeg', { quality: client.userLib.randomIntInc(0, 100) });
 			break;
 		case '7':
 			let plevok = await loadImage('/home/pi/Bots/Akin/images/plevok.png');
@@ -136,7 +139,7 @@ exports.run = async (client, msg, args, Discord) => {
 			attachment = canvas.toBuffer();
 			break;
 		default:
-			embed = new client.discord.RichEmbed().setColor(client.config.colors.err ).setTitle('Ошибка!').setDescription('Не указан номер фильтра!').setTimestamp();return msg.channel.send({embed});
+			client.userLib.retError(msg.channel, msg.author, 'Не указан номер фильтра.'); return;
 	}
 
 
