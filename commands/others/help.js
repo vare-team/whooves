@@ -1,56 +1,71 @@
 exports.help = {
-    name: 'help',
-    description: 'Лист команд, позволяет узнать более подробную информацию о каждой команде.',
-    aliases: ['commands'],
-    usage: '[command name]',
-    tier: 0,
-    cooldown: 5
-}
+	name: 'help',
+	description: 'Лист команд, позволяет узнать более подробную информацию о каждой команде.',
+	aliases: ['commands', 'cm', 'h'],
+	usage: '[command name]',
+	dm: 1,
+	args: 0,
+	tier: 0,
+	cooldown: 2
+};
+
+const tiers = {
+	'-3': 'Владельцу сервера',
+	'-2': 'Администраторам сервера',
+	'-1': 'Модераторам сервера',
+	'0': 'Всем пользователям',
+	'1': 'Не важно',
+	'2': 'Царям батюшкам'
+};
 
 exports.run = async (client, msg, args) => {
-    const data = [];
-    const { commands } = msg.client;
+	function list(cat) {
+		return client.commands
+			.filter(cmd => cmd.help.module == cat)
+			.map(cmd => `\`${cmd.help.name}\``)
+			.join(", ");
+	}
 
-    function list(cat, cname) {
-        return `**__${cname}__**: ${commands
-            .filter(cmd => cmd.module == cat)
-            .map(cmd => `\`${cmd.help.name}\``)
-            .join(", ")}`;
-    }
+	if (!args.length) {
+		let embed = new client.userLib.discord.RichEmbed()
+			.setColor(client.userLib.colors.inf)
+			.setDescription(`Вы можете написать \`${msg.flags.prefix}help [command name]\` чтобы получить подробную информацию!`)
+			.setTitle(':paperclip: Список команд:')
+			.setFooter(client.user.tag, client.user.avatarURL);
 
-    if (!args.length) {
-        data.push('Категории:');
-        if (client.userLib.admins.indexOf != -1) {
-            data.push(list('dev', 'Команды разработчиков:'));
-        }
-        data.push(list('mod', 'Модерация и конфигурация:'));
-        data.push(list('social', 'Социальные:'));
-        data.push(list('games', 'Игры:'));
-        data.push(list('fun', 'fun:'));
-        data.push(list('others', 'Остальные:'));
-        data.push(`\nВы можете написать \`${prefix}help [command name]\` чтобы получить подробную информацию!`);
+		let counter = 1;
+		if (client.userLib.admins.hasOwnProperty(msg.author.id)) {
+			embed.addField(counter++ + '. Команды разработчиков', list('dev'));
+		}
+		embed.addField(counter++ + '. Развлечения', list('fun'))
+			.addField(counter++ + '. Игры', list('games'))
+			.addField(counter++ + '. Модерация и конфигурация', list('mod'))
+			.addField(counter++ + '. Социальные', list('social'))
+			.addField(counter + '. Остальные', list('others'));
 
-        let embed = new client.userLib.discord.RichEmbed()
-            .setColor(client.userLib.colors.inf)
-            .setDescription(data)
-            .setTitle('Список команд');
-        return msg.channel.send({ embed: embed, split: true }).catch(err => {
-            msg.channel.send(data, { split: true })
-        });
-    }
+		msg.channel.send({embed, split: true });
+		return;
+	}
 
 
-    const name = args[0].toLowerCase();
-    const command = commands.get(name) || commands.find(c => c.aliases && c.aliases.includes(name));
+	const name = args[0].toLowerCase();
+	const command = client.commands.get(name) || client.commands.find(c => c.help.aliases && c.help.aliases.includes(name));
 
-    if (!command) return msg.reply('Вы не указали команду!');
+	if (!command) {
+		client.userLib.retError(msg.channel, msg.author, 'Возможно, в другой временной линии эта команда и есть, но тут пока ещё не добавили.');
+		return;
+	}
 
-    let embed = new client.userLib.discord.RichEmbed().setAuthor(client.user.username, client.user.avatarURL).setColor(client.userLib.colors.inf).setTitle("Команда: " + command.help.name);
+	let embed = new client.userLib.discord.RichEmbed()
+		.setAuthor(client.user.username, client.user.avatarURL)
+		.setColor(client.userLib.colors.inf)
+		.setTitle("Команда: " + command.help.name);
 
-    if (command.help.aliases) embed.addField("Псевдонимы", command.help.aliases.join(', '));
-    if (command.help.description) embed.addField("Описание", command.help.description);
-    if (command.help.usage) embed.addField("Использование", `${prefix}${command.help.name} ${command.help.usage}`);
-    embed.addField("Временное ограничение", `${command.cooldown || 3} секунд`);
+	if (command.help.description) embed.addField("Описание", command.help.description);
+	if (command.help.aliases.length) embed.addField("Псевдонимы", command.help.aliases.join(', '));
+	if (command.help.usage) embed.addField("Использование", `${msg.flags.prefix}${command.help.name} *${command.help.usage}*`);
+	embed.addField("Доступно", tiers[command.help.tier]);
+	embed.addField("Время между использованиями", `Секунд: \`\`${command.cooldown || 3}\`\``);
 
-    msg.channel.send(embed);
+	msg.channel.send(embed);
 };
