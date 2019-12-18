@@ -1,14 +1,17 @@
 exports.help = {
   name: 'video',
 	description: 'Команда позволяет включить видеотрансляцию в определённом голосовом канале.',
+	aliases: ['vid'],
 	usage: '{необходимо быть в голосовом канале}',
-  cooldown: 5,
-  flag: 3,
+	dm: 0,
+	args: 0,
+	tier: 0,
+  cooldown: 30
 };
 
 exports.run = (client, msg) => {
 	if (!msg.member.voiceChannel) {
-		msg.author.send('Вы должны находится в голосовом канале!');
+		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Вы должны находиться в голосовом канале!');
 		return;
 	}
 

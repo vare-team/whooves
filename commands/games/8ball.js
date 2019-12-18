@@ -24,7 +24,7 @@ let answers = [
 exports.help = {
   name: "8ball",
   description: "Задайте магическому шару вопрос и он на него ответит!",
-	aliases: ['ball', 'bl'],
+	aliases: ['ball', 'bl', '8'],
   usage: "[вопрос]",
 	dm: 0,
 	args: 1,

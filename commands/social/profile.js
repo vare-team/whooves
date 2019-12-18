@@ -9,44 +9,44 @@ exports.help = {
 	cooldown: 10
 };
 
-const { registerFont, createCanvas, loadImage, Image } = require('canvas')
-const canvas = createCanvas(400, 600)
-const ctx = canvas.getContext('2d')
-registerFont('./ds_moster.ttf', { family: 'Comic Sans' })
+const { registerFont, createCanvas, loadImage, Image } = require('canvas');
+const canvas = createCanvas(400, 600);
+const ctx = canvas.getContext('2d');
+registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
 
 const applyText = (text, x, y, fontSize, width, flag = false) => {
     do {
         ctx.font = `${fontSize -= 1}px "Comic Sans"`;
     } while (ctx.measureText(text).width > width);
-    if (flag) x = canvas.width / 2 - (ctx.measureText(text).width / 2)
+    if (flag) x = canvas.width / 2 - (ctx.measureText(text).width / 2);
     ctx.fillText(text, x, y)
 };
 
-exports.run = (client, msg, args, Discord) => {
+exports.run = (client, msg, args) => {
 
-	let memb = msg.mentions.members.first()
-	let use = msg.mentions.users.first()
+	let memb = msg.mentions.members.first();
+	let use = msg.mentions.users.first();
 
 	if (!memb) {
 		memb = msg.member;
 		use = msg.author
 	}
 
-	loadImage('/home/pi/Bots/Akin/images/bg.png').then((bg) => {
+	loadImage('./images/bg.png').then((bg) => {
 		msg.channel.startTyping();
 		ctx.drawImage(bg, 0, 0);
-		applyText(use.username, 159, 193, 25, 238)
-		applyText(use.discriminator, 159, 257, 25, 238)
-		applyText(`Дело №${use.id}`, 8, 110, 26, 385, true)
+		applyText(use.username, 159, 193, 25, 238);
+		applyText(use.discriminator, 159, 257, 25, 238);
+		applyText(`Дело №${use.id}`, 8, 110, 26, 385, true);
 		let temp = 'Отрицательно';
 		if (use.bot) temp = 'Положительно';
-		applyText(moment(use.createdAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 349, 18, 385)
-		applyText(moment(memb.joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385)
-		applyText(temp, 22, 500, 18, 385)
+		applyText(client.userLib.moment(use.createdAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 349, 18, 385);
+		applyText(client.userLib.moment(memb.joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385);
+		applyText(temp, 22, 500, 18, 385);
 		if (!use.avatarURL) {const attachment = canvas.toBuffer();return msg.channel.send('Фото-карточка готова!',{ files: [{ attachment, name: `profile_${use.tag}.png` }] });}
 		loadImage(use.avatarURL).then((ava) => {
 			ctx.drawImage(ava, 20, 139, 131, 131);
-			loadImage('/home/pi/Bots/Akin/images/up.png').then((up) => {
+			loadImage('./images/up.png').then((up) => {
 				ctx.drawImage(up, 0, 0);
 				const attachment = canvas.toBuffer();
 				msg.channel.send('Фото-карточка готова!',{ files: [{ attachment, name: `profile_${use.tag}.png` }] });

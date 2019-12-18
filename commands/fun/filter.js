@@ -1,5 +1,5 @@
-const { registerFont, createCanvas, loadImage, Image } = require('canvas')
-registerFont('./ds_moster.ttf', { family: 'Comic Sans' })
+const { registerFont, createCanvas, loadImage, Image } = require('canvas');
+registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
 let attachment;
 
 function greyscale(ctx, x, y, width, height) {
@@ -87,7 +87,7 @@ exports.help = {
   cooldown: 10
 };
 
-exports.run = async (client, msg, args, Discord) => {
+exports.run = async (client, msg, args) => {
 
 	let use;
 
@@ -103,10 +103,10 @@ exports.run = async (client, msg, args, Discord) => {
 	msg.channel.startTyping();
 
 	let ava = await loadImage(use);
-	const canvas = createCanvas(ava.width, ava.height)
-	const ctx = canvas.getContext('2d')
+	const canvas = createCanvas(ava.width, ava.height);
+	const ctx = canvas.getContext('2d');
 	ctx.drawImage(ava, 0, 0, ava.width, ava.height);
-	switch (args[1]) {
+	switch (args[0]) {
 		case '1':
 			invert(ctx, 0, 0, ava.width, ava.height);
 			attachment = canvas.toBuffer();
@@ -129,11 +129,11 @@ exports.run = async (client, msg, args, Discord) => {
 			break;
 		case '6':
 			contrast(ctx, 0, 0, ava.width, ava.height);
-			distort(ctx, rand.int(5, 15), 0, 0, ava.width, ava.height);
+			distort(ctx, client.userLib.randomIntInc(1, 5), 0, 0, ava.width, ava.height);
 			attachment = canvas.toBuffer('image/jpeg', { quality: client.userLib.randomIntInc(0, 100) });
 			break;
 		case '7':
-			let plevok = await loadImage('/home/pi/Bots/Akin/images/plevok.png');
+			let plevok = await loadImage('./images/plevok.png');
 			greyscale(ctx, 0, 0, ava.width, ava.height);
 			ctx.drawImage(plevok, 0, 0, ava.width, ava.height);
 			attachment = canvas.toBuffer();
