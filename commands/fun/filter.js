@@ -23,16 +23,6 @@ function invert(ctx, x, y, width, height) {
 	ctx.putImageData(data, x, y);
 	return ctx;
 }
-function silhouette(ctx, x, y, width, height) {
-	const data = ctx.getImageData(x, y, width, height);
-	for (let i = 0; i < data.data.length; i += 4) {
-		data.data[i] = 0;
-		data.data[i + 1] = 0;
-		data.data[i + 2] = 0;
-	}
-	ctx.putImageData(data, x, y);
-	return ctx;
-}
 function sepia(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
 	for (let i = 0; i < data.data.length; i += 4) {
@@ -129,7 +119,7 @@ exports.run = async (client, msg, args) => {
 			break;
 		case '6':
 			contrast(ctx, 0, 0, ava.width, ava.height);
-			distort(ctx, client.userLib.randomIntInc(1, 5), 0, 0, ava.width, ava.height);
+			distort(ctx, client.userLib.randomIntInc(5, 15), 0, 0, ava.width, ava.height);
 			attachment = canvas.toBuffer('image/jpeg', { quality: client.userLib.randomIntInc(0, 100) });
 			break;
 		case '7':

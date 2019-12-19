@@ -12,5 +12,5 @@ exports.help = {
 const dinky = require('dinky.js');
 
 exports.run = async (client, msg, args) => {
-  msg.reply(await dinky().search().random());
+  msg.reply(await dinky().search(['explicit']).random());
 };
