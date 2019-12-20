@@ -12,5 +12,7 @@ exports.help = {
 const dinky = require('dinky.js');
 
 exports.run = async (client, msg, args) => {
-  msg.reply(await dinky().search(['explicit']).random());
+  let derpi = await dinky().search(['artist:RainY105']).random();
+  console.log(derpi);
+  msg.channel.send('Пня найдена!', {files: [{attachment: 'https:'+derpi.image, name: `pony_${derpi.id}.png`}]});
 };

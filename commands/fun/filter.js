@@ -1,6 +1,76 @@
-const { registerFont, createCanvas, loadImage, Image } = require('canvas');
-registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
-let attachment;
+exports.help = {
+  name: "filter",
+  description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
+	aliases: ['f'],
+  usage: "[1-7] (@кто/вложение)",
+	dm: 0,
+	args: 1,
+	tier: 0,
+  cooldown: 10
+};
+
+exports.run = async (client, msg, args) => {
+	if (['1','2','3','4','5','6','7'].indexOf(args[0]) == -1) {
+		client.userLib.retError(msg.channel, msg.author, 'Неправильно указан номер фильтра. Правильно: '+exports.help.usage);
+		return;
+	}
+
+	if (msg.attachments.first() && !msg.attachments.first().width) {
+		client.userLib.retError(msg.channel, msg.author, 'Файл должен быть изображением.');
+		return;
+	}
+
+	if (msg.attachments.first() && msg.attachments.first().filesize > 8*1024*1024) {
+		client.userLib.retError(msg.channel, msg.author, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
+		return;
+	}
+
+	msg.channel.startTyping();
+
+	let use = msg.mentions.users.first() || msg.author;
+	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL+'?size=512';
+
+	const ava = await client.userLib.loadImage(use)
+			, canvas = client.userLib.createCanvas(ava.width, ava.height)
+			, ctx = canvas.getContext('2d');
+	ctx.drawImage(ava, 0, 0, ava.width, ava.height);
+
+	switch (args[0]) {
+		case '1':
+			invert(ctx, 0, 0, ava.width, ava.height);
+			break;
+		case '2':
+			greyscale(ctx, 0, 0, ava.width, ava.height);
+			break;
+		case '3':
+			sepia(ctx, 0, 0, ava.width, ava.height);
+			break;
+		case '4':
+			contrast(ctx, 0, 0, ava.width, ava.height);
+			break;
+		case '5':
+			distort(ctx, 0, 0, ava.width, ava.height);
+			break;
+		case '6':
+			contrast(ctx, 0, 0, ava.width, ava.height);
+			distort(ctx, 0, 0, ava.width, ava.height, client.userLib.randomIntInc(5, 15));
+			break;
+		case '7':
+			greyscale(ctx, 0, 0, ava.width, ava.height);
+			ctx.drawImage(await client.userLib.loadImage('./images/plevok.png'), 0, 0, ava.width, ava.height);
+			break;
+	}
+
+	await msg.channel.send({
+		files: [
+			{
+				attachment: args[0] == 6 ? canvas.toBuffer('image/jpeg', {quality: client.userLib.randomIntInc(0, 100)}) : canvas.toBuffer(),
+				name: `filter.jpeg`
+			}]
+	});
+	msg.channel.stopTyping();
+};
+
 
 function greyscale(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
@@ -46,7 +116,7 @@ function contrast(ctx, x, y, width, height) {
 	ctx.putImageData(data, x, y);
 	return ctx;
 }
-function distort(ctx, amplitude, x, y, width, height, strideLevel = 4) {
+function distort(ctx, x = 0, y = 0, width = 0, height = 0, amplitude = 60, strideLevel = 4) {
 	const data = ctx.getImageData(x, y, width, height);
 	const temp = ctx.getImageData(x, y, width, height);
 	const stride = width * strideLevel;
@@ -64,76 +134,3 @@ function distort(ctx, amplitude, x, y, width, height, strideLevel = 4) {
 	ctx.putImageData(data, x, y);
 	return ctx;
 }
-
-
-exports.help = {
-  name: "filter",
-  description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
-	aliases: ['f'],
-  usage: "[1-7] (@кто/вложение)",
-	dm: 0,
-	args: 1,
-	tier: 0,
-  cooldown: 10
-};
-
-exports.run = async (client, msg, args) => {
-
-	let use;
-
-	if (msg.mentions.users.first()) use = msg.mentions.users.first().avatarURL;
-
-	if (!use && msg.author.avatarURL) use = msg.author.avatarURL;
-
-	if (msg.attachments.first()) {
-		if (!parseInt(msg.attachments.first().width)) {client.userLib.retError(msg.channel, msg.author, 'Файл должен быть изображением.'); return;}
-		use = msg.attachments.first().url;}
-
-
-	msg.channel.startTyping();
-
-	let ava = await loadImage(use);
-	const canvas = createCanvas(ava.width, ava.height);
-	const ctx = canvas.getContext('2d');
-	ctx.drawImage(ava, 0, 0, ava.width, ava.height);
-	switch (args[0]) {
-		case '1':
-			invert(ctx, 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer();
-			break;
-		case '2':
-			greyscale(ctx, 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer();
-			break;
-		case '3':
-			sepia(ctx, 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer();
-			break;
-		case '4':
-			contrast(ctx, 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer();
-			break;
-		case '5':
-			distort(ctx, 60, 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer();
-			break;
-		case '6':
-			contrast(ctx, 0, 0, ava.width, ava.height);
-			distort(ctx, client.userLib.randomIntInc(5, 15), 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer('image/jpeg', { quality: client.userLib.randomIntInc(0, 100) });
-			break;
-		case '7':
-			let plevok = await loadImage('./images/plevok.png');
-			greyscale(ctx, 0, 0, ava.width, ava.height);
-			ctx.drawImage(plevok, 0, 0, ava.width, ava.height);
-			attachment = canvas.toBuffer();
-			break;
-		default:
-			client.userLib.retError(msg.channel, msg.author, 'Не указан номер фильтра.'); return;
-	}
-
-
-	msg.channel.send({ files: [{ attachment, name: `filter.jpeg` }] });
-	msg.channel.stopTyping();
-
-}; 

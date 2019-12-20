@@ -9,12 +9,7 @@ exports.help = {
 	cooldown: 10
 };
 
-const { registerFont, createCanvas, loadImage, Image } = require('canvas');
-const canvas = createCanvas(400, 600);
-const ctx = canvas.getContext('2d');
-registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
-
-const applyText = (text, x, y, fontSize, width, flag = false) => {
+const applyText = (canvas, ctx, text = '', x = 0, y = 0, fontSize = 18, width = 0, flag = false) => {
     do {
         ctx.font = `${fontSize -= 1}px "Comic Sans"`;
     } while (ctx.measureText(text).width > width);
@@ -22,37 +17,27 @@ const applyText = (text, x, y, fontSize, width, flag = false) => {
     ctx.fillText(text, x, y)
 };
 
-exports.run = (client, msg, args) => {
+exports.run = async (client, msg, args) => {
+	msg.channel.startTyping();
 
-	let memb = msg.mentions.members.first();
-	let use = msg.mentions.users.first();
+	let use = msg.mentions.users.first() || msg.author;
 
-	if (!memb) {
-		memb = msg.member;
-		use = msg.author
+	const canvas = client.userLib.createCanvas(400, 600);
+	const ctx = canvas.getContext('2d');
+
+	ctx.drawImage(await client.userLib.loadImage('./images/bg.png'), 0, 0);
+	applyText(canvas, ctx, use.username, 159, 193, 25, 238);
+	applyText(canvas, ctx, use.discriminator, 159, 257, 25, 238);
+	applyText(canvas, ctx, `Дело №${use.id}`, 8, 110, 26, 385, true);
+	applyText(canvas, ctx, client.userLib.moment(use.createdAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 349, 18, 385);
+	applyText(canvas, ctx, client.userLib.moment(msg.guild.members.get(use.id).joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385);
+	applyText(canvas, ctx, use.bot ? 'Положительно' : 'Отрицательно', 22, 500, 18, 385);
+
+	if (use.avatarURL) {
+		ctx.drawImage(await client.userLib.loadImage(use.avatarURL), 20, 139, 131, 131);
+		ctx.drawImage(await client.userLib.loadImage('./images/up.png'), 0, 0);
 	}
 
-	loadImage('./images/bg.png').then((bg) => {
-		msg.channel.startTyping();
-		ctx.drawImage(bg, 0, 0);
-		applyText(use.username, 159, 193, 25, 238);
-		applyText(use.discriminator, 159, 257, 25, 238);
-		applyText(`Дело №${use.id}`, 8, 110, 26, 385, true);
-		let temp = 'Отрицательно';
-		if (use.bot) temp = 'Положительно';
-		applyText(client.userLib.moment(use.createdAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 349, 18, 385);
-		applyText(client.userLib.moment(memb.joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385);
-		applyText(temp, 22, 500, 18, 385);
-		if (!use.avatarURL) {const attachment = canvas.toBuffer();return msg.channel.send('Фото-карточка готова!',{ files: [{ attachment, name: `profile_${use.tag}.png` }] });}
-		loadImage(use.avatarURL).then((ava) => {
-			ctx.drawImage(ava, 20, 139, 131, 131);
-			loadImage('./images/up.png').then((up) => {
-				ctx.drawImage(up, 0, 0);
-				const attachment = canvas.toBuffer();
-				msg.channel.send('Фото-карточка готова!',{ files: [{ attachment, name: `profile_${use.tag}.png` }] });
-				msg.channel.stopTyping();
-		})
-		})
-	})
-
+	await msg.channel.send('Фото-карточка готова!', {files: [{attachment: canvas.toBuffer(), name: `profile_${use.tag}.png`}]});
+	msg.channel.stopTyping();
 }; 

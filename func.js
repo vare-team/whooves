@@ -23,15 +23,19 @@ module.exports = function (Discord, client, con) {
 
 	/**
 	 * @function
-	 * @param {string}
+	 * @param {string} str
 	 * @returns {string}
 	 */
-
 	this.translate = (str = '') => {
 		return str.replace(/[A-z/,.;?&'`~}{\]\[]/g, (x) => {
 			return x == x.toLowerCase() ? replacer[x] : replacer[x.toLowerCase()].toUpperCase();
 		});
 	};
+
+	const { registerFont, createCanvas, loadImage } = require('canvas');
+	registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
+	this.createCanvas = createCanvas;
+	this.loadImage = loadImage;
 
 	/**
 	 * @function

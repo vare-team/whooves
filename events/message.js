@@ -33,24 +33,30 @@ module.exports = async (client, msg) => {
 		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, `Аргументы команды введены не верно!${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
 	}
 
-	if(!client.userLib.cooldown.has(cmd.help.name)) {
-		client.userLib.cooldown.set(cmd.help.name, new Map);
-	}
-
-	const now = Date.now();
-	const times = client.userLib.cooldown.get(cmd.help.name);
-	if(times.has(msg.author.id)) {
-		let expirationTime = times.get(msg.author.id) + cmd.help.cooldown * 1000;
-		if (now <= expirationTime) {
-			let timeLeft = (expirationTime - now) / 1000;
-			client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
-			return;
+	if (!client.userLib.admins.hasOwnProperty(msg.author.id)) {
+		if (!client.userLib.cooldown.has(cmd.help.name)) {
+			client.userLib.cooldown.set(cmd.help.name, new Map);
 		}
-		// else {times.delete(msg.author.id)}
-	}
 
-	times.set(msg.author.id, now);
-	setTimeout(() => { times.delete(msg.author.id); }, cmd.help.cooldown * 1000);
+		const now = Date.now();
+		const times = client.userLib.cooldown.get(cmd.help.name);
+		if (times.has(msg.author.id)) {
+			let expirationTime = times.get(msg.author.id) + cmd.help.cooldown * 1000;
+			if (now <= expirationTime) {
+				let timeLeft = (expirationTime - now) / 1000;
+				client.userLib.retError(msg.channel, {
+					id: msg.author.id,
+					tag: msg.author.tag,
+					displayAvatarURL: msg.author.displayAvatarURL
+				}, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
+				return;
+			}
+			// else {times.delete(msg.author.id)}
+		}
+
+		times.set(msg.author.id, now);
+		setTimeout(() => { times.delete(msg.author.id); }, cmd.help.cooldown * 1000);
+	}
 
 	try {
 		cmd.run(client, msg, args);
