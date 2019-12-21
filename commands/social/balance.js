@@ -9,31 +9,22 @@ exports.help = {
   cooldown: 5
 };
 
+exports.run = async (client, msg, args) => {
+	let user = msg.mentions.users.first() || msg.author;
 
+	if (user.bot) {
+		client.userLib.retError(msg.channel, msg.author, 'У машин не может быть монет. Машины должны только подчиняться.');
+		return;
+	}
 
-let embed, user;
+	let coins = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue,'SELECT money FROM users WHERE userId = ?', [user.id]);
+	coins = coins.res;
 
-exports.run = (client, msg, args, Discord) => {
+	if (!coins) {
+		client.userLib.retError(msg.channel, msg.author, 'Ваш баланс пуст, так как у вас даже ещё кошелька нет!\nПопробуй написать что-нибудь в чат для начала.');
+		return;
+	}
 
-	function stablem(money, ico) {
-		money = money.toString().replace(/(\d)(?=(\d{3})+(\D|$))/g, '$1.')+' '+ico;
-		return money;
-	};
-
-
-	client.db.queryValue('SELECT moneyico FROM servers WHERE id = ?', [msg.guild.id], (err, ico) => {
-			if (!msg.mentions.users.first()) {
-				user = msg.author;
-			} else if (msg.mentions.users.first().bot) {
-				embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('У бота не может быть монет!');
-				return msg.channel.send({embed});
-			} else if (msg.mentions.users.first()) {
-				user = msg.mentions.users.first();
-			}
-		client.db.queryValue('SELECT coins FROM users WHERE id = ? AND serid = ?', [user.id, msg.guild.id], (err, coins) => {
-			embed = new Discord.RichEmbed().setColor(client.config.colors.inf).setTitle('Баланс').setDescription(`${stablem(coins, ico)}`).setFooter(user.tag);
-			msg.channel.send({embed});
-		});
-	});
-
+	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.inf).setTitle('Баланс: ' + coins).setFooter(user.tag, user.displayAvatarURL);
+	msg.channel.send(embed);
 };

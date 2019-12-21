@@ -2,29 +2,37 @@ exports.help = {
   name: "delwarn",
   description: "Снять предупреждение с учасика",
 	aliases: ['delw', 'dw'],
-  usage: "[@кто]",
+  usage: "[@кто] [id]",
 	dm: 0,
 	args: 1,
   tier: -1,
   cooldown: 15
-}
+};
 
-let embed;
+exports.run = (client, msg, args) => {
+	if (!msg.mentions.users.first()) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
 
-exports.run = (client, msg, args, Discord) => {
+	if (msg.mentions.members.first().id == msg.author.id) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
 
-	if (!msg.mentions.members.first()) return;
+	client.userLib.db.delete('warns', {warnId: args[1], userId: msg.mentions.users.first().id, guildId: msg.guild.id}, (err, affR) => {
+		if (!affR) {
+			client.userLib.retError(msg.channel, msg.author);
+			return;
+		}
 
-	if (msg.mentions.members.first().id == msg.author.id) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Администратор не может снять предупреждение с себя`).setTimestamp();return msg.channel.send({embed});}
+		let embed = new client.userLib.discord.RichEmbed()
+			.setColor(client.userLib.colors.war)
+			.setTitle(`${msg.mentions.users.first().tag} снято предупреждение!`)
+			// .setDescription(`Теперь у **** **${iswarns - 1}** предупреждений.`)
+			.setTimestamp()
+			.setFooter(msg.author.tag, msg.author.avatarURL);
 
-	client.db.queryValue('SELECT warns FROM users WHERE id = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, iswarns) => {
-		if (iswarns < 1) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`У <@${msg.mentions.members.first().id}> нет предупреждений`).setTimestamp();return msg.channel.send({embed});}
-		client.db.query(`UPDATE users SET warns = warns - ? WHERE id = ? AND serid = ?`, [1, msg.mentions.members.first().id, msg.guild.id], () => {
-
-			embed = new Discord.RichEmbed().setColor(client.config.colors.war).setTitle('Предупреждения снято!').setDescription(`Теперь у **${msg.mentions.members.first().user.tag}** **${iswarns - 1}** предупреждений.`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
-			return msg.channel.send({embed});
-
-		});
+		msg.channel.send(embed);
 	});
-
-}
+};

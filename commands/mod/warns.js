@@ -9,17 +9,18 @@ exports.help = {
   cooldown: 15
 };
 
-let embed, user;
+exports.run = async (client, msg, args) => {
 
-exports.run = (client, msg, args, Discord) => {
+	let user = msg.mentions.users.first() || msg.author;
+	let warns = await client.userLib.promise(client.userLib.db, client.userLib.db.count, 'warns', {userId: user.id, guildId: msg.guild.id});
+	warns = warns.res;
 
-	client.db.queryValue('SELECT warns FROM users WHERE id = ? AND serid = ?', [msg.author.id, msg.guild.id], (err, warns) => {
-		if (!warns) {embed = new client.discord.RichEmbed().setColor(client.config.colors.inf).setTitle('Предупреждения').setDescription(`У тебя ещё не было предупреждений`).setTimestamp();return msg .channel.send({embed});}
-		embed = new Discord.RichEmbed()
-		.setColor(client.config.colors.inf)
+	let embed = new client.userLib.discord.RichEmbed()
+		.setColor(client.userLib.colors.inf)
 		.setTitle('Предупреждения')
-		.setDescription(`У тебя **${warns}** предупреждений.`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
-		return msg.channel.send({embed});
-	});
+		.setTimestamp()
+		.setFooter(msg.author.tag, msg.author.avatarURL)
+		.setDescription(warns ? `У тебя **${warns}** предупреждений.` : `У тебя ещё не было предупреждений`);
 
+	msg.channel.send(embed);
 };

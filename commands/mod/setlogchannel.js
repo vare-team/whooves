@@ -9,18 +9,19 @@ exports.help = {
   cooldown: 5
 };
 
-let embed;
-
-exports.run = (client, msg, args, Discord) => {
+exports.run = (client, msg, args) => {
 	
-	if (!msg.mentions.channels.first()) return msg.reply('Нужно указать канал');
+	if (!msg.mentions.channels.first()) {
+		client.userLib.retError(msg.channel, msg.author, 'Нужно указать канал.');
+		return;
+	}
 
-	client.db.upsert(`servers`, {id: msg.guild.id, logchannel: msg.mentions.channels.first().id}, (err) => {
-		embed = new Discord.RichEmbed()
-		.setColor(client.config.colors.suc)
-		.setTitle('Лог канал')
-		.setDescription(`Лог канал теперь <#${msg.mentions.channels.first().id}>`)
-		.setTimestamp();
-		return msg.channel.send({embed});
+	client.userLib.db.update(`guilds`, {guildId: msg.guild.id, logchannel: msg.mentions.channels.first().id}, () => {
+		let embed = new client.userLib.discord.RichEmbed()
+			.setColor(client.userLib.colors.suc)
+			.setTitle('Лог канал')
+			.setDescription(`Лог канал теперь ${msg.mentions.channels.first()}`)
+			.setTimestamp();
+		msg.channel.send(embed);
 	})
 }; 

@@ -4,21 +4,18 @@ exports.help = {
 	aliases: ['dlc', 'dellc'],
   usage: "",
 	dm: 0,
-	args: 1,
+	args: 0,
   tier: -3,
   cooldown: 10
 };
 
-let embed;
-
-exports.run = (client, msg, args, Discord) => {
-	
-	client.db.upsert(`servers`, {id: msg.guild.id, logchannel: 0}, (err) => {
-		embed = new Discord.RichEmbed()
-		.setColor(client.config.colors.suc)
-		.setTitle('Лог канал')
-		.setDescription(`Лог канал отключён.`)
-		.setTimestamp();
-		return msg.channel.send({embed});
+exports.run = (client, msg, args) => {
+	client.userLib.db.upsert(`guilds`, {guildId: msg.guild.id, logchannel: null}, () => {
+		let embed = new client.userLib.discord.RichEmbed()
+			.setColor(client.userLib.colors.suc)
+			.setTitle('Лог канал')
+			.setDescription(`Лог канал отключён.`)
+			.setTimestamp();
+		msg.channel.send(embed);
 	})
-}; 
+};

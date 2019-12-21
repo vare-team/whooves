@@ -21,7 +21,7 @@ exports.run = (client, msg, args, Discord) => {
 	if (parseInt(args[2]) && (parseInt(args[2]) > 60 || parseInt(args[2]) < 0)) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('Нельзя выдать мут больше чем на час!').setTimestamp();return msg.channel.send({embed});}
 
 
-	client.db.queryValue('SELECT muterole FROM users WHERE id = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
+	client.db.queryValue('SELECT muterole FROM users WHERE userId = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
 
 		if (parseInt(muterole)) {embed = new Discord.RichEmbed()
 			.setColor(client.config.colors.err)
@@ -53,16 +53,16 @@ exports.run = (client, msg, args, Discord) => {
 				.setDescription(`<@${msg.mentions.members.first().id}> отправлен в мут`);
 			if (parseInt(args[2])) embed.setDescription(`<@${msg.mentions.members.first().id}> отправлен в мут на **${parseInt(args[2])}** мин.`);
 	
-			client.db.query(`UPDATE users SET muterole = ? WHERE id = ? AND serid = ?`, [role.id, msg.mentions.members.first().id, msg.guild.id], () => {
+			client.db.query(`UPDATE users SET muterole = ? WHERE userId = ? AND serid = ?`, [role.id, msg.mentions.members.first().id, msg.guild.id], () => {
 
 				if (parseInt(args[2])) {
 					setTimeout(function() {
 
-						client.db.queryValue('SELECT muterole FROM users WHERE id = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
+						client.db.queryValue('SELECT muterole FROM users WHERE userId = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
 							if (muterole == '0') return;
 							if (client.guilds.get(msg.guild.id).roles.get(muterole)) return;
 							role.delete();
-							client.db.query(`UPDATE users SET muterole = 0 WHERE id = ? AND serid = ?`, [msg.mentions.members.first().id, msg.guild.id], () => {});
+							client.db.query(`UPDATE users SET muterole = 0 WHERE userId = ? AND serid = ?`, [msg.mentions.members.first().id, msg.guild.id], () => {});
 						});
 
 					}, parseInt(args[2])*60*1000)

@@ -2,7 +2,7 @@ module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
 	msg.flags = {};
 
-	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.db.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE id = ?', [msg.guild.id])).res || 'w.';
+	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
 	msg.flags.prefix = prefix;
 
 	if(msg.mentions.users.first() && msg.mentions.users.first().id == client.user.id) {
@@ -10,7 +10,10 @@ module.exports = async (client, msg) => {
 		return;
 	}
 
-	if(!msg.content.toLowerCase().startsWith(prefix)) return;
+	if(!msg.content.toLowerCase().startsWith(prefix)) {
+		client.userLib.db.query('INSERT INTO users (userId, tag) VALUES (?, ?) ON DUPLICATE KEY UPDATE xp = xp + ?', [msg.author.id, msg.author.tag, client.userLib.randomIntInc(1,5)]);
+		return;
+	}
 
 	const [command, ...args] = msg.content.slice(prefix.length).trim().split(/ +/g);
 	const cmd = client.commands.get(command.toLowerCase()) || client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(command.toLowerCase()));

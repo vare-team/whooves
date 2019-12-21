@@ -9,15 +9,19 @@ exports.help = {
   cooldown: 15
 };
 
-let embed;
+exports.run = (client, msg, args) => {
+	if (args[0].length > 5) {
+		client.userLib.retError(msg.channel, msg.author, 'Префикс бота должен быть не более 1 символа!');
+		return;
+	}
 
-exports.run = (client, msg, args, Discord) => {
-	if (!args[1]) return;
-	if (args[1].length > 1) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Префикс бота должен быть не более 1 символа!`).setTimestamp();return msg.channel.send({embed});}
-
-	client.db.upsert(`servers`, {id: msg.guild.id, prefix: args[1]}, (err) => {
-		embed = new Discord.RichEmbed().setColor(client.config.colors.suc).setTitle('Префикс изменён!').setDescription(`Теперь префикс для вашего сервера это **${args[1]}**`).setTimestamp();
-		msg.channel.send({embed});
-	})
-
+	client.userLib.db.update(`guilds`, {guildId: msg.guild.id, prefix: args[0]}, () => {
+		let embed = new client.userLib.discord.RichEmbed()
+			.setColor(client.userLib.colors.suc)
+			.setTitle('Префикс изменён!')
+			.setDescription(`Теперь префикс для вашего сервера это **${args[0]}**`)
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL)
+			.setTimestamp();
+		msg.channel.send(embed);
+	});
 };

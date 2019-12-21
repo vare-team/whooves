@@ -7,7 +7,7 @@ manager.spawn();
 
 manager.on('launch', (shard) => {
 	let launchNow = new Date();
-	console.log(`${('00' + launchNow.getHours()).slice(-2) + ':' + ('00' + launchNow.getMinutes()).slice(-2) + ':' + ('00' + launchNow.getSeconds()).slice(-2)} | Launched shard ${shard.id}`)
+	console.log(`${('00' + launchNow.getHours()).slice(-2) + ':' + ('00' + launchNow.getMinutes()).slice(-2) + ':' + ('00' + launchNow.getSeconds()).slice(-2)} | Launched shard ${shard.id}`);
 });
 
 // manager.on('message', (shard, message) => {

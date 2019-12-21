@@ -9,15 +9,12 @@ exports.help = {
   cooldown: 5
 };
 
-//TODO переписать сайт и основной сервер
-
 const { uptime } = require('os');
 const { version } = require("discord.js");
 
 exports.run = (client, msg, args) => {
 
-		// client.db.queryValue('SELECT logchannel FROM servers WHERE id = ?', [msg.guild.id], (err, logchannel) => {
-	let logchannel = 0;
+		client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE guildId = ?', [msg.guild.id], (err, logchannel) => {
 			let embed = new client.userLib.discord.RichEmbed()
 			.setAuthor(client.user.username + " - информация о боте", client.user.displayAvatarURL, 'https://akin.server-discord.com')
 			.setColor(client.userLib.colors.inf)
@@ -35,11 +32,11 @@ exports.run = (client, msg, args) => {
 			.addField("Команда помощи", `**w.help**`, true)
 			.addField("Префикс", `**w.**`, true);
 			if (msg.flags.prefix != 'w.') embed.addField("Префикс сервера", `**${msg.flags.prefix}**`, true);
-			if (logchannel != 0) embed.addField("Канал логирования", `**<#${logchannel}>**`, true);
+			if (logchannel) embed.addField("Канал логирования", `**<#${logchannel}>**`, true);
 			// embed.addField("Ссылки", `[Сайт](https://akin.server-discord.com)\n[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Главный сервер](https://discord.gg/ZF3CKa3)`, true);
 			embed.addField("Ссылки", `[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)`, true);
 
 			msg.channel.send(embed);
-		// });
+		});
 
 };

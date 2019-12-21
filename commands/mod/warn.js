@@ -2,35 +2,41 @@ exports.help = {
   name: "warn",
   description: "Выдать предупреждение участнику",
 	aliases: ['w'],
-  usage: "[@кто]",
+  usage: "[@кто] [за что]",
 	dm: 1,
   args: 1,
 	tier: -1,
   cooldown: 5
 };
 
-let embed;
-
-exports.run = (client, msg, args, Discord, link) => {
-
-	if (!link) {
-		if (!msg.mentions.members.first()) return;
-		if (msg.mentions.members.first().id == msg.author.id) {embed = new client.discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription(`Администратор не может выдать предупреждение себе`).setTimestamp();return msg.channel.send({embed});}
-
-		client.db.query(`UPDATE users SET warns = warns + ? WHERE id = ? AND serid = ?`, [1, msg.mentions.members.first().id, msg.guild.id], () => {
-			client.db.queryValue('SELECT warns FROM users WHERE id = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, warns) => {
-				embed = new Discord.RichEmbed().setColor(client.config.colors.war).setTitle('Предупреждение выдано!').	setDescription(`Теперь у **${msg.mentions.members.first().user.tag}** **${warns}** предупреждений.`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
-				return msg.channel.send({embed});
-			});
-		});
-
-	} else {
-		msg.delete();
-		client.db.query(`UPDATE users SET warns = warns + ? WHERE id = ? AND serid = ?`, [1, msg.author.id, msg.guild.id], () => {
-			client.db.queryValue('SELECT warns FROM users WHERE id = ? AND serid = ?', [msg.author.id, msg.guild.id], (err, warns) => {
-				embed = new Discord.RichEmbed().setColor(client.config.colors.war).setTitle('Предупреждение выдано!').	setDescription(`Теперь у **${msg.author.tag}** **${warns}** предупреждений.`).addField('Причина', 'В сообщении обнаружена ссылка').setTimestamp();
-				return msg.channel.send({embed}).then(msg => {msg.delete(15000);})
-			});
-		});
+exports.run = async (client, msg, args) => {
+	if (!msg.mentions.users.first()) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
 	}
-}
+
+	if (msg.mentions.members.first().id == msg.author.id) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
+
+	client.userLib.db.insert('warns', {
+		userId: msg.mentions.users.first().id,
+		guildId: msg.guild.id,
+		who: msg.author.id,
+		reason: args.slice(1).join(' ')
+	}, () => {});
+
+	// let warns = await client.userLib.promise(client.userLib.db, client.userLib.db.count, 'warns', {userId: msg.mentions.users.first().id, guildId: msg.guild.id});
+	// console.log(warns);
+	// warns = warns.res;
+
+	let embed = new client.userLib.discord.RichEmbed()
+		.setColor(client.userLib.colors.war)
+		.setTitle(`${msg.mentions.users.first().tag} выдано предупреждение!`)
+		// .setDescription(`Теперь у **** **${warns}** предупреждений.`)
+		.setTimestamp()
+		.setFooter(msg.author.tag, msg.author.avatarURL);
+
+	msg.channel.send(embed);
+};

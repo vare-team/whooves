@@ -33,7 +33,7 @@ module.exports = function (Discord, client, con) {
 	};
 
 	const { registerFont, createCanvas, loadImage } = require('canvas');
-	registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
+	// registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
 	this.createCanvas = createCanvas;
 	this.loadImage = loadImage;
 
@@ -81,9 +81,14 @@ module.exports = function (Discord, client, con) {
 		console.log(`${now.getDay() + '.' + now.getMonth() + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
 	};
 
+	/**
+	 * @function
+	 * @param {number} servers
+	 * @param {number} shards
+	 */
 	this.sendSDC = (servers, shards) => {
 		this.request.post({url: 'https://api.server-discord.com/v2/bots/'+client.user.id+'/stats', form: {servers, shards}, headers: {'Authorization':'SDC '+process.env.sdc}});
-		this.sendlog('{SDC} Send stats data');
+		this.sendLog('{SDC} Send stats data');
 	};
 
 	/**
