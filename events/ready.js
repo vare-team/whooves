@@ -1,4 +1,6 @@
 module.exports = (client) => {
-  setInterval(client.userLib.presenseFunc, 30000);
+  client.userLib.sc.registerTask({code: 'presense', execute: client.userLib.presenseFunc});
+  client.userLib.sc.registerTask({code: 'unCooldown', execute: (times, id) => times.delete(id)});
+  client.userLib.presenseFunc();
   client.userLib.sendLog(`Whooves is ready!`);
 };

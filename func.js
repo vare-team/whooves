@@ -1,3 +1,5 @@
+const schedule = require('../SDCBotsModules/schedule');
+
 /**
  * Generate userLib.
  * @module
@@ -52,6 +54,16 @@ module.exports = function (Discord, client, con) {
 		return tier == -1 && member.hasPermission('MANAGE_MESSAGES');
 	};
 
+	/**
+	 * @function
+	 * @param {string} log
+	 * @param {string} type
+	 */
+	this.sendLog = (log = 'Clap one hand', type = '') => {
+		const now = new Date;
+		console.log(`${now.getDay() + '.' + now.getMonth() + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
+	};
+
 	this.colors = {
 		err: "#F04747",
 		suc: "#43B581",
@@ -70,16 +82,7 @@ module.exports = function (Discord, client, con) {
 	this.cooldown = new Map();
 
 	this.promise = require('../SDCBotsModules/promise');
-
-	/**
-	 * @function
-	 * @param {string} log
-	 * @param {string} type
-	 */
-	this.sendLog = (log = 'Clap one hand', type = '') => {
-		const now = new Date;
-		console.log(`${now.getDay() + '.' + now.getMonth() + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
-	};
+	this.sc = new schedule(this.sendLog);
 
 	/**
 	 * @function
@@ -101,7 +104,6 @@ module.exports = function (Discord, client, con) {
 		return Math.floor(Math.random() * (high - low + 1) + low)
 	};
 
-
 	this.presenseCount = 0;
 	this.presenseFunc = () => {
 		switch (this.presenseCount) {
@@ -119,6 +121,7 @@ module.exports = function (Discord, client, con) {
 				this.presenseCount = 0;
 		}
 		this.presenseCount++;
+		this.sc.pushTask({code: 'presense', time: 30000});
 	};
 
 	/**

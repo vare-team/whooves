@@ -54,11 +54,11 @@ module.exports = async (client, msg) => {
 				}, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
 				return;
 			}
-			// else {times.delete(msg.author.id)}
 		}
 
 		times.set(msg.author.id, now);
-		setTimeout(() => { times.delete(msg.author.id); }, cmd.help.cooldown * 1000);
+
+		client.userLib.sc.pushTask({code: 'unCooldown', time: cmd.help.cooldown * 1000, params: [times, msg.author.id]});
 	}
 
 	try {
