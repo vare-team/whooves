@@ -11,11 +11,11 @@ exports.run = (client, msg, args) => {
 
 	let temp = '```\n';
 	for (let i of client.guilds.array()) {
-		if ((temp+i.name+' (ID: '+i.id+')\n```').length >= 2000) {
+		if ((temp+`${i.name} - ${i.memberCount} (ID: ${i.id})\n\`\`\``).length >= 2000) {
 			msg.channel.send(temp+'```');
 			temp = '```\n';
 		}
-		temp += i.name+' (ID: '+i.id+')\n';
+		temp += `${i.name} - ${i.memberCount} (ID: ${i.id})\n`;
 	}
 	if (temp.length) msg.channel.send(temp+'```');
 

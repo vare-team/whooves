@@ -15,7 +15,7 @@ exports.run = (client, msg, args) => {
 		return;
 	}
 
-	client.userLib.db.update(`guilds`, {guildId: msg.guild.id, prefix: args[0]}, () => {
+	client.userLib.db.update(`guilds`, {guildId: msg.guild.id, prefix: args[0] == 'w.' ? null : args[0]}, () => {
 		let embed = new client.userLib.discord.RichEmbed()
 			.setColor(client.userLib.colors.suc)
 			.setTitle('Префикс изменён!')

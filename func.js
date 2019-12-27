@@ -104,9 +104,9 @@ module.exports = function (Discord, client, con) {
 		return Math.floor(Math.random() * (high - low + 1) + low)
 	};
 
-	this.presenseCount = 0;
-	this.presenseFunc = () => {
-		switch (this.presenseCount) {
+	this.presenceCount = 0;
+	this.presenceFunc = () => {
+		switch (this.presenceCount) {
 			case 0:
 				client.user.setPresence({ game: { name: `w.help`, type: 'WATCHING' } });
 				break;
@@ -118,10 +118,10 @@ module.exports = function (Discord, client, con) {
 				break;
 			case 3:
 				client.user.setPresence( { game: { name: 'хуффингтон', type: 'STREAMING' } } );
-				this.presenseCount = 0;
+				this.presenceCount = 0;
 		}
-		this.presenseCount++;
-		this.sc.pushTask({code: 'presense', time: 30000});
+		this.presenceCount++;
+		this.sc.pushTask({code: 'presence', time: 30000});
 	};
 
 	/**
