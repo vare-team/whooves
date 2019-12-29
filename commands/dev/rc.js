@@ -1,33 +1,31 @@
 exports.help = {
 	name: "rc",
-	description: "",
-	usage: "",
-	flag: 0,
+	description: "Перезагрузка команды",
+	aliases: [],
+	usage: "[название команды]",
+	dm: 1,
+	args: 1,
+	tier: 1,
 	cooldown: 0
 };
 
-//TODO сделать перезагрузку категорией и подгрузка команд без перезагрузки бота
-
 exports.run = (client, msg, args) => {
+	const cmd = client.commands.get(args[0].toLowerCase()) || client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(args[0].toLowerCase()));
 
-	const commandName = args[0].toLowerCase();
-
-	if (!client.commands.has(commandName)) {
+	if (!cmd) {
 		client.userLib.retError(msg.channel, msg.author, 'Команды не существует!');
 		return;
 	}
 
-	const commandModule = client.commands.get(commandName).help.module;
+	delete require.cache[require.resolve(`../${cmd.help.module}/${cmd.help.name}.js`)];
+	client.commands.delete(cmd.help.name);
 
-	delete require.cache[require.resolve(`../${commandModule}/${commandName}.js`)];
-	client.commands.delete(commandName);
-
-	const command = require(`../${commandModule}/${commandName}.js`);
-	command.help.module = commandModule;
-	client.commands.set(commandName, command);
+	const command = require(`../${cmd.help.module}/${cmd.help.name}.js`);
+	command.help.module = cmd.help.module;
+	client.commands.set(cmd.help.name, command);
 
 	const notifyEmbed = new client.userLib.discord.RichEmbed()
-		.setDescription(`Команда ${commandName} обновлена.`)
+		.setDescription(`Команда ${cmd.help.name} обновлена.`)
 		.setColor(client.userLib.colors.suc);
 
 	msg.channel.send(notifyEmbed);

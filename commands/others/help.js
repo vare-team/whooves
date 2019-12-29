@@ -1,7 +1,7 @@
 exports.help = {
 	name: 'help',
 	description: 'Лист команд, позволяет узнать более подробную информацию о каждой команде.',
-	aliases: ['commands', 'cm', 'h'],
+	aliases: ['commands', 'h'],
 	usage: '[command name]',
 	dm: 1,
 	args: 0,
@@ -9,16 +9,25 @@ exports.help = {
 	cooldown: 2
 };
 
-const tiers = {
+const { readdirSync, lstatSync } = require("fs"),
+tiers = {
 	'-3': 'Владельцу сервера',
 	'-2': 'Администраторам сервера',
 	'-1': 'Модераторам сервера',
 	'0': 'Всем пользователям',
 	'1': 'Не важно',
 	'2': 'Царям батюшкам'
+},
+modules = {
+	dev: 'Команды разработчиков',
+	fun: 'Развлечения',
+	games: 'Игры',
+	mod: 'Модерация и конфигурация',
+	social: 'Социальные',
+	others: 'Остальные'
 };
 
-exports.run = async (client, msg, args) => {
+exports.run = (client, msg, args) => {
 	function list(cat) {
 		return client.commands
 			.filter(cmd => cmd.help.module == cat)
@@ -33,15 +42,11 @@ exports.run = async (client, msg, args) => {
 			.setTitle(':paperclip: Список команд:')
 			.setFooter(client.user.tag, client.user.avatarURL);
 
-		let counter = 1;
-		if (client.userLib.admins.hasOwnProperty(msg.author.id)) {
-			embed.addField(counter++ + '. Команды разработчиков', list('dev'));
-		}
-		embed.addField(counter++ + '. Развлечения', list('fun'))
-			.addField(counter++ + '. Игры', list('games'))
-			.addField(counter++ + '. Модерация и конфигурация', list('mod'))
-			.addField(counter++ + '. Социальные', list('social'))
-			.addField(counter + '. Остальные', list('others'));
+		readdirSync('./commands/').filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
+			.forEach((el, index) => {
+			if (el == 'dev' && !client.userLib.admins.hasOwnProperty(msg.author.id)) return;
+			embed.addField( `${index + (client.userLib.admins.hasOwnProperty(msg.author.id) ? 1 : 0)}. ${modules[el] ? modules[el] : el}`, list(el));
+		});
 
 		msg.channel.send({embed, split: true });
 		return;

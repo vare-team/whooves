@@ -9,16 +9,19 @@ exports.help = {
   cooldown: 5
 };
 
-//TODO модификация под больше 100 сообщений
+exports.run = async (client, msg, args) => {
+	if (isNaN(+args[0])) {
+		client.userLib.retError(msg.channel, msg.author, 'Аргумент должен быть числом.');
+		return;
+	}
 
-exports.run = (client, msg, args) => {
-	if (isNaN(+args[0])) {client.userLib.retError(msg.channel, msg.author, 'Аргумент должен быть числом.'); return;}
-	msg.channel.bulkDelete(+args[0] > 100 ? 100 : +args[0], true).then(dmsg => {
-		let embed = new client.userLib.discord.RichEmbed()
-			.setColor(client.userLib.colors.suc)
-			.setTitle('Удаление сообщений')
-			.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
-			.setTimestamp();
-		msg.channel.send(embed).then(msg => msg.delete(10000));
-	});
+	let dmsg = await msg.channel.bulkDelete(+args[0] > 100 ? 100 : +args[0], true);
+
+	let embed = new client.userLib.discord.RichEmbed()
+		.setColor(client.userLib.colors.suc)
+		.setTitle('Удаление сообщений')
+		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
+		.setTimestamp();
+
+	msg.channel.send(embed).then(msgs => msgs.delete(10000));
 };

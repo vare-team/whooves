@@ -1,41 +1,41 @@
 exports.help = {
   name: "minesweeper",
   description: "Генерирует поле игры \"Сапёр\"",
-	aliases: [],
-  usage: "[5 - 10]",
+	aliases: ['ms'],
+  usage: "[кол-во строк] [кол-во столбцов] [кол-во мин]",
 	dm: 1,
-	args: 1,
+	args: 0,
   tier: 0,
   cooldown: 1
 };
 
-//TODO сделать нормальную генерацию
+const Minesweeper = require('discord.js-minesweeper');
 
 exports.run = (client, msg, args) => {
 
-	let pole = +args[0];
-	if (isNaN(pole) || pole < 4 || pole > 11) {
-		let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.err).setTitle('Ошибка!').setDescription(`Ваше число вышло из допустимого диапозона!`);
-		msg.channel.send(embed);
+	if (args[0] && isNaN(+args[0]) || args[1] && isNaN(+args[1]) || args[2] && isNaN(+args[2])) {
+		client.userLib.retError(msg.channel, msg.author, 'Всё должно быть числами.');
 		return;
 	}
 
-	let terr = '', bombs = 0;
+	const minesweeper = new Minesweeper({
+		rows: args[0],
+		columns: args[1],
+		mines: args[2],
+		returnType: 'emoji',
+	});
 
-	for (var i = 1, calc = pole * pole; i <= calc; i++) {
-		if (client.userLib.randomIntInc(0, 10) == 10) {
-			terr += '||💣||';
-			bombs++;
-		} else {terr += '||#⃣||';}
-		if (i % pole == 0) {
-			terr += '\n';
-		}
+	let pole = minesweeper.start();
+
+	if (!pole) {
+		client.userLib.retError(msg.channel, msg.author, 'Ошибка генерации. Не правильные параметры.');
+		return;
 	}
 
 	let	embed = new client.userLib.discord.RichEmbed()
 		.setColor(client.userLib.colors.inf)
-		.setTitle(`Сапёр ${pole}x${pole}\nБомб на уровне: ${bombs}`)
-		.setDescription(terr);
+		.setTitle(`Сапёр ${minesweeper.rows}x${minesweeper.columns}\nБомб на уровне: ${minesweeper.mines}`)
+		.setDescription(pole);
 	
 	msg.channel.send(embed);
 };

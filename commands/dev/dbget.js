@@ -1,9 +1,12 @@
-
 exports.help = {
-    name: "dbget",
-    description: "",
-    usage: "",
-    flag: 0
+	name: "dbget",
+	description: "Генерация рандомной последовательности 12 символов",
+	aliases: [],
+	usage: "",
+	dm: 1,
+	args: 0,
+	tier: 1,
+	cooldown: 0
 };
 
 exports.run = (client, msg, args) => {

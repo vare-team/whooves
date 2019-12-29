@@ -16,9 +16,10 @@
     "canvas": "^2.5.0",
     "dinky.js": "^0.8.1",
     "discord.js": "^11.5.1",
+    "discord.js-minesweeper": "^1.0.5",
     "moment": "^2.24.0",
     "mysql-utilities": "^1.1.0-alpha.3",
-    "mysql2": "^2.0.2",
+    "mysql2": "^2.1.0",
     "overwatch-js": "^1.8.0",
     "request": "^2.88.0"
   },
