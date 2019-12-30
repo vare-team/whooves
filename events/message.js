@@ -33,7 +33,16 @@ module.exports = async (client, msg) => {
 	}
 
 	if(cmd.help.args && !args.length) {
-		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, `Аргументы команды введены не верно!${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
+		client.userLib.retError(msg.channel, msg.author, `Аргументы команды введены не верно!${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
+	}
+
+	if (cmd.help.mention && !msg.mentions.users.first()) {
+		client.userLib.retError(msg.channel, msg.author, `Введённая вами команда требует упоминания.${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
+	}
+
+	if (cmd.help.mention && msg.mentions.users.first().id == msg.author.id) {
+		client.userLib.retError(msg.channel, msg.author, 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.');
+		return;
 	}
 
 	if (!client.userLib.admins.hasOwnProperty(msg.author.id)) {

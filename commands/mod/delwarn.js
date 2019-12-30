@@ -5,31 +5,25 @@ exports.help = {
   usage: "[@кто] [id]",
 	dm: 0,
 	args: 1,
+	mention: 1,
   tier: -1,
   cooldown: 15
 };
 
 exports.run = (client, msg, args) => {
-	if (!msg.mentions.users.first()) {
-		client.userLib.retError(msg.channel, msg.author);
-		return;
-	}
-
-	if (msg.mentions.members.first().id == msg.author.id) {
-		client.userLib.retError(msg.channel, msg.author);
-		return;
-	}
 
 	client.userLib.db.delete('warns', {warnId: args[1], userId: msg.mentions.users.first().id, guildId: msg.guild.id}, (err, affR) => {
 		if (!affR) {
-			client.userLib.retError(msg.channel, msg.author);
+			client.userLib.retError(msg.channel, msg.author, 'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.');
 			return;
 		}
 
+		if (affR > 1) client.userLib.sendLog('Пизда! Удаление варнов сломалось!');
+
 		let embed = new client.userLib.discord.RichEmbed()
 			.setColor(client.userLib.colors.war)
-			.setTitle(`${msg.mentions.users.first().tag} снято предупреждение!`)
-			// .setDescription(`Теперь у **** **${iswarns - 1}** предупреждений.`)
+			.setTitle(`Снятие предупреждения.`)
+			.setDescription(`Предупреждение *${args[1]}* снято с пользователя ${msg.mentions.users.first()}.`)
 			.setTimestamp()
 			.setFooter(msg.author.tag, msg.author.avatarURL);
 
