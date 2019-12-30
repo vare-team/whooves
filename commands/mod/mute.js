@@ -36,7 +36,7 @@ exports.run = async (client, msg, args) => {
 	msg.mentions.members.first().addRole(role, 'Выдача мута!');
 	let now = new Date;
 	now.setMinutes(now.getMinutes() + +args[1]);
-	client.userLib.db.insert('mutes', {userId: msg.mentions.users.first().id, guildId: msg.guild.id, time: now}, () => {});
+	client.userLib.db.upsert('mutes', {userId: msg.mentions.users.first().id, guildId: msg.guild.id, time: now}, () => {});
 	client.userLib.sc.pushTask({code: 'unMute', params: [role.id, msg.mentions.members.first()], time: now, timeAbsolute: true});
 
 	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`Мут ${msg.mentions.users.first()} выдан!\nКоличество минут до снятия: ${args[1]}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);

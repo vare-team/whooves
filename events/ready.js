@@ -5,7 +5,7 @@ module.exports = (client) => {
 
 	client.userLib.presenceFunc();
 
-	client.userLib.db.query('SELECT guildId, userId, time, mutedRole FROM mutes LEFT JOIN guilds using(guildId) WHERE time 25> now()', (err, fields) => {
+	client.userLib.db.query('SELECT guildId, userId, time, mutedRole FROM mutes LEFT JOIN guilds using(guildId) WHERE time > now()', (err, fields) => {
 		for (let field of fields) {
 			client.userLib.sc.pushTask({code: 'unMute', params: [field.mutedRole, client.guilds.get(field.guildId).members.get(field.userId)], time: field.time, timeAbsolute: true});
 		}
