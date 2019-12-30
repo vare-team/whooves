@@ -9,69 +9,44 @@ exports.help = {
   cooldown: 5000
 };
 
-let embed;
+exports.run = async (client, msg, args) => {
+	if (!msg.mentions.users.first()) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
 
-exports.run = (client, msg, args, Discord) => {
-	
-	if (!msg.mentions.members.first()) return;
+	if (msg.mentions.members.first().id == msg.author.id) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
 
-	if (msg.author.id == msg.mentions.members.first().id) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('Администратор не может замутить сам себя!').setTimestamp();return msg.channel.send({embed});}
+	if (isNaN(+args[1])) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
 
+	let mutedRole = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT mutedRole FROM guilds WHERE guildId = ?', [msg.guild.id]);
+	mutedRole = mutedRole.res;
 
-	if (parseInt(args[2]) && (parseInt(args[2]) > 60 || parseInt(args[2]) < 0)) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('Нельзя выдать мут больше чем на час!').setTimestamp();return msg.channel.send({embed});}
+	let role = msg.guild.roles.get(mutedRole);
 
+	if (!role) {
+		let msgs = await msg.channel.send('Настраиваю роль. Ожидайте.');
+		role = await msg.guild.createRole({name: 'MutedWhooves', color: 'GREY', permissions: 0}, 'Создание мут роли для Хувза.');
+		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'category').array()) await ch.overwritePermissions(role, {VIEW_CHANNEL: false});
+		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'text' && ch.parent && !ch.permissionOverwrites.has(role.id)).array()) await ch.overwritePermissions(role, {READ_MESSAGES: false});
+		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'voice' && ch.parent && !ch.permissionOverwrites.has(role.id)).array()) await ch.overwritePermissions(role, {CONNECT: false});
+		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'text' && !ch.parent).array()) await ch.overwritePermissions(role, {READ_MESSAGES: false});
+		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'voice' && !ch.parent).array()) await ch.overwritePermissions(role, {CONNECT: false});
+		client.userLib.db.update('guilds', {guildId: msg.guild.id, mutedRole: role.id}, () => {});
+		msgs.edit('Настройка завершена. Выдаю мут.').then(ms => ms.delete(3000));
+	}
 
-	client.db.queryValue('SELECT muterole FROM users WHERE userId = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
+	msg.mentions.members.first().addRole(role, 'Выдача мута!');
+	client.userLib.sc.pushTask({code: 'unMute', params: [role.id, msg.mentions.members.first(), msg.guild], time: args[1] * 60 * 1000});
 
-		if (parseInt(muterole)) {embed = new Discord.RichEmbed()
-			.setColor(client.config.colors.err)
-			.setTitle('Ошибка!')
-			.setDescription(`У <@${msg.mentions.members.first().id}> уже есть мут`)
-			.setTimestamp();
-			console.log(`Suka is "${muterole}"`)
-			return msg.channel.send({embed});}
+	//TODO база?
 
-		msg.delete();
-	
-		msg.guild.createRole({
-			name: `Mute ${msg.mentions.members.first().user.username}`
-		}).then(role => {
-	
-			msg.member.guild.channels.filter(channel => channel.type == 'text').forEach(channel => channel.overwritePermissions(role, {
-				SEND_MESSAGES: false
-			}))
-	
-			msg.member.guild.channels.filter(channel => channel.type == 'voice').forEach(channel => channel.overwritePermissions(role, {
-				SPEAK: false
-			}))
-	
-			msg.mentions.members.first().addRole(role);
-			
-			embed = new Discord.RichEmbed()
-				.setColor(client.config.colors.suc)
-				.setTitle('Участнику выдан мут!')
-				.setDescription(`<@${msg.mentions.members.first().id}> отправлен в мут`);
-			if (parseInt(args[2])) embed.setDescription(`<@${msg.mentions.members.first().id}> отправлен в мут на **${parseInt(args[2])}** мин.`);
-	
-			client.db.query(`UPDATE users SET muterole = ? WHERE userId = ? AND serid = ?`, [role.id, msg.mentions.members.first().id, msg.guild.id], () => {
+	msg.reply('мут выдан!');
 
-				if (parseInt(args[2])) {
-					setTimeout(function() {
-
-						client.db.queryValue('SELECT muterole FROM users WHERE userId = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
-							if (muterole == '0') return;
-							if (client.guilds.get(msg.guild.id).roles.get(muterole)) return;
-							role.delete();
-							client.db.query(`UPDATE users SET muterole = 0 WHERE userId = ? AND serid = ?`, [msg.mentions.members.first().id, msg.guild.id], () => {});
-						});
-
-					}, parseInt(args[2])*60*1000)
-				}
-				embed.setTimestamp();
-				return msg.channel.send({embed}).then(msg => msg.delete(5000));
-
-			});
-		});
-	});
-
-}
+};

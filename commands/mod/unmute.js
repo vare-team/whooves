@@ -9,25 +9,19 @@ exports.help = {
   cooldown: 5
 };
 
-let embed;
+exports.run = async (client, msg, args) => {
+	if (!msg.mentions.users.first()) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
 
-exports.run = (client, msg, args, Discord) => {
+	let mutedRole = (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT mutedRole FROM guilds WHERE guildId = ?', [msg.guild.id])).res;
+	if (!msg.guild.roles.has(mutedRole)) {
+		client.userLib.retError(msg.channel, msg.author);
+		return;
+	}
+	msg.mentions.members.first().removeRole(mutedRole, 'Снятие мута!');
 
-	if (!msg.mentions.members.first()) return;
+	//TODO база?
 
-	client.db.queryValue('SELECT muterole FROM users WHERE userId = ? AND guildId = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
-	
-		if (!parseInt(muterole)) {embed = new Discord.RichEmbed().setColor(client.config.colors.err).setTitle('Ошибка!').setDescription('У участника нет мута!').setTimestamp();return msg.channel.send({embed});}
-	
-		msg.delete();
-
-		client.db.queryValue('SELECT muterole FROM users WHERE userId = ? AND serid = ?', [msg.mentions.members.first().id, msg.guild.id], (err, muterole) => {
-			if (!client.guilds.get(msg.guild.id).roles.get(muterole)) return;
-			client.guilds.get(msg.guild.id).roles.get(muterole).delete();
-			embed = new Discord.RichEmbed().setColor(client.config.colors.suc).setTitle('Мут снят').setDescription(`С **<@${msg.mentions.members.first().id}>** был снят мут`).setTimestamp();
-			client.db.query(`UPDATE users SET muterole = 0 WHERE userId = ? AND serid = ?`, [msg.mentions.members.first().id, msg.guild.id], () => {});
-			return msg.channel.send({embed}).then(msg => msg.delete(5000));
-		});
-	});
-	
-}
+};
