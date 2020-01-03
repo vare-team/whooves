@@ -40,7 +40,7 @@ exports.run = (client, msg, args) => {
 			.setColor(client.userLib.colors.inf)
 			.setDescription(`Вы можете написать \`${msg.flags.prefix}help [command name]\` чтобы получить подробную информацию!`)
 			.setTitle(':paperclip: Список команд:')
-			.setFooter(client.user.tag, client.user.avatarURL);
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL);
 
 		readdirSync('./commands/').filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
 			.forEach((el, index) => {

@@ -19,7 +19,7 @@ module.exports = async (client, msg) => {
 	const cmd = client.commands.get(command.toLowerCase()) || client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(command.toLowerCase()));
 	if (!cmd) return;
 
-	if(msg.channel.type != 'dm' && !msg.channel.memberPermissions(client.user).has('ADMINISTRATOR')) {
+	if(msg.channel.type != 'dm' && !msg.channel.memberPermissions(client.user).has('EMBED_LINKS')) {
 		msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
 		return;
 	}
@@ -72,9 +72,11 @@ module.exports = async (client, msg) => {
 
 	try {
 		cmd.run(client, msg, args);
+		client.statistic.executedcmd++;
 	} catch (err) {
 		client.userLib.sendLog(`Ошибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`);
 		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
+		client.statistic.executedcmd++;
 	}
 
 };

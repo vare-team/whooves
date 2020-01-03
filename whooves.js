@@ -12,6 +12,7 @@ util.upgrade(con);
 util.introspection(con);
 
 client.userLib = new func(Discord, client, con);
+client.statistic = {executedcmd: 0, erroredcmd: 0};
 
 readdir("./events/", (err, files) => {
   if (err) return console.error(err);

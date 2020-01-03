@@ -29,6 +29,6 @@ exports.run = (client, msg, args) => {
 		return;
 	}
 
-	embed.setColor(color).setTitle("Цвет " + args[0].toUpperCase());
+	embed.setColor(color).setTitle("Цвет " + args[0].toUpperCase()).setFooter(msg.author.tag, msg.author.displayAvatarURL);
 	msg.channel.send(embed);
 };
