@@ -59,9 +59,9 @@ module.exports = function (Discord, client, con) {
 	 * @param {string} log
 	 * @param {string} type
 	 */
-	this.sendLog = (log = 'Clap one hand', type = '') => {
+	this.sendLog = (log = 'Clap one hand', type = 'Auto') => {
 		const now = new Date;
-		console.log(`${now.getDay() + '.' + now.getMonth() + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] : ${log}`);
+		console.log(`${(now.getDay() < 10 ? '0'+now.getDay() : now.getDay()) + '.' + now.getMonth()+1 + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] | {${type}} : ${log}`);
 	};
 
 	this.colors = {

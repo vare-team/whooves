@@ -11,5 +11,5 @@ module.exports = (client) => {
 		}
 	});
 
-	client.userLib.sendLog(`Whooves is ready!`);
+	client.userLib.sendLog(`Shard ready!`, 'ShardingManager');
 };

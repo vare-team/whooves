@@ -28,6 +28,8 @@ modules = {
 };
 
 exports.run = (client, msg, args) => {
+	let kostyl = 0; // Если бы не костыль, то при скрытии категории index бы дальше продолжил бы рости.
+
 	function list(cat) {
 		return client.commands
 			.filter(cmd => cmd.help.module == cat)
@@ -43,9 +45,10 @@ exports.run = (client, msg, args) => {
 			.setFooter(msg.author.tag, msg.author.displayAvatarURL);
 
 		readdirSync('./commands/').filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
-			.forEach((el, index) => {
+			.forEach((el) => {
+			if (!list(el).length) return;
 			if (el == 'dev' && !client.userLib.admins.hasOwnProperty(msg.author.id)) return;
-			embed.addField( `${index + (client.userLib.admins.hasOwnProperty(msg.author.id) ? 1 : 0)}. ${modules[el] ? modules[el] : el}`, list(el));
+			embed.addField( `${kostyl++ + (client.userLib.admins.hasOwnProperty(msg.author.id) ? 1 : 0)}. ${modules[el] ? modules[el] : el}`, list(el));
 		});
 
 		msg.channel.send({embed, split: true });

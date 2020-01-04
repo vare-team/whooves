@@ -61,6 +61,7 @@ module.exports = async (client, msg) => {
 					tag: msg.author.tag,
 					displayAvatarURL: msg.author.displayAvatarURL
 				}, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
+				client.userLib.sendLog(`Try use: ${command}, Time left: ${timeLeft}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`, 'Info');
 				return;
 			}
 		}
@@ -72,16 +73,17 @@ module.exports = async (client, msg) => {
 
 	try {
 		cmd.run(client, msg, args);
+		client.userLib.sendLog(`Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`, 'Info');
 		client.statistic.executedcmd++;
 	} catch (err) {
-		client.userLib.sendLog(`Ошибка!\nКоманда - ${cmd.help.name}\nСервер: ${msg.guild.name} (ID: ${msg.guild.id})\nКанал: ${msg.channel.name} (ID: ${msg.channel.id})\nПользователь: ${msg.author.tag} (ID: ${msg.author.id})\nТекст ошибки: ${err}`);
+		client.userLib.sendLog(`! Ошибка!\n! Команда - ${cmd.help.name}\n! Сервер: ${msg.guild.name} (ID: ${msg.guild.id})\n! Канал: ${msg.channel.name} (ID: ${msg.channel.id})\n! Пользователь: ${msg.author.tag} (ID: ${msg.author.id})\n! Текст ошибки: ${err}`, 'ERROR!');
 		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
-		client.statistic.executedcmd++;
+		client.statistic.erroredcmd++;
 	}
 
 };
 
-/* 
+/*
   tier
   -3 - Owner guild
   -2 - Admin guild
