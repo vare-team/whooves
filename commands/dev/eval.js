@@ -32,11 +32,15 @@ exports.run = (client, msg, args) => {
 	  let embededit = new client.userLib.discord.RichEmbed();
 	  try {
 	    const code = args.join(" ");
+			if (code.indexOf('token') != -1) {
+				embededit.setAuthor('Исход: ошибка!').setTitle('Сообщение:').addField('Информация об ошибке', `Наименование: \`\`Defend\`\``).setColor('#F04747').setDescription(`\`\`Try to catch token\`\``).setFooter(msg.author.tag);
+				msge.edit(embededit);
+				return;
+			}
 	    var t0 = performance.now();
 	    let evaled = eval(code);
 	    var t1 = performance.now();
 	    if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
-		  if (code.indexOf('token') != -1) evaled = 'token';
 	    if (clean(evaled).startsWith('Promise')) embededit.setAuthor('Исход: успех!').setTitle('Результат: выполнено!').addField('Информация', `Код выполнился за \`\`${t1 - t0}\`\`мс.`).setColor('#43B581').setFooter(msg.author.tag);
 	    else embededit.setAuthor('Исход: успех!').setTitle('Результат:').setDescription(evaled.length > 2000 ? 'Исход итерации занял более 2К символов!' : `\`\`\`Js\n${clean(evaled)}\`\`\``).addField('Информация', `Код выполнился за \`\`${t1 - t0}\`\`мс.`).setColor(evaled.length > 2000 ? '#727C8A' : '#43B581').setFooter(msg.author.tag);
 	    msge.edit(embededit);
