@@ -28,14 +28,6 @@ modules = {
 };
 
 exports.run = (client, msg, args) => {
-	let kostyl = 0; // Если бы не костыль, то при скрытии категории index бы дальше продолжил бы рости.
-
-	function list(cat) {
-		return client.commands
-			.filter(cmd => cmd.help.module == cat)
-			.map(cmd => `\`${cmd.help.name}\``)
-			.join(", ");
-	}
 
 	if (!args.length) {
 		let embed = new client.userLib.discord.RichEmbed()
@@ -45,10 +37,13 @@ exports.run = (client, msg, args) => {
 			.setFooter(msg.author.tag, msg.author.displayAvatarURL);
 
 		readdirSync('./commands/').filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
-			.forEach((el) => {
-			if (!list(el).length) return;
-			if (el == 'dev' && !client.userLib.admins.hasOwnProperty(msg.author.id)) return;
-			embed.addField( `${kostyl++ + (client.userLib.admins.hasOwnProperty(msg.author.id) ? 1 : 0)}. ${modules[el] ? modules[el] : el}`, list(el));
+			.filter(el => el != 'dev' || el == 'dev' && client.userLib.admins.hasOwnProperty(msg.author.id))
+			.filter(el => el != 'pony' || client.commands.filter(cmd => cmd.help.module == el).size)
+			.forEach((el, index) => {
+			embed.addField(
+				`${index+1}. ${modules[el] ? modules[el] : el}`,
+				client.commands.filter(cmd => cmd.help.module == el).map(cmd => `\`${cmd.help.name}\``).join(", ")
+			);
 		});
 
 		msg.channel.send({embed, split: true });
