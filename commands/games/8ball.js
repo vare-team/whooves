@@ -1,4 +1,15 @@
-let answers = [
+exports.help = {
+  name: "8ball",
+  description: "Задайте магическому шару вопрос и он на него ответит!",
+	aliases: ['ball', 'bl', '8'],
+  usage: "[вопрос]",
+	dm: 0,
+	args: 1,
+  tier: 0,
+  cooldown: 5
+};
+
+const answers = [
 	'Бесспорно',
 	'Предрешено',
 	'Никаких сомнений',
@@ -21,24 +32,21 @@ let answers = [
 	'Весьма сомнительно'
 ];
 
-exports.help = {
-  name: "8ball",
-  description: "Задайте магическому шару вопрос и он на него ответит!",
-	aliases: ['ball', 'bl', '8'],
-  usage: "[вопрос]",
-	dm: 0,
-	args: 1,
-  tier: 0,
-  cooldown: 5
+const questions = {
+	'доктор': 'Доктор Кто',
+	'имя доктора': 'Whooves'
 };
 
 exports.run = (client, msg, args) => {
-		let embed = new client.userLib.discord.RichEmbed()
+	
+	let embed = new client.userLib.discord.RichEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle('Магический шар')
 		.addField('Твой вопрос', `\`\`${args.join(' ')}\`\``)
-		.addField('Ответ шара', `\`\`${answers[client.userLib.randomIntInc(0, answers.length - 1)]}\`\``)
 		.setFooter(msg.author.tag, msg.author.avatarURL);
+	
+	if (questions.hasOwnProperty(args.join(' ').toLowerCase())) embed.addField('Ответ шара', `\`\`${questions[args.join(' ').toLowerCase()]}\`\``);
+	else embed.addField('Ответ шара', `\`\`${answers[client.userLib.randomIntInc(0, answers.length - 1)]}\`\``);
 		
-		msg.channel.send(embed);
+	msg.channel.send(embed);
 };

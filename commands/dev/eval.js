@@ -11,6 +11,9 @@ exports.help = {
 
 function clean(text) {return typeof(text) !== "string" ? text : text.replace(/`/g, `\`${String.fromCharCode(8203)}`).replace(/@/g, `@${String.fromCharCode(8203)}`);}
 
+/**********************/
+// Константы доступные в коде
+
 const os = require('os')
 	, fs = require('fs')
 	, { performance } = require('perf_hooks')
@@ -18,18 +21,26 @@ const os = require('os')
 	, mega = '321705723216134154'
 ;
 
+/**********************/
+
 exports.run = async (client, msg, args) => {
-	if (msg.author.id != '166610390581641217' && msg.author.id != '321705723216134154') {
+	if (msg.author.id != master && msg.author.id != mega) {
 		client.userLib.retError(msg.channel, msg.author, 'Что-то пошло по пизде, но 2 защита сохранила безопасность.');
 		return;
 	}
-	
+
+	/**********************/
+	// Быстрые переменные из client
+
+	let embed = new client.userLib.discord.RichEmbed();
+
+	/**********************/
+
 	let temp = 'В процессе.';
 	let msge = await msg.channel.send(temp);
 	
 	try {
 		const code = args.join(" ");
-		// if (code.includes('token')) {
 		if (/client *\. *token/g.test(code)) {
 			temp = `**Исход: ошибка!**\n Наименование: \`\`Defend\`\` \n \n \`\`Try to catch token\`\``;
 			msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete(3000)}});
