@@ -74,7 +74,7 @@ module.exports = function (Discord, client, con) {
 	this.discord = Discord;
 	this.db = con;
 
-	this.request = require('request');
+	this.request = require('request-promise-native');
 
 	this.moment = require('moment');
 	this.moment.locale("ru");
@@ -90,7 +90,7 @@ module.exports = function (Discord, client, con) {
 	 * @param {number} shards
 	 */
 	this.sendSDC = (servers, shards) => {
-		this.request.post({url: 'https://api.server-discord.com/v2/bots/'+client.user.id+'/stats', form: {servers, shards}, headers: {'Authorization':'SDC '+process.env.sdc}});
+		this.request({method: "POST", url: 'https://api.server-discord.com/v2/bots/'+client.user.id+'/stats', form: {servers, shards}, headers: {'Authorization':'SDC '+process.env.sdc}});
 		this.sendLog('{SDC} Send stats data');
 	};
 

@@ -38,7 +38,7 @@ exports.run = (client, msg, args) => {
 
 		readdirSync('./commands/').filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
 			.filter(el => el != 'dev' || el == 'dev' && client.userLib.admins.hasOwnProperty(msg.author.id))
-			.filter(el => el != 'pony' || client.commands.filter(cmd => cmd.help.module == el).size)
+			.filter(el => client.commands.filter(cmd => cmd.help.module == el).size)
 			.forEach((el, index) => {
 			embed.addField(
 				`${index+1}. ${modules[el] ? modules[el] : el}`,

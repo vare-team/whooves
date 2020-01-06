@@ -11,14 +11,12 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
 	msg.channel.startTyping();
-	client.userLib.request('https://api.thedogapi.com/v1/images/search', {json: true}, (err, res, body) => {
-		if(err) throw err;
+	let body = await client.userLib.request({url: 'https://api.thedogapi.com/v1/images/search', json: true});
 
-		const embed = new client.userLib.discord.RichEmbed()
-			.setAuthor(`Вот тебе случайный собакен 😄`)
-			.setImage(body[0].url);
+	const embed = new client.userLib.discord.RichEmbed()
+		.setAuthor(`Вот тебе случайный собакен 😄`)
+		.setImage(body[0].url);
 
-		msg.channel.stopTyping();
-		msg.channel.send(embed);
-	});
+	msg.channel.stopTyping();
+	msg.channel.send(embed);
 };

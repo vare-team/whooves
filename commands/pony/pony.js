@@ -7,13 +7,16 @@ exports.help = {
   args: 0,
   tier: 0,
   cooldown: 5,
-  hide: true
+  // hide: true
 };
 
-const dinky = require('dinky.js');
-
 exports.run = async (client, msg) => {
-  let derpi = await dinky().search(['artist:RainY105']).random();
-  console.log(derpi);
-  msg.channel.send('Пня найдена!', {files: [{attachment: 'https:'+derpi.image, name: `pony_${derpi.id}.png`}]});
+  msg.channel.startTyping();
+  
+  let id = await client.userLib.request({url: 'https://derpi.vlos.ru/search.json?q=artist:RainY105&random_image=true', json: true});
+  let pony = await client.userLib.request({url: `https://derpi.vlos.ru/api/v1/json/images/${id.id}`, json: true});
+  console.log(pony);
+  
+  msg.channel.stopTyping();
+  msg.channel.send('Пня найдена!', {files: [{attachment: pony.image.view_url, name: `pony_${pony.image.id}.png`}]});
 };
