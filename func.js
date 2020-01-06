@@ -89,9 +89,11 @@ module.exports = function (Discord, client, con) {
 	 * @param {number} servers
 	 * @param {number} shards
 	 */
-	this.sendSDC = (servers, shards) => {
+	this.sendSDC = (servers = client.guilds.size, shards = client.shard.count) => {
+		this.sendLog(`{SDC} Guilds: ${servers}, Shards: ${shards}`);
 		this.request({method: "POST", url: 'https://api.server-discord.com/v2/bots/'+client.user.id+'/stats', form: {servers, shards}, headers: {'Authorization':'SDC '+process.env.sdc}});
 		this.sendLog('{SDC} Send stats data');
+		this.sc.pushTask({code: 'sendSDC', time: 30 * 60 * 1000})
 	};
 
 	/**
