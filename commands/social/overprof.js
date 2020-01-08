@@ -4,7 +4,6 @@ exports.help = {
   aliases: [],
   dm: 0,
   tier: 0,
-  args: 1,
   usage: "[Ник]",
   cooldown: 1,
   hide: 1

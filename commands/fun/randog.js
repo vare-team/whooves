@@ -4,12 +4,11 @@ exports.help = {
 	aliases: ['dog'],
   usage: "",
 	dm: 0,
-	args: 0,
   tier: 0,
   cooldown: 5
 };
 
-exports.run = async (client, msg, args) => {
+exports.run = async (client, msg) => {
 	msg.channel.startTyping();
 	let body = await client.userLib.request({url: 'https://api.thedogapi.com/v1/images/search', json: true});
 

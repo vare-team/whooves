@@ -2,9 +2,8 @@ exports.help = {
   name: "setbalance",
   description: "Установить баланс участнику",
 	aliases: ['sb'],
-  usage: "[кол-во] [@кто]",
+  usage: "[кол-во] (@кто)",
 	dm: 0,
-	args: 1,
   tier: 1,
   cooldown: 5
 };

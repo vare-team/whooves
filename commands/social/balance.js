@@ -4,12 +4,11 @@ exports.help = {
 	aliases: ['bal'],
   usage: "(@кто)",
 	dm: 0,
-	args: 0,
   tier: 0,
   cooldown: 5
 };
 
-exports.run = async (client, msg, args) => {
+exports.run = async (client, msg) => {
 	let user = msg.mentions.users.first() || msg.author;
 
 	if (user.bot) {

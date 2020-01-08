@@ -4,7 +4,6 @@ exports.help = {
   aliases: [],
   usage: "[ip]",
   dm: 0,
-  args: 1,
   tier: 0,
   cooldown: 5
 };

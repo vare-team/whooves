@@ -4,8 +4,6 @@ exports.help = {
 	aliases: ['delw', 'dw'],
   usage: "[@кто] [id]",
 	dm: 0,
-	args: 1,
-	mention: 1,
   tier: -1,
   cooldown: 15
 };

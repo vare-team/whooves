@@ -2,9 +2,8 @@ exports.help = {
   name: "pony",
   description: "Поиск по derpibooru.org",
   aliases: ['derpi', 'ps'],
-  usage: "[запрос] [sfw/nsfw]",
+  usage: "(запрос) (sfw/nsfw)",
   dm: 0,
-  args: 0,
   tier: 0,
   cooldown: 5,
   // hide: true

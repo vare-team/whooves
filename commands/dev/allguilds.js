@@ -4,12 +4,11 @@ exports.help = {
 	aliases: ['ag'],
 	usage: "",
 	dm: 1,
-	args: 0,
 	tier: 1,
 	cooldown: 0
 };
 
-exports.run = (client, msg, args) => {
+exports.run = (client, msg) => {
 	let temp = '```\n';
 	for (let i of client.guilds.array()) {
 		if ((temp+`${i.name} - ${i.memberCount} (ID: ${i.id})\n\`\`\``).length >= 2000) {

@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['setp'],
   usage: "[символ]",
 	dm: 0,
-	args: 1,
   tier: -3,
   cooldown: 15
 };

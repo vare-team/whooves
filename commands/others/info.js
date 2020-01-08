@@ -3,7 +3,6 @@ exports.help = {
   description: "Информация о боте",
 	aliases: ['i'],
   usage: "",
-	args: 0,
 	dm: 0,
   tier: 0,
   cooldown: 5

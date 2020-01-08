@@ -4,12 +4,11 @@ exports.help = {
 	aliases: ['lb'],
   usage: "",
 	dm: 0,
-	args: 0,
   tier: 0,
   cooldown: 10
 };
 
-exports.run = (client, msg, args) => {
+exports.run = (client, msg) => {
 	client.userLib.db.query(`SELECT tag, money FROM users ORDER BY money DESC LIMIT 5`, (err, res) => {
 		let embed = new client.userLib.discord.RichEmbed()
 	    .setAuthor(`${client.user.username} - Таблица лидеров`, client.user.displayAvatarURL)

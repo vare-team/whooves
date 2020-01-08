@@ -32,18 +32,41 @@ module.exports = async (client, msg) => {
 		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Не достаточно прав!'); return;
 	}
 
-	if(cmd.help.args && !args.length) {
-		client.userLib.retError(msg.channel, msg.author, `Аргументы команды введены не верно!${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
-	}
 
-	if (cmd.help.mention && !msg.mentions.users.first()) {
-		client.userLib.retError(msg.channel, msg.author, `Введённая вами команда требует упоминания.${cmd.help.usage ? `\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\`` : ''}`); return;
-	}
+	// USAGE PARSER
+	if (cmd.help.usage) {
+		if (cmd.help.usage.includes("[")) cmd.help.args = true;
+		if (cmd.help.usage.includes('[@кто]')) cmd.help.userMention = true;
+		if (cmd.help.usage.includes('[#текстовый канал]')) cmd.help.channelMention = true;
+		if (cmd.help.usage.includes('[>подключение]')) cmd.help.voiceMention = true;
 
-	if (cmd.help.mention && msg.mentions.users.first().id == msg.author.id) {
-		client.userLib.retError(msg.channel, msg.author, 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.');
-		return;
+		if (cmd.help.args && !args.length) {
+			client.userLib.retError(msg.channel, msg.author, `Аргументы команды введены не верно!\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
+			return;
+		}
+
+		if (cmd.help.channelMention && !msg.mentions.channels.first()) {
+			client.userLib.retError(msg.channel, msg.author, `Нужно указать канал.\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
+			return;
+		}
+
+		if (cmd.help.userMention && !msg.mentions.users.first()) {
+			client.userLib.retError(msg.channel, msg.author, `Введённая вами команда требует упоминания.\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
+			return;
+		}
+
+		if (cmd.help.userMention && msg.mentions.users.first().id == msg.author.id) {
+			client.userLib.retError(msg.channel, msg.author, 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.');
+			return;
+		}
+
+		if (cmd.help.voiceMention && !msg.member.voiceChannel) {
+			client.userLib.retError(msg.channel, msg.author, `Вы должны находиться в голосовом канале!\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
+			return;
+		}
 	}
+	// USAGE PARSE
+
 
 	if (!client.userLib.admins.hasOwnProperty(msg.author.id)) {
 		if (!client.userLib.cooldown.has(cmd.help.name)) {

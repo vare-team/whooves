@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['a'],
   usage: "(@кто)",
 	dm: 0,
-	args: 0,
   tier: 0,
   cooldown: 1
 };

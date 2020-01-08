@@ -4,7 +4,6 @@ exports.help = {
 	aliases: [],
 	usage: "[название команды]",
 	dm: 1,
-	args: 1,
 	tier: 1,
 	cooldown: 0
 };

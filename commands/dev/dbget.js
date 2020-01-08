@@ -4,12 +4,11 @@ exports.help = {
 	aliases: [],
 	usage: "",
 	dm: 1,
-	args: 0,
 	tier: 1,
 	cooldown: 0
 };
 
-exports.run = (client, msg, args) => {
+exports.run = (client, msg) => {
 
 	let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
     word = '';

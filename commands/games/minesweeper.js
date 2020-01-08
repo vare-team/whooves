@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['ms'],
   usage: "[кол-во строк] [кол-во столбцов] [кол-во мин]",
 	dm: 1,
-	args: 0,
   tier: 0,
   cooldown: 1
 };

@@ -4,7 +4,6 @@ exports.help = {
 	aliases: [],
 	usage: "",
 	dm: 0,
-	args: 0,
 	tier: 0,
 	cooldown: 5
 };
@@ -16,7 +15,7 @@ const stages = [
 	"(°-°)                   ┻━┻"
 ];
 
-exports.run = async (client, msg, args) => {
+exports.run = async (client, msg) => {
 	msg.delete();
 	let mess = await msg.channel.send(stages[0]);
 	let value = 1;

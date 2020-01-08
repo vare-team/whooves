@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['cm', 'c', 'cl'],
   usage: "[кол-во]",
 	dm: 0,
-	args: 1,
 	tier: -1,
   cooldown: 5
 };

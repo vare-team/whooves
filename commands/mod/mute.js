@@ -4,8 +4,6 @@ exports.help = {
 	aliases: ['mt'],
   usage: "[@кто] (кол-во мин)",
 	dm: 0,
-	args: 1,
-	mention: 1,
   tier: -1,
   cooldown: 5000
 };

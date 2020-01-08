@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['l'],
 	usage: "[текст]",
 	dm: 1,
-	args: 1,
 	tier: 0,
 	cooldown: 5
 };

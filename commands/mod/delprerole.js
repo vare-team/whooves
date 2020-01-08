@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['dpr', 'delpr'],
   usage: "",
 	dm: 0,
-	args: 0,
   tier: -3,
   cooldown: 60,
 	hide: 1

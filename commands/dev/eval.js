@@ -4,7 +4,6 @@ exports.help = {
 	aliases: [],
 	usage: "[JavaScript]",
 	dm: 1,
-	args: 1,
 	tier: 2,
 	cooldown: 0
 };

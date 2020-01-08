@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['pr'],
 	usage: "(@кто)",
 	dm: 0,
-	args: 0,
 	tier: 0,
 	cooldown: 10
 };
@@ -17,7 +16,7 @@ const applyText = (canvas, ctx, text = '', x = 0, y = 0, fontSize = 18, width = 
     ctx.fillText(text, x, y)
 };
 
-exports.run = async (client, msg, args) => {
+exports.run = async (client, msg) => {
 	msg.channel.startTyping();
 
 	let use = msg.mentions.users.first() || msg.author;

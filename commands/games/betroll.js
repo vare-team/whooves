@@ -4,7 +4,6 @@ exports.help = {
 	aliases: ['bet', 'b'],
   usage: "[кол-во]",
 	dm: 0,
-	args: 1,
   tier: 0,
   cooldown: 1
 };
