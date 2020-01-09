@@ -26,8 +26,10 @@ exports.run = (client, msg) => {
 • Бот запустился:: ${client.userLib.moment(client.readyAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM,в HH:mm')}
 • Аптайм бота   :: ${Math.round(process.uptime()/3600)} ч.
 • Аптайм сервера:: ${Math.round(uptime()/3600)} ч.
+
 • Discord.js    :: v${version}
-• Версия Node   :: ${process.version}\`\`\``)
+• Версия Node   :: ${process.version}
+• Версия бота   :: v${process.env.npm_package_version}\`\`\``)
 			.addField("Разработчики", `**${client.users.get('166610390581641217').tag}** \n **${client.users.get('321705723216134154').tag}**`, true)
 			.addField("Команда помощи", `**w.help**`, true)
 			.addField("Префикс", `**w.**`, true)

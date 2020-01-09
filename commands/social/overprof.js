@@ -9,8 +9,6 @@ exports.help = {
   hide: 1
 };
 
-var owjs = require('overwatch-js');
-
 exports.run = async (client, msg, args) => {
   msg.channel.startTyping();
 

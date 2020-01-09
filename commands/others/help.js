@@ -31,7 +31,7 @@ exports.run = (client, msg, args) => {
 	if (!args.length) {
 		let embed = new client.userLib.discord.RichEmbed()
 			.setColor(client.userLib.colors.inf)
-			.setDescription(`Вы можете написать \`${msg.flags.prefix}help [command name]\` чтобы получить подробную информацию!`)
+			.setDescription(`Вы можете написать \`${msg.flags.prefix}help [название команды]\` чтобы получить подробную информацию!`)
 			.setTitle(':paperclip: Список команд:')
 			.setFooter(msg.author.tag, msg.author.displayAvatarURL);
 
@@ -59,13 +59,13 @@ exports.run = (client, msg, args) => {
 	}
 
 	let embed = new client.userLib.discord.RichEmbed()
-		.setAuthor(client.user.username, client.user.avatarURL)
 		.setColor(client.userLib.colors.inf)
-		.setTitle("Команда: " + command.help.name);
+		.setTitle("🔎 Команда: " + command.help.name)
+		.setFooter(msg.author.tag, msg.author.displayAvatarURL);
 
-	if (command.help.description) embed.addField("Описание", command.help.description);
-	if (command.help.aliases.length) embed.addField("Псевдонимы", command.help.aliases.join(', '));
-	if (command.help.usage) embed.addField("Использование", `${msg.flags.prefix}${command.help.name} *${command.help.usage}*`);
+	if (command.help.description) embed.setDescription(command.help.description);
+	if (command.help.aliases.length) embed.addField("Псевдонимы", command.help.aliases.join(', '), true);
+	if (command.help.usage) embed.addField("Использование", `${msg.flags.prefix}${command.help.name} \`\`${command.help.usage}\`\``, true);
 	embed.addField("Доступно", tiers[command.help.tier]);
 	embed.addField("Время между использованиями", `Секунд: \`\`${command.cooldown || 3}\`\``);
 
