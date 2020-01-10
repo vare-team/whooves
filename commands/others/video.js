@@ -2,7 +2,7 @@ exports.help = {
   name: 'video',
 	description: 'Команда позволяет включить видеотрансляцию в определённом голосовом канале.',
 	aliases: ['vid'],
-	usage: '[>подключение]',
+	usage: '{подключение}',
 	dm: 0,
 	tier: 0,
   cooldown: 30

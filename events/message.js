@@ -35,37 +35,36 @@ module.exports = async (client, msg) => {
 
 	// USAGE PARSER
 	if (cmd.help.usage) {
-		if (cmd.help.usage.includes("[")) cmd.help.args = true;
+		if (cmd.help.usage.includes("[")) {
+			cmd.help.args = true;
+			cmd.help.argsCount = (cmd.help.usage.match(/\[/g) || []).length;
+		}
 		if (cmd.help.usage.includes('[@кто]')) cmd.help.userMention = true;
 		if (cmd.help.usage.includes('[#текстовый канал]')) cmd.help.channelMention = true;
-		if (cmd.help.usage.includes('[>подключение]')) cmd.help.voiceMention = true;
-
-		if (cmd.help.args && !args.length) {
-			client.userLib.retError(msg.channel, msg.author, `Аргументы команды введены не верно!\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
-			return;
-		}
-
-		if (cmd.help.channelMention && !msg.mentions.channels.first()) {
-			client.userLib.retError(msg.channel, msg.author, `Нужно указать канал.\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
-			return;
-		}
-
-		if (cmd.help.userMention && !msg.mentions.users.first()) {
-			client.userLib.retError(msg.channel, msg.author, `Введённая вами команда требует упоминания.\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
-			return;
-		}
-
-		if (cmd.help.userMention && msg.mentions.users.first().id == msg.author.id) {
-			client.userLib.retError(msg.channel, msg.author, 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.');
-			return;
-		}
-
-		if (cmd.help.voiceMention && !msg.member.voiceChannel) {
-			client.userLib.retError(msg.channel, msg.author, `Вы должны находиться в голосовом канале!\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
-			return;
-		}
+		if (cmd.help.usage.includes('{подключение}')) cmd.help.inVoice = true;
 	}
 	// USAGE PARSE
+
+	//CHECK ARGS
+	let tempError = '';
+	if (cmd.help.args && !args.length)
+		tempError = 'Аргументы команды введены не верно!';
+	if (!tempError && cmd.help.args && cmd.help.argsCount != args.length)
+		tempError = 'Количество аргументов не верно!';
+	if (!tempError && cmd.help.userMention && !msg.mentions.users.first())
+		tempError = 'Введённая вами команда требует упоминания.';
+	if (!tempError && cmd.help.userMention && msg.mentions.users.first().id == msg.author.id)
+		tempError = 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.';
+	if (!tempError && cmd.help.channelMention && !msg.mentions.channels.first())
+		tempError = 'Нужно указать канал.';
+	if (!tempError && cmd.help.inVoice && !msg.member.voiceChannel)
+		tempError = 'Вы должны находиться в голосовом канале!';
+
+	if (tempError) {
+		client.userLib.retError(msg.channel, msg.author, `${tempError}\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
+		return;
+	}
+	//CHECK ARGS
 
 
 	if (!client.userLib.admins.hasOwnProperty(msg.author.id)) {
