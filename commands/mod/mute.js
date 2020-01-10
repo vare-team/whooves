@@ -2,7 +2,7 @@ exports.help = {
   name: "mute",
   description: "Замьютить участника",
 	aliases: ['mt'],
-  usage: "[@кто] (кол-во мин)",
+  usage: "[@кто] [кол-во мин]",
 	dm: 0,
   tier: -1,
   cooldown: 5000
@@ -19,7 +19,7 @@ exports.run = async (client, msg, args) => {
 
 	if (!role) {
 		let editEmbed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.war).setTitle(`Я не нашёл настроенной роли. Создаю роль, ожидайте...`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
-		let msgs = await msg.channel.send(embed);
+		let msgs = await msg.channel.send(editEmbed);
 		role = await msg.guild.createRole({name: 'MutedWhooves', color: 'GREY', permissions: 0}, 'Создание мут роли для Хувза.');
 		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'category').array()) await ch.overwritePermissions(role, {SEND_MESSAGES: false, CONNECT: false});
 		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'text' && ch.parent && !ch.permissionOverwrites.has(role.id)).array()) await ch.overwritePermissions(role, {SEND_MESSAGES: false});

@@ -3,10 +3,9 @@ exports.help = {
   description: "Поиск по derpibooru.org\n**Для снятие цензуры, команду необходимо использовать в NSFW канале!**",
   aliases: ['derpi', 'ps'],
   usage: "(запрос) / >(ID)",
-  dm: 0,
+  dm: 1,
   tier: 0,
-  cooldown: 5,
-  // hide: true
+  cooldown: 5
 };
 
 exports.run = async (client, msg, args) => {

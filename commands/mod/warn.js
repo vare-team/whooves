@@ -2,7 +2,7 @@ exports.help = {
   name: "warn",
   description: "Выдать предупреждение участнику",
 	aliases: ['w'],
-  usage: "[@кто]/[причина]",
+  usage: "[@кто] (причина)",
 	dm: 1,
 	tier: -1,
   cooldown: 5
