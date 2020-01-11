@@ -49,7 +49,7 @@ module.exports = async (client, msg) => {
 	let tempError = '';
 	if (cmd.help.args && !args.length)
 		tempError = 'Аргументы команды введены не верно!';
-	if (!tempError && cmd.help.args && cmd.help.argsCount != args.length)
+	if (!tempError && cmd.help.args && cmd.help.argsCount > args.length)
 		tempError = 'Количество аргументов не верно!';
 	if (!tempError && cmd.help.userMention && !msg.mentions.users.first())
 		tempError = 'Введённая вами команда требует упоминания.';
