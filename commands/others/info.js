@@ -29,7 +29,7 @@ exports.run = (client, msg) => {
 
 • Discord.js    :: v${version}
 • Версия Node   :: ${process.version}
-• Версия бота   :: v${process.env.npm_package_version}\`\`\``)
+• Версия бота   :: v${process.env.version}\`\`\``)
 			.addField("Разработчики", `**${client.users.get('166610390581641217').tag}** \n **${client.users.get('321705723216134154').tag}**`, true)
 			.addField("Команда помощи", `**w.help**`, true)
 			.addField("Префикс", `**w.**`, true)

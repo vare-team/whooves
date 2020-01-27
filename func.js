@@ -156,13 +156,14 @@ module.exports = function (Discord, client, con) {
    // * @param {string} data.newContent - New Message
 	 */
 	this.sendLogChannel = async (type, guild, data) => {
-		let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE id = ?', [guild.id]);
+		let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE guildId = ?', [guild.id]);
 		logchannel = logchannel.res;
+		console.log(logchannel);
 		if (!logchannel) return;
 		let channel = guild.channels.get(logchannel);
 
 		if (!channel) {
-			con.update('guilds', { id: guild.id, logchannel: null }, () => { });
+			con.update('guilds', { guildId: guild.id, logchannel: null }, () => { });
 			return;
 		}
 

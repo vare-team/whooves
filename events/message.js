@@ -62,6 +62,7 @@ module.exports = async (client, msg) => {
 
 	if (tempError) {
 		client.userLib.retError(msg.channel, msg.author, `${tempError}\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
+		msg.react('❌');
 		return;
 	}
 	//CHECK ARGS

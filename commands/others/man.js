@@ -49,28 +49,47 @@ exports.run = (client, msg, args) => {
 	;
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
-	pagesEmbed(msg.author.id, embed, msg.channel, doc.text[args[1]] ? doc.text[args[1]] : Object.values(doc.text)[0]);
+	pagesEmbed({id: msg.author.id, embed: embed, channel: msg.channel}, doc.text[args[1]] ? doc.text[args[1]] : Object.values(doc.text)[0]);
 };
 
-async function pagesEmbed(author, embed, channel, text = '', devData = {page: 0}) {
-	if (typeof text == 'string' && text.length < 2048) {embed.setDescription(text);channel.send(embed);return;}
-	if (typeof text == 'string') text = text.match(/[\s\S]{1,2048}/g);
+/**
+ * @author MegaVasiliy007
+ * @function pagesEmbed
+ * @async
+ * @param {Object} data
+ * @param {string} data.id
+ * @param {Object} data.embed
+ * @param {Object} data.channel
+ * @param {string | Array} text
+ * @param {Object} devData
+ * @param {number} devData.page
+ * @param {string} devData.title
+ * @param {Object} [devData.msg]
+ * @returns {Promise<void>}
+ */
+async function pagesEmbed(data = {}, text = '', devData = {page: 0, title: ''}) {
+	if (!data.id || !data.embed || !data.channel) {return;}
 
-	embed.setDescription(text[devData.page]);
-	if (devData.msg) await devData.msg.edit(embed);
-	else devData.msg = await channel.send(embed);
+	if (typeof text == 'string' && text.length < 2048) {data.embed.setDescription(text);data.channel.send(data.embed);return;}
+	if (typeof text == 'string') {text = text.match(/[\s\S]{1,2048}/g);}
+	if (!devData.title) devData.title = data.embed.title;
+
+	data.embed.setDescription(text[devData.page])
+		.setTitle(devData.title + ` [${devData.page+1}/${text.length}]`);
+	if (devData.msg) await devData.msg.edit(data.embed);
+	else devData.msg = await data.channel.send(data.embed);
 
 	if (devData.page != 0) await devData.msg.react('◀️');
 	if (devData.page != text.length - 1) await devData.msg.react('▶️');
 
 	let collector = await devData.msg.awaitReactions(
-		(reaction, user) => ['◀️', '▶️'].indexOf(reaction.emoji.name) != -1 && user.id == author,
+		(reaction, user) => ['◀️', '▶️'].indexOf(reaction.emoji.name) != -1 && user.id == data.id,
 		{max: 1, time: 15000}).then(coll => coll.first() ? coll.first().emoji.name : 0);
 	await devData.msg.clearReactions();
-	if (!collector) {channel.send('Время кончилось. Расходимся.').then(msgd => msgd.delete(5000));return;}
+	if (!collector) return;
 
-	if (collector == '◀️' && devData.page > 0) devData.page--;
-	else if (collector == '▶️' && devData.page < text.length - 1) devData.page++;
+	if (collector == '◀️' && devData.page > 0) {devData.page--;}
+	else if (collector == '▶️' && devData.page < text.length - 1) {devData.page++;}
 
-	pagesEmbed(author, embed, channel, text, devData);
+	pagesEmbed(data, text, devData);
 }
