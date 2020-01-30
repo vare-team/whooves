@@ -158,7 +158,6 @@ module.exports = function (Discord, client, con) {
 	this.sendLogChannel = async (type, guild, data) => {
 		let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE guildId = ?', [guild.id]);
 		logchannel = logchannel.res;
-		console.log(logchannel);
 		if (!logchannel) return;
 		let channel = guild.channels.get(logchannel);
 
@@ -167,72 +166,85 @@ module.exports = function (Discord, client, con) {
 			return;
 		}
 
-		const embed = new Discord.RichEmbed().setTimestamp().setAuthor(data.user.tag, data.user.avatar).setFooter(`ID: ${data.user.id}`);
+
+		// const embed = new Discord.RichEmbed().setTimestamp().setAuthor(data.user.tag, data.user.avatar).setFooter(`ID: ${data.user.id}`);
+		let now = new Date;
+		let text = `[\`\`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth()+1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)}\`\`] `;
+
 
 		if (!type) return console.warn('Error! Тип не указан');
 		switch (type) {
 			case "memberAdd":
-				embed
-					.setColor(this.colors.suc)
-					.setTitle('Новый участник на сервере!')
-					.setDescription(`Аккаунт зарегистрирован **${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`);
+				text += `**Заход участника** <@${data.user.id}>;\nАккаунт зарегистрирован __${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
+				// embed
+				// 	.setColor(this.colors.suc)
+				// 	.setTitle('Новый участник на сервере!')
+				// 	.setDescription(`Аккаунт зарегистрирован **${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}**`);
 				break;
 
 			case "memberRemove":
-				embed
-					.setColor(this.colors.err)
-					.setTitle('Участник покинул сервер!');
+				text += `**Выход участника** <@${data.user.id}>;\nАккаунт зашёл на сервер __${this.moment(data.user.joinedAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
+				// embed
+				// 	.setColor(this.colors.err)
+				// 	.setTitle('Участник покинул сервер!');
 				break;
 
 			case "messageDelete":
-				embed
-					.setColor(this.colors.err)
-					.setTitle('Удалённое сообщение')
-					.setDescription(`\`\`\`${data.content.replace(/`/g, "")}\`\`\``)
-					.addField('Канал', `<#${data.channel.id}>`);
+				text += `**Удаление сообщения** от <@${data.user.id}>, в канале <#${data.channel.id}>;\n>>> ${data.content};`;
+				// embed
+				// 	.setColor(this.colors.err)
+				// 	.setTitle('Удалённое сообщение')
+				// 	.setDescription(`\`\`\`${data.content.replace(/`/g, "")}\`\`\``)
+				// 	.addField('Канал', `<#${data.channel.id}>`);
 				break;
 
 			case "messageDeleteBulk":
-				embed
-					.setColor(this.colors.inf)
-					.setTitle(`Массовое удаление сообщений`)
-					.setDescription(`Было удалено **${data.size}**`)
-					.addField('Канал', `<#${data.channel.id}>`);
+				text += `**Массовое удаление сообщений** в канале <#${data.channel.id}>, было удалено __${data.size}__;`;
+				// embed
+				// 	.setColor(this.colors.inf)
+				// 	.setTitle(`Массовое удаление сообщений`)
+				// 	.setDescription(`Было удалено **${data.size}**`)
+				// 	.addField('Канал', `<#${data.channel.id}>`);
 				break;
 
 			case "messageUpdate":
-				embed
-					.setColor(this.colors.err)
-					.setTitle('Изменённое сообщение')
-					.addField('Старое сообщение', `\`\`\`${data.oldContent.replace(/`/g, "")}\`\`\``)
-					.addField('Новое сообщение', `\`\`\`${data.newContent.replace(/`/g, "")}\`\`\``)
-					.addField('Канал', `<#${data.channel.id}>`);
+				text += `**Изменение сообщения** от <@${data.user.id}>, в канале <#${data.channel.id}>;\n>>> ${data.oldContent}\n\n\n${data.newContent};`;
+				// embed
+				// 	.setColor(this.colors.err)
+				// 	.setTitle('Изменённое сообщение')
+				// 	.addField('Старое сообщение', `\`\`\`${data.oldContent.replace(/`/g, "")}\`\`\``)
+				// 	.addField('Новое сообщение', `\`\`\`${data.newContent.replace(/`/g, "")}\`\`\``)
+				// 	.addField('Канал', `<#${data.channel.id}>`);
 				break;
 
 			case "voiceStateAdd":
-				embed
-					.setColor(this.colors.suc)
-					.setTitle(`Подключился к "${data.channel.name}"`);
+				text += `**Подключение к каналу** от <@${data.user.id}>, в канал "__${data.channel.name}__";`;
+				// embed
+				// 	.setColor(this.colors.suc)
+				// 	.setTitle(`Подключился к "${data.channel.name}"`);
 				break;
 
 			case "voiceStateRemove":
-				embed
-					.setColor(this.colors.err)
-					.setTitle(`Отключился от "${data.channel.name}"`);
+				text += `**Отключение от канала** от <@${data.user.id}>, из канала "__${data.channel.name}__";`;
+				// embed
+				// 	.setColor(this.colors.err)
+				// 	.setTitle(`Отключился от "${data.channel.name}"`);
 				break;
 
 			case "voiceStateUpdate":
-				embed
-					.setColor(this.colors.inf)
-					.setTitle(`Переместился из "${data.channel.oldName}" в "${data.channel.newName}"`);
+				text += `**Перемещение между каналами** от <@${data.user.id}>, из канала "__${data.channel.oldName}__", в канал "__${data.channel.newName}__";`;
+				// embed
+				// 	.setColor(this.colors.inf)
+				// 	.setTitle(`Переместился из "${data.channel.oldName}" в "${data.channel.newName}"`);
 				break;
 
 			default:
-				embed
-					.setTitle('unknown log!')
-					.setColor(this.colors.err);
+				// embed
+				// 	.setTitle('unknown log!')
+				// 	.setColor(this.colors.err);
 		}
 
-		channel.send(embed).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
+
+		channel.send(text).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
 	}
 };
