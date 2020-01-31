@@ -25,4 +25,5 @@ exports.run = (client, msg, args) => {
 		.setFooter(msg.author.tag, msg.author.avatarURL);
 
 	msg.channel.send(embed);
+	client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL }, channel: { id: msg.channel.id }, content: `выдача предупреждения ${msg.mentions.users.first()} по причине: ${args.slice(1).join(' ')}`});
 };

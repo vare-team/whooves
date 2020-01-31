@@ -9,7 +9,7 @@ exports.help = {
 };
 
 exports.run = async (client, msg, args) => {
-  let imageId = await client.userLib.request({url: `https://derpi.vlos.ru/search.json?random_image=true&q=save${args[0] ? ',' + args[0] : ''}`, json: true});
+  let imageId = await client.userLib.request({url: `https://derpi.vlos.ru/search.json?random_image=true&q=safe${args[0] ? ',' + args[0] : ''}`, json: true});
   imageId = imageId.id;
   if (!imageId) {
     let embedErr = new client.userLib.discord.RichEmbed().setTitle('Derpibooru IMAGE 404').setDescription("По вашему запросу ничего не найдено.").setImage('https://derpicdn.net/img/view/2019/12/29/2233270.gif').setFooter(msg.author.tag, msg.author.displayAvatarURL).setColor(client.userLib.colors.war);

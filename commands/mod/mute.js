@@ -39,4 +39,6 @@ exports.run = async (client, msg, args) => {
 
 	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`Мут ${msg.mentions.users.first()} выдан!\nКоличество минут до снятия: ${args[1]}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
 	msg.channel.send(embed);
+	client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL }, channel: { id: msg.channel.id }, content: `выдача мута ${msg.mentions.users.first()}`});
+
 };

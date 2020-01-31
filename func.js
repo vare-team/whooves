@@ -238,6 +238,13 @@ module.exports = function (Discord, client, con) {
 				// 	.setTitle(`Переместился из "${data.channel.oldName}" в "${data.channel.newName}"`);
 				break;
 
+			case "commandUse":
+				text += `**Действие: "${data.content}"** от <@${data.user.id}>, в канале <#${data.channel.id}>;`;
+				// embed
+				// 	.setColor(this.colors.inf)
+				// 	.setTitle(`Переместился из "${data.channel.oldName}" в "${data.channel.newName}"`);
+				break;
+
 			default:
 				// embed
 				// 	.setTitle('unknown log!')
