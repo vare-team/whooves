@@ -13,14 +13,14 @@ exports.run = async (client, msg, args) => {
 
   let imageId = args[0] && args[0].startsWith('>') ?
     args[0].replace(/\D+/g, '') :
-    (await client.userLib.request({url: `https://derpi.vlos.ru/search.json?random_image=true&filter_id=56027&q=${args[0] ? args[0] : '*'}`, json: true})).id;
+    (await client.userLib.request({url: `https://derpi.vlos.ru/search.json?random_image=true&filter_id=56027&q=${args.length ? args.join(' ') : '*'}`, json: true})).id;
   if (!imageId) {msg.channel.send(embedErr);return;}
 
-  let pony = await client.userLib.request({url: `https://derpi.vlos.ru/api/v1/json/images/${imageId}`, json: true}).catch(e => 0);
+  let pony = await client.userLib.request({url: `https://derpi.vlos.ru/api/v1/json/images/${imageId}`, json: true}).catch(() => 0);
   if (!pony) {msg.channel.send(embedErr);return;}
   pony = pony.image;
 
-  let description = pony.tags.reduce((pr, cu) => pr += cu + ',', "**Тэги:** ").slice(0, -1);
+  let description = pony.tags.reduce((pr, cu) => pr + cu + ',', "**Тэги:** ").slice(0, -1);
   let embed = new client.userLib.discord.RichEmbed()
     .setTitle(`${pony.tags.indexOf("gay") != -1 ? ':rainbow_flag: ' : ''}Derpibooru ${pony.format == 'webm' ? 'VIDEO' : 'IMAGE'}#${pony.id}`)
     .setImage(pony.representations.full)
