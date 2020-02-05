@@ -16,5 +16,6 @@ exports.run = (client, msg) => {
 			.setDescription(`Лог канал отключён.`)
 			.setTimestamp();
 		msg.channel.send(embed);
+		client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL }, channel: { id: msg.channel.id }, content: 'отключение лог канала'});
 	})
 };

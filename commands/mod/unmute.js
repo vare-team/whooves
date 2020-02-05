@@ -15,4 +15,5 @@ exports.run = async (client, msg) => {
 	client.userLib.db.delete('mutes', {userId: msg.mentions.users.first().id, guildId: msg.guild.id}, () => {});
 
 	msg.reply('мут снят!');
+	client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL }, channel: { id: msg.channel.id }, content: `снятие мута с ${msg.mentions.users.first()}`});
 };

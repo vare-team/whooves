@@ -5,7 +5,8 @@ exports.help = {
 	usage: '(кол-во строк) (кол-во столбцов) (кол-во мин)',
 	dm: 1,
   tier: 0,
-  cooldown: 1
+  cooldown: 1,
+	hide: 1
 };
 
 const Minesweeper = require('discord.js-minesweeper');
