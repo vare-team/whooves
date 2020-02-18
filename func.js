@@ -174,7 +174,7 @@ module.exports = function (Discord, client, con) {
 		if (!type) return console.warn('Error! Тип не указан');
 		switch (type) {
 			case "memberAdd":
-				text += `**Заход участника** <@${data.user.id}>;\nАккаунт зарегистрирован __${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
+				text += `**Заход участника** <@${data.user.id}> (ID: ${data.user.id});\nАккаунт зарегистрирован __${this.moment(data.user.createdAt, "WWW MMM DD YYYY HH:mm:ss").fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
 				break;
 
 			case "memberRemove":
