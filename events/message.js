@@ -40,10 +40,18 @@ module.exports = async (client, msg) => {
 			cmd.help.argsCount = (cmd.help.usage.match(/\[/g) || []).length;
 		}
 		if (cmd.help.usage.includes('[@кто]')) cmd.help.userMention = true;
-		if (cmd.help.usage.includes('[#текстовый канал]')) cmd.help.channelMention = true;
+		if (cmd.help.usage.includes('[#текстовый_канал]')) cmd.help.channelMention = true;
 		if (cmd.help.usage.includes('{подключение}')) cmd.help.inVoice = true;
 	}
 	// USAGE PARSE
+
+	//Magic Mention
+	let magicPosition = cmd.help.usage.split(/ +/g).findIndex(item => item.slice(1, -1) == '@кто');
+	if (magicPosition != -1) {
+		msg.magicMention = msg.mentions.users.first() ? msg.mentions.users.first() : args[magicPosition] ? msg.guild.members.get(args[0]) ? msg.guild.members.get(args[magicPosition]) : msg.guild.members.find(val => val.user.username.toLowerCase().startsWith(args[magicPosition].toLowerCase())) : false;
+		msg.magicMention = msg.magicMention != null ? msg.magicMention.user ? msg.magicMention.user : msg.magicMention : false;
+	}
+	//Magic Mention
 
 	//CHECK ARGS
 	let tempError = '';
@@ -51,9 +59,9 @@ module.exports = async (client, msg) => {
 		tempError = 'Аргументы команды введены не верно!';
 	if (!tempError && cmd.help.args && cmd.help.argsCount > args.length)
 		tempError = 'Количество аргументов не верно!';
-	if (!tempError && cmd.help.userMention && !msg.mentions.users.first())
+	if (!tempError && cmd.help.userMention && !msg.magicMention)
 		tempError = 'Введённая вами команда требует упоминания.';
-	if (!tempError && cmd.help.userMention && msg.mentions.users.first().id == msg.author.id)
+	if (!tempError && cmd.help.userMention && msg.magicMention.id == msg.author.id)
 		tempError = 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.';
 	if (!tempError && cmd.help.channelMention && !msg.mentions.channels.first())
 		tempError = 'Нужно указать канал.';
@@ -62,7 +70,7 @@ module.exports = async (client, msg) => {
 
 	if (tempError) {
 		client.userLib.retError(msg.channel, msg.author, `${tempError}\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
-		msg.react('❌');
+		// msg.react('❌');
 		return;
 	}
 	//CHECK ARGS

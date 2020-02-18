@@ -9,7 +9,7 @@ exports.help = {
 };
 
 exports.run = async (client, msg) => {
-	let user = msg.mentions.users.first() || msg.author;
+	let user = msg.magicMention || msg.author;
 
 	if (user.bot) {
 		client.userLib.retError(msg.channel, msg.author, 'У машин не может быть монет. Машины должны только подчиняться.');

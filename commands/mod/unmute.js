@@ -12,8 +12,8 @@ exports.run = async (client, msg) => {
 	let mutedRole = (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT mutedRole FROM guilds WHERE guildId = ?', [msg.guild.id])).res;
 	if (!msg.guild.roles.has(mutedRole)) {client.userLib.retError(msg.channel, msg.author, 'Роли мута не существует.');return;}
 	msg.mentions.members.first().removeRole(mutedRole, 'Снятие мута!');
-	client.userLib.db.delete('mutes', {userId: msg.mentions.users.first().id, guildId: msg.guild.id}, () => {});
+	client.userLib.db.delete('mutes', {userId: msg.magicMention.id, guildId: msg.guild.id}, () => {});
 
 	msg.reply('мут снят!');
-	client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL }, channel: { id: msg.channel.id }, content: `снятие мута с ${msg.mentions.users.first()}`});
+	client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL }, channel: { id: msg.channel.id }, content: `снятие мута с ${msg.magicMention}`});
 };

@@ -2,7 +2,7 @@ exports.help = {
   name: "filter",
   description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
 	aliases: ['f'],
-  usage: "[1-7] (@кто/вложение)",
+  usage: "[1-7] (@кто) / (вложение)",
 	dm: 0,
 	tier: 0,
   cooldown: 10
@@ -26,7 +26,7 @@ exports.run = async (client, msg, args) => {
 
 	msg.channel.startTyping();
 
-	let use = msg.mentions.users.first() || msg.author;
+	let use = msg.magicMention || msg.author;
 	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL+'?size=512';
 
 	const ava = await client.userLib.loadImage(use)

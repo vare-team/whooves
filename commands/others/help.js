@@ -2,7 +2,7 @@ exports.help = {
 	name: 'help',
 	description: 'Лист команд, позволяет узнать более подробную информацию о каждой команде.',
 	aliases: ['commands', 'h'],
-	usage: '(название команды)',
+	usage: '(название_команды)',
 	dm: 1,
 	tier: 0,
 	cooldown: 2

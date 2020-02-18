@@ -2,7 +2,7 @@ exports.help = {
 	name: "ac",
 	description: "Загрузка команды",
 	aliases: [],
-	usage: "[название модуля] [название команды]",
+	usage: "[название_модуля] [название_команды]",
 	dm: 1,
 	tier: 1,
 	cooldown: 0

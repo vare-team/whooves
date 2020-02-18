@@ -2,7 +2,7 @@ exports.help = {
 	name: "govoice",
 	description: "Переместить всех в вашем голосовом канале в указанный канал.",
 	aliases: ['gv'],
-	usage: "{подключение} [ID Канала]",
+	usage: "{подключение} [ID_Канала]",
 	dm: 0,
 	tier: -1,
 	cooldown: 15

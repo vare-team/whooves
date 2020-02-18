@@ -2,7 +2,7 @@ exports.help = {
 	name: "rc",
 	description: "Перезагрузка команды",
 	aliases: [],
-	usage: "[название команды]",
+	usage: "[название_команды]",
 	dm: 1,
 	tier: 1,
 	cooldown: 0

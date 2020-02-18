@@ -2,7 +2,7 @@ exports.help = {
   name: "minesweeper",
   description: "Генерирует поле игры \"Сапёр\"",
 	aliases: ['ms'],
-	usage: '(кол-во строк) (кол-во столбцов) (кол-во мин)',
+	usage: '(кол-во_строк) (кол-во_столбцов) (кол-во_мин)',
 	dm: 1,
   tier: 0,
   cooldown: 1,

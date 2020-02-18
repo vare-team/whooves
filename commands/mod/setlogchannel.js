@@ -2,7 +2,7 @@ exports.help = {
   name: "setlogchannel",
   description: "Задать канал для Логирования",
 	aliases: ['slc', 'setlc'],
-  usage: "[#текстовый канал]",
+  usage: "[#текстовый_канал]",
 	dm: 1,
   tier: -3,
   cooldown: 5

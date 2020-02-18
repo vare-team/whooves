@@ -2,7 +2,7 @@ exports.help = {
 	name: "man",
 	description: "Различные важные документы.",
 	aliases: ['m', 'doc'],
-	usage: '["ls" / имя документа] (en/ru)',
+	usage: '["ls"/имя_документа] (en/ru)',
 	dm: 1,
 	tier: 0,
 	cooldown: 5

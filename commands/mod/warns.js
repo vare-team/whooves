@@ -9,7 +9,7 @@ exports.help = {
 };
 
 exports.run = async (client, msg) => {
-	let user = msg.mentions.users.first() || msg.author;
+	let user = msg.magicMention || msg.author;
 	let warns = await client.userLib.promise(client.userLib.db, client.userLib.db.query, 'SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, msg.guild.id]);
 	warns = warns.res;
 
