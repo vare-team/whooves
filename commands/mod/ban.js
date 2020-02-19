@@ -1,7 +1,7 @@
 exports.help = {
 	name: "ban",
 	description: "Выдать бан участнику.",
-	aliases: [],
+	aliases: ['bn'],
 	usage: "[@кто] (причина) (-force,-clearmsg)",
 	dm: 0,
 	tier: -1,

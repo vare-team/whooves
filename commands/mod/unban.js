@@ -1,7 +1,7 @@
 exports.help = {
 	name: "unban",
 	description: "Разбанить учасника.",
-	aliases: [],
+	aliases: ['ubn'],
 	usage: "[ID_кто] (причина)",
 	dm: 0,
 	tier: -1,

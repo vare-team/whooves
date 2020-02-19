@@ -1,7 +1,7 @@
 exports.help = {
 	name: "kick",
 	description: "Кикнуть участника.",
-	aliases: [],
+	aliases: ['kc'],
 	usage: "[@кто] (причина) (-force)",
 	dm: 0,
 	tier: -1,
