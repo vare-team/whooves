@@ -17,7 +17,9 @@ exports.run = async (client, msg, args) => {
 	let arguments = {};
 
 	arguments.force = args.indexOf('-force');
-	if (arguments.force != 1) delete args[arguments.force];
+	if (arguments.force != -1) args.splice(arguments.force, 1);
+
+	console.log(args);
 
 	let reason = args.slice(1).join(' ') ? args.slice(1).join(' ') : 'Причина не указана';
 
@@ -34,7 +36,7 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	msg.magicMention.send(`Вы были кикнуты с сервера \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
+	await msg.magicMention.send(`Вы были кикнуты с сервера \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
 	msg.guild.members.get(msg.magicMention.id).kick(reason);
 
 	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`${msg.magicMention} был кикнут!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);

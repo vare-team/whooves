@@ -2,7 +2,7 @@ exports.help = {
 	name: "ban",
 	description: "Выдать бан участнику.",
 	aliases: [],
-	usage: "[@кто] (причина) (-force, -clearmsg)",
+	usage: "[@кто] (причина) (-force,-clearmsg)",
 	dm: 0,
 	tier: -1,
 	cooldown: 5
@@ -17,10 +17,10 @@ exports.run = async (client, msg, args) => {
 	let arguments = {};
 
 	arguments.force = args.indexOf('-force');
-	if (arguments.force != 1) delete args[arguments.force];
+	if (arguments.force != -1) args.splice(arguments.force, 1);
 
 	arguments.clearmsg = args.indexOf('-clearmsg');
-	if (arguments.clearmsg != 1) delete args[arguments.clearmsg];
+	if (arguments.clearmsg != -1) args.splice(arguments.clearmsg, 1);
 
 	let reason = args.slice(1).join(' ') ? args.slice(1).join(' ') : 'Причина не указана';
 
@@ -37,7 +37,7 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	msg.magicMention.send(`Вам был выдан бан на сервере \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
+	await msg.magicMention.send(`Вам был выдан бан на сервере \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
 	msg.guild.ban(msg.magicMention, {reason: msg.author.tag + ': ' + reason, days: arguments.clearmsg != -1 ? 7 : 0});
 
 	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`Бан ${msg.magicMention} выдан!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
