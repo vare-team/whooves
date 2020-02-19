@@ -24,11 +24,11 @@ module.exports = async (client, msg) => {
 		return;
 	}
 
-	if(msg.channel.type == 'dm' && !cmd.help.dm) {
+	if (msg.channel.type == 'dm' && !cmd.help.dm) {
 		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Команда не доступна для использования в ЛС.'); return;
 	}
 
-	if(cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier, msg.guild.ownerID, msg.member)) {
+	if (cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier, msg.channel.type == 'dm' ? msg.author.id : msg.guild.ownerID, msg.channel.type == 'dm' ? msg.author : msg.member)) {
 		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Не достаточно прав!'); return;
 	}
 
@@ -104,10 +104,10 @@ module.exports = async (client, msg) => {
 
 	try {
 		cmd.run(client, msg, args);
-		client.userLib.sendLog(`Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`, 'Info');
+		client.userLib.sendLog(`Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.channel.type == 'dm' ? 'DM' : `${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`}`, 'Info');
 		client.statistic.executedcmd++;
 	} catch (err) {
-		client.userLib.sendLog(`! Ошибка!\n! Команда - ${cmd.help.name}\n! Сервер: ${msg.guild.name} (ID: ${msg.guild.id})\n! Канал: ${msg.channel.name} (ID: ${msg.channel.id})\n! Пользователь: ${msg.author.tag} (ID: ${msg.author.id})\n! Текст ошибки: ${err}`, 'ERROR!');
+		client.userLib.sendLog(`! Ошибка!\n! Команда - ${cmd.help.name}\n! ${msg.channel.type == 'dm' ? 'DM' : `Сервер: ${msg.guild.name} (ID: ${msg.guild.id})\\n! Канал: ${msg.channel.name} (ID: ${msg.channel.id})\\n!`} Пользователь: ${msg.author.tag} (ID: ${msg.author.id})\n! Текст ошибки: ${err}`, 'ERROR!');
 		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
 		client.statistic.erroredcmd++;
 	}
