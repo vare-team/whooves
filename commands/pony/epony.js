@@ -2,7 +2,7 @@ exports.help = {
   name: "epony",
   description: "Поиск по derpibooru.org\n**Для снятие цензуры, команду необходимо использовать в NSFW канале!**",
   aliases: ['ederpi', 'eps'],
-  usage: "(запрос)",
+  usage: [{type: 'text', opt: 1, name: 'запрос'}],
   dm: 1,
   tier: 0,
   cooldown: 5
@@ -10,7 +10,7 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
   if (!msg.channel.nsfw) {
-    client.userLib.retError(msg.channel, msg.author, 'Можно использовать только в NSFW канале!');
+    client.userLib.retError(msg, 'Можно использовать только в NSFW канале!');
     return;
   }
 

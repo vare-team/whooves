@@ -2,7 +2,7 @@ exports.help = {
 	name: "rc",
 	description: "Перезагрузка команды",
 	aliases: [],
-	usage: "[название_команды]",
+	usage: [{type: 'text', opt: 0, name: 'название команды'}],
 	dm: 1,
 	tier: 1,
 	cooldown: 0
@@ -12,7 +12,7 @@ exports.run = (client, msg, args) => {
 	const cmd = client.commands.get(args[0].toLowerCase()) || client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(args[0].toLowerCase()));
 
 	if (!cmd) {
-		client.userLib.retError(msg.channel, msg.author, 'Команды не существует!');
+		client.userLib.retError(msg, 'Команды не существует!');
 		return;
 	}
 

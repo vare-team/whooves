@@ -2,7 +2,9 @@ exports.help = {
   name: "minesweeper",
   description: "Генерирует поле игры \"Сапёр\"",
 	aliases: ['ms'],
-	usage: '(кол-во_строк) (кол-во_столбцов) (кол-во_мин)',
+	usage: [{type: 'text', opt: 1, name: 'кол-во строк'},
+					{type: 'text', opt: 1, name: 'кол-во столбцов'},
+					{type: 'text', opt: 1, name: 'кол-во мин'}],
 	dm: 1,
   tier: 0,
   cooldown: 1,
@@ -14,7 +16,7 @@ const Minesweeper = require('discord.js-minesweeper');
 exports.run = (client, msg, args) => {
 
 	if (args[0] && isNaN(+args[0]) || args[1] && isNaN(+args[1]) || args[2] && isNaN(+args[2])) {
-		client.userLib.retError(msg.channel, msg.author, 'Всё должно быть числами.');
+		client.userLib.retError(msg, 'Всё должно быть числами.');
 		return;
 	}
 
@@ -28,7 +30,7 @@ exports.run = (client, msg, args) => {
 	let pole = minesweeper.start();
 
 	if (!pole) {
-		client.userLib.retError(msg.channel, msg.author, 'Ошибка генерации. Не правильные параметры.');
+		client.userLib.retError(msg, 'Ошибка генерации. Не правильные параметры.');
 		return;
 	}
 

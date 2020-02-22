@@ -2,7 +2,7 @@ exports.help = {
 	name: "lang",
 	description: "Перевести текст в русскую раскладку.",
 	aliases: ['l'],
-	usage: "[текст]",
+	usage: [{type: 'text', opt: 0, name: 'текст'}],
 	dm: 1,
 	tier: 0,
 	cooldown: 5

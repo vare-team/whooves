@@ -2,7 +2,7 @@ exports.help = {
 	name: "agh",
 	description: "Перевернуть это чёртов стол!",
 	aliases: [],
-	usage: "",
+	usage: [],
 	dm: 0,
 	tier: 0,
 	cooldown: 5

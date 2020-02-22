@@ -2,7 +2,7 @@ exports.help = {
   name: "setprefix",
   description: "Задать префикс для бота на сервере",
 	aliases: ['setp'],
-  usage: "[символ]",
+  usage: [{type: 'text', opt: 0, name: 'символ'}],
 	dm: 0,
   tier: -3,
   cooldown: 15
@@ -10,7 +10,7 @@ exports.help = {
 
 exports.run = (client, msg, args) => {
 	if (args[0].length > 5) {
-		client.userLib.retError(msg.channel, msg.author, 'Префикс бота должен быть не более 1 символа!');
+		client.userLib.retError(msg, 'Префикс бота должен быть не более 1 символа!');
 		return;
 	}
 

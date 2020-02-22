@@ -4,10 +4,12 @@ exports.help = {
   aliases: [],
   dm: 0,
   tier: 0,
-  usage: "[Ник]",
+  usage: [{type: 'text', opt: 0, name: 'Ник'}],
   cooldown: 1,
   hide: 1
 };
+
+//TODO search api and fix
 
 exports.run = async (client, msg, args) => {
   msg.channel.startTyping();

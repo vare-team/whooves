@@ -2,7 +2,8 @@ exports.help = {
   name: "delwarn",
   description: "Снять предупреждение с учасика",
 	aliases: ['delw', 'dw'],
-  usage: "[@кто] [id]",
+  usage: [{type: 'user', opt: 0},
+  	      {type: 'text', opt: 0, name: 'id'}],
 	dm: 0,
   tier: -1,
   cooldown: 15
@@ -12,7 +13,7 @@ exports.run = (client, msg, args) => {
 
 	client.userLib.db.delete('warns', {warnId: args[1], userId: msg.magicMention.id, guildId: msg.guild.id}, (err, affR) => {
 		if (!affR) {
-			client.userLib.retError(msg.channel, msg.author, 'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.');
+			client.userLib.retError(msg, 'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.');
 			return;
 		}
 

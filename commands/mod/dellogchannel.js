@@ -2,7 +2,7 @@ exports.help = {
   name: "dellogchannel",
   description: "Отключить Лог-канал",
 	aliases: ['dlc', 'dellc'],
-  usage: "",
+  usage: [],
 	dm: 0,
   tier: -3,
   cooldown: 10

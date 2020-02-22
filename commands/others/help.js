@@ -2,7 +2,7 @@ exports.help = {
 	name: 'help',
 	description: 'Лист команд, позволяет узнать более подробную информацию о каждой команде.',
 	aliases: ['commands', 'h'],
-	usage: '(название_команды)',
+	usage: [{type: 'text', opt: 1, name: 'название команды'}],
 	dm: 1,
 	tier: 0,
 	cooldown: 2
@@ -55,7 +55,7 @@ exports.run = (client, msg, args) => {
 	const command = client.commands.get(name) || client.commands.find(c => c.help.aliases && c.help.aliases.includes(name));
 
 	if (!command) {
-		client.userLib.retError(msg.channel, msg.author, 'Возможно, в другой временной линии эта команда и есть, но тут пока ещё не добавили.');
+		client.userLib.retError(msg, 'Возможно, в другой временной линии эта команда и есть, но тут пока ещё не добавили.');
 		return;
 	}
 
@@ -66,7 +66,7 @@ exports.run = (client, msg, args) => {
 
 	if (command.help.description) embed.setDescription(command.help.description);
 	if (command.help.aliases.length) embed.addField("Псевдонимы", command.help.aliases.join(', '), true);
-	if (command.help.usage) embed.addField("Использование", `${msg.flags.prefix}${command.help.name} \`\`${command.help.usage}\`\``, true);
+	if (command.help.usage) embed.addField("Использование", `${msg.flags.prefix}${command.help.name} \`\`${client.userLib.generateUsage(command.help.usage)}\`\``, true);
 	embed.addField("Доступно", tiers[command.help.tier]);
 	embed.addField("Время между использованиями", `Секунд: \`\`${command.cooldown || 3}\`\``);
 

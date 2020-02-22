@@ -2,7 +2,7 @@ exports.help = {
   name: "ip",
   description: "Данные по IP адресу",
   aliases: [],
-  usage: "[ip]",
+  usage: [{type: 'text', opt: 0, name: 'ip'}],
   dm: 0,
   tier: 0,
   cooldown: 5
@@ -12,7 +12,7 @@ exports.run = async (client, msg, args) => {
   let body = await client.userLib.request('https://api.sypexgeo.net/json/' + args[0], {json: true});
   
   if (!body.country) {
-    client.userLib.retError(msg.channel, msg.author, 'Не корректный IP адрес.');
+    client.userLib.retError(msg, 'Не корректный IP адрес.');
     return;
   }
   

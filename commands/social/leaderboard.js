@@ -2,7 +2,7 @@ exports.help = {
   name: "leaderboard",
   description: "Таблица лидеров по валюте на сервере",
 	aliases: ['lb'],
-  usage: "",
+  usage: [],
 	dm: 0,
   tier: 0,
   cooldown: 10
