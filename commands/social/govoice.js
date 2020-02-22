@@ -2,7 +2,8 @@ exports.help = {
 	name: "govoice",
 	description: "Переместить всех в вашем голосовом канале в указанный канал.",
 	aliases: ['gv'],
-	usage: "{подключение} [ID Канала]",
+	usage: [{type: 'text', opt: 0, name: 'ID Канала'},
+					{type: 'voice'}],
 	dm: 0,
 	tier: -1,
 	cooldown: 15
@@ -13,7 +14,7 @@ exports.run = (client, msg, args) => {
 	let govoice = msg.guild.channels.get(args[0]);
 
 	if (!govoice || govoice.type != 'voice') {
-		client.userLib.retError(msg.channel, msg.author, 'Вы указали не корректный ID голосового канала!');
+		client.userLib.retError(msg, 'Вы указали не корректный ID голосового канала!');
 		return;
 	}
 

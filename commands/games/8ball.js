@@ -2,7 +2,7 @@ exports.help = {
   name: "8ball",
   description: "Задайте магическому шару вопрос и он на него ответит!",
 	aliases: ['ball', 'bl', '8'],
-  usage: "[вопрос]",
+  usage: [{type: 'text', opt: 0, name: 'вопрос'}],
 	dm: 0,
   tier: 0,
   cooldown: 5
@@ -31,9 +31,11 @@ const answers = [
 	'Весьма сомнительно'
 ];
 
+//TODO добавить больше вопрос/ответ
 const questions = {
 	'доктор': 'Доктор Кто',
-	'имя доктора': 'Whooves'
+	'имя доктора': 'Whooves',
+	'': ''
 };
 
 exports.run = (client, msg, args) => {

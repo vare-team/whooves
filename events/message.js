@@ -5,13 +5,16 @@ module.exports = async (client, msg) => {
 	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
 	msg.flags.prefix = prefix;
 
-	if(msg.mentions.users.first() && msg.mentions.users.first().id == client.user.id) {
+	if (msg.content === `<@${client.user.id}>`) {
 		msg.reply(`Мой префикс \`\`${prefix}\`\`\nМожешь написать \`\`${prefix}help\`\` для помощи.`);
 		return;
 	}
 
-	if(!msg.content.toLowerCase().startsWith(prefix)) {
-		client.userLib.db.query('INSERT INTO users (userId, tag) VALUES (?, ?) ON DUPLICATE KEY UPDATE xp = xp + ?', [msg.author.id, msg.author.tag, client.userLib.randomIntInc(1,5)]);
+	if (!msg.content.toLowerCase().startsWith(prefix)) {
+		client.userLib.db.query('INSERT INTO users (userId, tag) VALUES (?, ?) ON DUPLICATE KEY UPDATE xp = xp + ?', [
+			msg.author.id,
+			msg.author.tag,
+			client.userLib.randomIntInc(1, 5)]);
 		return;
 	}
 
@@ -19,50 +22,70 @@ module.exports = async (client, msg) => {
 	const cmd = client.commands.get(command.toLowerCase()) || client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(command.toLowerCase()));
 	if (!cmd) return;
 
-	if(msg.channel.type != 'dm' && !msg.channel.memberPermissions(client.user).has('EMBED_LINKS')) {
+	if (msg.channel.type != 'dm' && !msg.channel.memberPermissions(client.user).has('EMBED_LINKS')) {
 		msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
 		return;
 	}
 
-	if(msg.channel.type == 'dm' && !cmd.help.dm) {
-		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Команда не доступна для использования в ЛС.'); return;
+	if (msg.channel.type == 'dm' && !cmd.help.dm) {
+		client.userLib.retError(msg, 'Команда не доступна для использования в ЛС.');
+		return;
 	}
 
-	if(cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier, msg.guild.ownerID, msg.member)) {
-		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Не достаточно прав!'); return;
+	if (cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier,
+		msg.channel.type === 'dm' ? {ownerID: msg.author.id, member: msg.author}
+			: {ownerID: msg.guild.ownerID, member: msg.member})) {
+		client.userLib.retError(msg, 'Не достаточно прав!');
+		return;
 	}
 
 
 	// USAGE PARSER
-	if (cmd.help.usage) {
-		if (cmd.help.usage.includes("[")) {
-			cmd.help.args = true;
-			cmd.help.argsCount = (cmd.help.usage.match(/\[/g) || []).length;
+	if (cmd.help.usage.length) {
+		cmd.help.argsCount = 0;
+		cmd.help.usageStr = client.userLib.generateUsage(cmd.help.usage);
+		for (let us of cmd.help.usage) {
+			if (!us.opt) {
+				cmd.help.argsCount++;
+				if (!cmd.help.args) cmd.help.args = true;
+				if (us.type === 'user') cmd.help.userMention = true;
+				if (us.type === 'channel') cmd.help.channelMention = true;
+				if (us.type === 'attach') cmd.help.hasAttach = true;
+			}
+			if (us.type === 'voice') cmd.help.hasVoice = true;
+			if (us.type === 'user') cmd.help.userMentionPosition = cmd.help.usage.findIndex(el => us === el);
 		}
-		if (cmd.help.usage.includes('[@кто]')) cmd.help.userMention = true;
-		if (cmd.help.usage.includes('[#текстовый канал]')) cmd.help.channelMention = true;
-		if (cmd.help.usage.includes('{подключение}')) cmd.help.inVoice = true;
 	}
 	// USAGE PARSE
+
+	//Magic Mention
+	if (cmd.help.userMentionPosition !== undefined && args[cmd.help.userMentionPosition] && cmd.help.userMentionPosition != -1) {
+		msg.magicMention = msg.mentions.members.first()
+			|| msg.guild.members.get(args[cmd.help.userMentionPosition])
+			|| msg.guild.members.find(val => val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
+			|| false;
+	}
+	//Magic Mention
 
 	//CHECK ARGS
 	let tempError = '';
 	if (cmd.help.args && !args.length)
-		tempError = 'Аргументы команды введены не верно!';
-	if (!tempError && cmd.help.args && cmd.help.argsCount > args.length)
-		tempError = 'Количество аргументов не верно!';
-	if (!tempError && cmd.help.userMention && !msg.mentions.users.first())
-		tempError = 'Введённая вами команда требует упоминания.';
-	if (!tempError && cmd.help.userMention && msg.mentions.users.first().id == msg.author.id)
-		tempError = 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.';
-	if (!tempError && cmd.help.channelMention && !msg.mentions.channels.first())
-		tempError = 'Нужно указать канал.';
-	if (!tempError && cmd.help.inVoice && !msg.member.voiceChannel)
-		tempError = 'Вы должны находиться в голосовом канале!';
+		tempError += 'Аргументы команды введены не верно!\n';
+	if (cmd.help.args && cmd.help.argsCount > args.length)
+		tempError += 'Количество аргументов не верно!\n';
+	if (cmd.help.userMention && !msg.magicMention)
+		tempError += 'Введённая вами команда требует упоминания.\n';
+	if (cmd.help.userMention && msg.magicMention && msg.magicMention.id == msg.author.id)
+		tempError += 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.\n';
+	if (cmd.help.channelMention && !msg.mentions.channels.first())
+		tempError += 'Нужно указать канал.\n';
+	if (cmd.help.hasVoice && !msg.member.voiceChannel)
+		tempError += 'Вы должны находиться в голосовом канале!\n';
+	if (cmd.help.hasAttach && !msg.attachments.size)
+		tempError += 'Вы должны прикрепить файл!\n';
 
 	if (tempError) {
-		client.userLib.retError(msg.channel, msg.author, `${tempError}\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usage}\`\``);
-		msg.react('❌');
+		client.userLib.retError(msg, `${tempError}\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usageStr}\`\``);
 		return;
 	}
 	//CHECK ARGS
@@ -79,11 +102,7 @@ module.exports = async (client, msg) => {
 			let expirationTime = times.get(msg.author.id) + cmd.help.cooldown * 1000;
 			if (now <= expirationTime) {
 				let timeLeft = (expirationTime - now) / 1000;
-				client.userLib.retError(msg.channel, {
-					id: msg.author.id,
-					tag: msg.author.tag,
-					displayAvatarURL: msg.author.displayAvatarURL
-				}, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
+				client.userLib.retError(msg, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
 				client.userLib.sendLog(`Try use: ${command}, Time left: ${timeLeft}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`, 'Info');
 				return;
 			}
@@ -96,11 +115,11 @@ module.exports = async (client, msg) => {
 
 	try {
 		cmd.run(client, msg, args);
-		client.userLib.sendLog(`Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`, 'Info');
+		client.userLib.sendLog(client.userLib.generateUseLog(msg.channel.type, cmd.help.name, msg), 'Info');
 		client.statistic.executedcmd++;
 	} catch (err) {
-		client.userLib.sendLog(`! Ошибка!\n! Команда - ${cmd.help.name}\n! Сервер: ${msg.guild.name} (ID: ${msg.guild.id})\n! Канал: ${msg.channel.name} (ID: ${msg.channel.id})\n! Пользователь: ${msg.author.tag} (ID: ${msg.author.id})\n! Текст ошибки: ${err}`, 'ERROR!');
-		client.userLib.retError(msg.channel, {id: msg.author.id, tag: msg.author.tag, displayAvatarURL: msg.author.displayAvatarURL}, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
+		client.userLib.sendLog(client.userLib.generateErrLog(msg.channel.type, cmd.help.name, msg, err), 'ERROR!');
+		client.userLib.retError(msg, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
 		client.statistic.erroredcmd++;
 	}
 
@@ -127,5 +146,14 @@ exports.help = {
 	usage: '',
 	cooldown: 0
 };
+
+let usage = [
+	{type: 'text', opt: 0, name: ''},
+	{type: 'text', opt: 1, name: ''},
+	{type: 'user', opt: 0},
+	{type: 'channel', opt: 1},
+	{type: 'voice'},
+	{type: 'attach', opt: 1}
+];
 
 */

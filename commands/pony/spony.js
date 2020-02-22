@@ -2,7 +2,7 @@ exports.help = {
   name: "spony",
   description: "Поиск по derpibooru.org",
   aliases: ['sderpi', 'sps'],
-  usage: "(запрос)",
+  usage: [{type: 'text', opt: 1, name: 'запрос'}],
   dm: 1,
   tier: 0,
   cooldown: 5

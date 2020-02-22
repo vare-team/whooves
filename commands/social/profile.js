@@ -2,7 +2,7 @@ exports.help = {
 	name: "profile",
 	description: "Сгенерировать профиль-карточку.",
 	aliases: ['pr'],
-	usage: "(@кто)",
+	usage: [{type: 'user', opt: 1}],
 	dm: 0,
 	tier: 0,
 	cooldown: 10
@@ -19,7 +19,7 @@ const applyText = (canvas, ctx, text = '', x = 0, y = 0, fontSize = 18, width = 
 exports.run = async (client, msg) => {
 	msg.channel.startTyping();
 
-	let use = msg.mentions.users.first() || msg.author;
+	let use = msg.magicMention.user || msg.author;
 
 	const canvas = client.userLib.createCanvas(400, 600);
 	const ctx = canvas.getContext('2d');

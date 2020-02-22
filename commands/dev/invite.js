@@ -2,7 +2,7 @@ exports.help = {
 	name: "invite",
 	description: "Генерация инвайта на сервер",
 	aliases: [],
-	usage: "[id]",
+	usage: [{type: 'text', opt: 0, name: 'id'}],
 	dm: 1,
 	tier: 1,
 	cooldown: 0

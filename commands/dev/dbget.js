@@ -2,7 +2,7 @@ exports.help = {
 	name: "dbget",
 	description: "Генерация рандомной последовательности 12 символов",
 	aliases: [],
-	usage: "",
+	usage: [],
 	dm: 1,
 	tier: 1,
 	cooldown: 0

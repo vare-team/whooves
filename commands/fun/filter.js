@@ -2,7 +2,9 @@ exports.help = {
   name: "filter",
   description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
 	aliases: ['f'],
-  usage: "[1-7] (@кто/вложение)",
+  usage: [{type: 'text', opt: 0, name: '1-7'},
+	        {type: 'user', opt: 1},
+	        {type: 'attach', opt: 1}],
 	dm: 0,
 	tier: 0,
   cooldown: 10
@@ -10,23 +12,23 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
 	if (['1','2','3','4','5','6','7'].indexOf(args[0]) == -1) {
-		client.userLib.retError(msg.channel, msg.author, 'Неправильно указан номер фильтра. Правильно: '+exports.help.usage);
+		client.userLib.retError(msg, 'Неправильно указан номер фильтра.\n' + client.userLib.generateUsage(exports.help.usage));
 		return;
 	}
 
 	if (msg.attachments.first() && !msg.attachments.first().width) {
-		client.userLib.retError(msg.channel, msg.author, 'Файл должен быть изображением.');
+		client.userLib.retError(msg, 'Файл должен быть изображением.');
 		return;
 	}
 
 	if (msg.attachments.first() && msg.attachments.first().filesize > 8*1024*1024) {
-		client.userLib.retError(msg.channel, msg.author, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
+		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
 		return;
 	}
 
 	msg.channel.startTyping();
 
-	let use = msg.mentions.users.first() || msg.author;
+	let use = msg.magicMention.user || msg.author;
 	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL+'?size=512';
 
 	const ava = await client.userLib.loadImage(use)

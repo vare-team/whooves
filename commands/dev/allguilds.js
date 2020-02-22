@@ -2,7 +2,7 @@ exports.help = {
 	name: "allguilds",
 	description: "Список гильдий с количеством серверов",
 	aliases: ['ag'],
-	usage: "",
+	usage: [],
 	dm: 1,
 	tier: 1,
 	cooldown: 0

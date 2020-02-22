@@ -2,7 +2,7 @@ exports.help = {
   name: "say",
   description: "Написать от имени бота.",
 	aliases: ['s'],
-  usage: "[текст]",
+  usage: [{type: 'text', opt: 0, name: 'текст'}],
 	dm: 0,
 	tier: -2,
 	cooldown: 5

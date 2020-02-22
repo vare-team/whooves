@@ -2,8 +2,8 @@ exports.help = {
   name: "info",
   description: "Информация о боте",
 	aliases: ['i'],
-  usage: "",
-	dm: 0,
+  usage: [],
+	dm: 1,
   tier: 0,
   cooldown: 5
 };
@@ -11,9 +11,12 @@ exports.help = {
 const { uptime } = require('os');
 const { version } = require("discord.js");
 
-exports.run = (client, msg) => {
+exports.run = async (client, msg) => {
 
-		client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE guildId = ?', [msg.guild.id], (err, logchannel) => {
+	let logchannel;
+		//client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE guildId = ?', [msg.guild.id], (err, logchannel) =>
+	if (msg.channel.type !== 'dm') logchannel = await client.userLib.db.promise().query('SELECT logchannel FROM guilds WHERE guildId = ?', [msg.guild.id]);
+
 			let embed = new client.userLib.discord.RichEmbed()
 			.setAuthor(client.user.username + " - информация о боте", client.user.displayAvatarURL, 'https://akin.server-discord.com')
 			.setColor(client.userLib.colors.inf)
@@ -35,11 +38,10 @@ exports.run = (client, msg) => {
 			.addField("Префикс", `**w.**`, true)
 			.addField("Статистика", `Команд исполнено: **${client.statistic.executedcmd}**\nИз них ошибок: **${client.statistic.erroredcmd}**`, true);
 			if (msg.flags.prefix != 'w.') embed.addField("Префикс сервера", `**${msg.flags.prefix}**`, true);
-			if (logchannel) embed.addField("Канал логирования", `**<#${logchannel}>**`, true);
+			if (logchannel) embed.addField("Канал логирования", `**<#${logchannel[0][0].logchannel}>**`, true);
 			// embed.addField("Ссылки", `[Сайт](https://akin.server-discord.com)\n[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Главный сервер](https://discord.gg/ZF3CKa3)`, true);
-			embed.addField("Ссылки", `[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)`, true);
+			embed.addField("Ссылки", `[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Сервер](https://discord.gg/8KKVhTU)`, true);
 
 			msg.channel.send(embed);
-		});
 
 };

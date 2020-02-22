@@ -2,7 +2,7 @@ exports.help = {
   name: "clearmsg",
   description: "Очистить сообщения",
 	aliases: ['cm', 'c', 'cl'],
-  usage: "[кол-во]",
+  usage: [{type: 'text', opt: 0, name: 'кол-во'}],
 	dm: 0,
 	tier: -1,
   cooldown: 5
@@ -10,7 +10,7 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
 	if (isNaN(+args[0])) {
-		client.userLib.retError(msg.channel, msg.author, 'Аргумент должен быть числом.');
+		client.userLib.retError(msg, 'Аргумент должен быть числом.');
 		return;
 	}
 

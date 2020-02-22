@@ -2,7 +2,7 @@ exports.help = {
   name: "betroll",
   description: "Делает ставку на определенное количество валюты. Генерируется число от 0 до 100. 66 дает X2 вашей валюты, более 90-X4 и 100 X10.",
 	aliases: ['bet', 'b'],
-  usage: "[кол-во]",
+  usage: [{type: 'text', opt: 0, name: 'кол-во'}],
 	dm: 0,
   tier: 0,
   cooldown: 1
@@ -10,26 +10,26 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
 	if (isNaN(+args[0])) {
-		client.userLib.retError(msg.channel, msg.author, 'Ставка должны быть числом. Я принимаю только межгалактические монеты.');
+		client.userLib.retError(msg, 'Ставка должны быть числом. Я принимаю только межгалактические монеты.');
 		return;
 	}
 
 	let bet = Math.round(+args[0]);
 
 	if (bet < 0) {
-		client.userLib.retError(msg.channel, msg.author, 'Играть на мои деньги? Умно, но не достаточно.');
+		client.userLib.retError(msg, 'Играть на мои деньги? Умно, но не достаточно.');
 		return;
 	}
 
 	if (bet == 0) {
-		client.userLib.retError(msg.channel, msg.author, 'Хлопок одним копытом лучше будет.');
+		client.userLib.retError(msg, 'Хлопок одним копытом лучше будет.');
 		return;
 	}
 
 	let uscoins = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue,'SELECT money FROM users WHERE userId = ?', [msg.author.id]);
 
 	if (uscoins < bet) {
-		client.userLib.retError(msg.channel, msg.author, 'Мечтать хорошо, не спорю, но у тебя нет такого количества денег.');
+		client.userLib.retError(msg, 'Мечтать хорошо, не спорю, но у тебя нет такого количества денег.');
 		return;
 	}
 

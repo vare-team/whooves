@@ -2,17 +2,17 @@ exports.help = {
   name: "balance",
   description: "Показать баланс",
 	aliases: ['bal'],
-  usage: "(@кто)",
+  usage: [{type: 'user', opt: 1}],
 	dm: 0,
   tier: 0,
   cooldown: 5
 };
 
 exports.run = async (client, msg) => {
-	let user = msg.mentions.users.first() || msg.author;
+	let user = msg.magicMention.user || msg.author;
 
 	if (user.bot) {
-		client.userLib.retError(msg.channel, msg.author, 'У машин не может быть монет. Машины должны только подчиняться.');
+		client.userLib.retError(msg, 'У машин не может быть монет. Машины должны только подчиняться.');
 		return;
 	}
 
@@ -20,7 +20,7 @@ exports.run = async (client, msg) => {
 	coins = coins.res;
 
 	if (!coins) {
-		client.userLib.retError(msg.channel, msg.author, 'Ваш баланс пуст, так как у вас даже ещё кошелька нет!\nПопробуй написать что-нибудь в чат для начала.');
+		client.userLib.retError(msg, 'Ваш баланс пуст, так как у вас даже ещё кошелька нет!\nПопробуй написать что-нибудь в чат для начала.');
 		return;
 	}
 

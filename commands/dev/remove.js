@@ -2,7 +2,7 @@ exports.help = {
 	name: "remove",
 	description: "Выгнать бота с сервера",
 	aliases: [],
-	usage: "[id]",
+	usage: [{type: 'text', opt: 0, name: 'id'}],
 	dm: 1,
 	tier: 1,
 	cooldown: 0

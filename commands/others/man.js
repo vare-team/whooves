@@ -2,7 +2,8 @@ exports.help = {
 	name: "man",
 	description: "Различные важные документы.",
 	aliases: ['m', 'doc'],
-	usage: '["ls" / имя документа] (en/ru)',
+	usage: [{type: 'text', opt: 0, name: '"ls"/имя документа'},
+					{type: 'text', opt: 1, name: 'en/ru'}],
 	dm: 1,
 	tier: 0,
 	cooldown: 5
@@ -27,7 +28,7 @@ readdir('./docs/', (err, files) => {
 
 exports.run = (client, msg, args) => {
 	if (args[0] != 'ls' && !docs[args[0]]) {
-		client.userLib.retError(msg.channel, msg.author, 'Документ не найден.');
+		client.userLib.retError(msg, 'Документ не найден.');
 		return;
 	}
 

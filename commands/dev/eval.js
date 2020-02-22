@@ -2,7 +2,7 @@ exports.help = {
 	name: "eval",
 	description: "Испольнение кода",
 	aliases: [],
-	usage: "[JavaScript]",
+	usage: [{type: 'text', opt: 0, name: 'JavaScript'}],
 	dm: 1,
 	tier: 2,
 	cooldown: 0
@@ -24,7 +24,7 @@ const os = require('os')
 
 exports.run = async (client, msg, args) => {
 	if (msg.author.id != master && msg.author.id != mega) {
-		client.userLib.retError(msg.channel, msg.author, 'Что-то пошло по пизде, но 2 защита сохранила безопасность.');
+		client.userLib.retError(msg, 'Что-то пошло по пизде, но 2 защита сохранила безопасность.');
 		return;
 	}
 

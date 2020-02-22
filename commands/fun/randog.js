@@ -2,7 +2,7 @@ exports.help = {
   name: "randog",
   description: "Случайная картинка с собакеным",
 	aliases: ['dog'],
-  usage: "",
+  usage: [],
 	dm: 0,
   tier: 0,
   cooldown: 5
