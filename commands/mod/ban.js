@@ -12,7 +12,7 @@ exports.help = {
 };
 
 exports.run = async (client, msg, args) => {
-	if (msg.magicMention.bannable) {
+	if (!msg.magicMention.bannable) {
 		client.userLib.retError(msg, 'Я не могу забанить этого участника!\nЕго защитная магия превосходит мои умения!');
 		return;
 	}
