@@ -64,6 +64,8 @@ module.exports = async (client, msg) => {
 			|| msg.guild.members.get(args[cmd.help.userMentionPosition])
 			|| msg.guild.members.find(val => val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
 			|| false;
+	} else {
+		msg.magicMention = 0;
 	}
 	//Magic Mention
 
