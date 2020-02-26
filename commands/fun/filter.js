@@ -1,6 +1,6 @@
 exports.help = {
   name: "filter",
-  description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
+  description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\n8 - GL!T4\`\`",
 	aliases: ['f'],
   usage: [{type: 'text', opt: 0, name: '1-7'},
 	        {type: 'user', opt: 1},
@@ -10,8 +10,12 @@ exports.help = {
   cooldown: 10
 };
 
+String.prototype.replaceAt = function(index, replacement) {
+	return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+}
+
 exports.run = async (client, msg, args) => {
-	if (['1','2','3','4','5','6','7'].indexOf(args[0]) == -1) {
+	if (['1','2','3','4','5','6','7', '8'].indexOf(args[0]) == -1) {
 		client.userLib.retError(msg, 'Неправильно указан номер фильтра.\n' + client.userLib.generateUsage(exports.help.usage));
 		return;
 	}
@@ -25,8 +29,6 @@ exports.run = async (client, msg, args) => {
 		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
 		return;
 	}
-
-	msg.channel.startTyping();
 
 	let use = msg.magicMention.user || msg.author;
 	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL+'?size=512';
@@ -60,6 +62,13 @@ exports.run = async (client, msg, args) => {
 			greyscale(ctx, 0, 0, ava.width, ava.height);
 			ctx.drawImage(await client.userLib.loadImage('./images/plevok.png'), 0, 0, ava.width, ava.height);
 			break;
+			case '8':
+			ava.src = canvas.toDataURL("image/jpeg");
+			for (let i = 0; i < 5; i++) {
+				ava.src = ava.src.replaceAt(client.userLib.randomIntInc(50, ava.src.length - 50), "0");
+			}
+			ctx.drawImage(ava,0,0);
+			break;
 	}
 
 	await msg.channel.send({
@@ -69,7 +78,6 @@ exports.run = async (client, msg, args) => {
 				name: `filter.jpeg`
 			}]
 	});
-	msg.channel.stopTyping();
 };
 
 

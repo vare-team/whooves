@@ -34,7 +34,7 @@ module.exports = function (Discord, client, con) {
 		});
 	};
 
-	const {registerFont, createCanvas, loadImage} = require('canvas');
+	const {registerFont, createCanvas, loadImage, image} = require('canvas');
 	// registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
 	this.createCanvas = createCanvas;
 	this.loadImage = loadImage;
