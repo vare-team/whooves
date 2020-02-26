@@ -5,7 +5,8 @@ exports.help = {
   usage: [],
 	dm: 0,
   tier: -3,
-  cooldown: 10
+  cooldown: 10,
+	hide: 1
 };
 
 exports.run = (client, msg) => {

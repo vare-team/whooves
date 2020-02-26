@@ -1,12 +1,12 @@
-// const badwords = require('../badwords.js');
+const badwords = require('../badwords.js');
 
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
 
-	// if (msg.channel.type !== 'dm' && badwords.list.some(word => msg.content.toLowerCase().includes(word))) {
-	// 	msg.reply('BAD WORD DETECTED');
-	// 	msg.delete();
-	// }
+	if (msg.channel.type !== 'dm' && badwords.list.some(word => msg.content.toLowerCase().includes(word))) {
+		client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
+		msg.delete();
+	}
 
 	msg.flags = {};
 

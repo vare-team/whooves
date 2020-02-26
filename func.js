@@ -198,6 +198,23 @@ module.exports = function (Discord, client, con) {
 	};
 
 	/**
+	 * @function
+	 * @param {object} user
+	 * @param {object} guild
+	 * @param {object} channel
+	 * @param {string} reason
+	 */
+	this.autowarn = (user, guild, channel, reason) => {
+		client.userLib.db.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, () => {});
+
+		let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.avatarURL);
+
+		channel.send(embed);
+		client.userLib.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
+
+	};
+
+	/**
 	 * Send Guild custom log
 	 * @function
 	 * @param {string} type - Type of log

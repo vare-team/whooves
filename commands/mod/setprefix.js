@@ -5,7 +5,8 @@ exports.help = {
   usage: [{type: 'text', opt: 0, name: 'символ'}],
 	dm: 0,
   tier: -3,
-  cooldown: 15
+  cooldown: 15,
+	hide: 1
 };
 
 exports.run = (client, msg, args) => {

@@ -5,7 +5,8 @@ exports.help = {
   usage: [{type: 'channel', opt: 0}],
 	dm: 1,
   tier: -3,
-  cooldown: 5
+  cooldown: 5,
+	hide: 1
 };
 
 exports.run = (client, msg) => {
