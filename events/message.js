@@ -1,5 +1,13 @@
+// const badwords = require('../badwords.js');
+
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
+
+	// if (msg.channel.type !== 'dm' && badwords.list.some(word => msg.content.toLowerCase().includes(word))) {
+	// 	msg.reply('BAD WORD DETECTED');
+	// 	msg.delete();
+	// }
+
 	msg.flags = {};
 
 	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
