@@ -5,7 +5,8 @@ exports.help = {
 	usage: [{type: 'user', opt: 1}],
 	dm: 0,
 	tier: 0,
-	cooldown: 10
+	cooldown: 10,
+	hide: 1
 };
 
 const applyText = (canvas, ctx, text = '', x = 0, y = 0, fontSize = 18, width = 0, flag = false) => {

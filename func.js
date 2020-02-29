@@ -119,6 +119,11 @@ module.exports = function (Discord, client, con) {
 		console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] | {${type}} : ${log}`);
 	};
 
+	this.settings = {
+		badwords: 0x1,
+		usernameChecker: 0x2
+	};
+
 	this.colors = {
 		err: '#F04747',
 		suc: '#43B581',
@@ -214,6 +219,31 @@ module.exports = function (Discord, client, con) {
 		channel.send(embed);
 		client.userLib.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
 
+	};
+
+	/**
+	 * @function
+	 * @param {string} guildId
+	 * @param {int} setNumber
+	 */
+	this.settingsCheck = async (guildId, setNumber) => {
+		let setting = await client.userLib.db.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId]);
+		setting = setting[0][0].settings;
+
+		return !!(setNumber & setting);
+	};
+
+	/**
+	 * @function
+	 * @param {string} guildId
+	 * @param {int} setNumber
+	 * @param {boolean} state
+	 */
+	this.settingsSet = async (guildId, setNumber, state) => {
+		if (await this.settingsCheck(guildId, setNumber) == state) return false;
+
+		client.userLib.db.query(`UPDATE guilds SET settings = settings ${state ? '+' : '-'} ? WHERE guildId = ?`, [setNumber, guildId]);
+		return true;
 	};
 
 	/**

@@ -3,7 +3,7 @@ const badwords = require('../badwords.js');
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
 
-	if (msg.channel.type !== 'dm' && badwords.list.some(word => msg.content.toLowerCase().includes(word))) {
+	if (msg.channel.type !== 'dm' && await client.userLib.settingsCheck(msg.guild.id, client.userLib.settings.badwords) && badwords.list.some(word => msg.content.toLowerCase().includes(word))) {
 		client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
 		msg.delete();
 	}
