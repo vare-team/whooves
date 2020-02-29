@@ -15,6 +15,8 @@ module.exports = function (Discord, client, con) {
 		'166610390581641217': 0
 	};
 
+	this.nicknameReplacer = /[^\wА-Яа-яЁё \.?!,;:\-(\)"']/g;
+
 	let replacer = {
 		'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
 		'i': 'ш', 'o': 'щ', 'p': 'з', '[': 'х', ']': 'ъ', '{': 'Х', '}': 'Ъ', 'a': 'ф', 's': 'ы',
@@ -215,6 +217,15 @@ module.exports = function (Discord, client, con) {
 	};
 
 	/**
+	 * @function
+	 * @param {string} nickname
+	 */
+	this.usernameCorrector = (nickname) => {
+		if (!this.nicknameReplacer.test(nickname)) return false;
+		return nickname.replace(this.nicknameReplacer, '') || 'Name';
+	};
+
+	/**
 	 * Send Guild custom log
 	 * @function
 	 * @param {string} type - Type of log
@@ -251,15 +262,15 @@ module.exports = function (Discord, client, con) {
 		if (!type) return console.warn('Error! Тип не указан');
 		switch (type) {
 			case 'memberAdd':
-				text += `**Заход участника** <@${data.user.id}> (ID: ${data.user.id});\nАккаунт зарегистрирован __${this.moment(data.user.createdAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
+				text += `**Заход участника** ${data.user.tag} (ID: ${data.user.id});\nАккаунт зарегистрирован __${this.moment(data.user.createdAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
 				break;
 
 			case 'memberRemove':
-				text += `**Выход участника** <@${data.user.id}>;\nАккаунт зашёл на сервер __${this.moment(data.user.joinedAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
+				text += `**Выход участника** ${data.user.tag};\nАккаунт зашёл на сервер __${this.moment(data.user.joinedAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
 				break;
 
 			case 'messageDelete':
-				text += `**Удаление сообщения** от <@${data.user.id}>, в канале <#${data.channel.id}>;\n${data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`}`;
+				text += `**Удаление сообщения** от ${data.user.tag}, в канале <#${data.channel.id}>;\n${data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`}`;
 				break;
 
 			case 'messageDeleteBulk':
@@ -267,23 +278,23 @@ module.exports = function (Discord, client, con) {
 				break;
 
 			case 'messageUpdate':
-				text += `**Изменение сообщения** от <@${data.user.id}>, в канале <#${data.channel.id}>;\n${data.oldContent.length + data.newContent.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.oldContent}\n\`\`======\`\`\n${data.newContent}`}`;
+				text += `**Изменение сообщения** ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;\n${data.oldContent.length + data.newContent.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.oldContent}\n\`\`======\`\`\n${data.newContent}`}`;
 				break;
 
 			case 'voiceStateAdd':
-				text += `**Подключение к каналу** от <@${data.user.id}>, канал "__${data.channel.name}__";`;
+				text += `**Подключение к каналу** ${data.user.tag}  (ID: ${data.user.id}), канал "__${data.channel.name}__";`;
 				break;
 
 			case 'voiceStateRemove':
-				text += `**Отключение от канала** от <@${data.user.id}>, канала "__${data.channel.name}__";`;
+				text += `**Отключение от канала** ${data.user.tag}  (ID: ${data.user.id}), канала "__${data.channel.name}__";`;
 				break;
 
 			case 'voiceStateUpdate':
-				text += `**Перемещение между каналами** от <@${data.user.id}>, из канала "__${data.channel.oldName}__", в канал "__${data.channel.newName}__";`;
+				text += `**Перемещение между каналами** ${data.user.tag}  (ID: ${data.user.id}), из канала "__${data.channel.oldName}__", в канал "__${data.channel.newName}__";`;
 				break;
 
 			case 'commandUse':
-				text += `**Действие: "${data.content}"** от <@${data.user.id}>, в канале <#${data.channel.id}>;`;
+				text += `**Действие: "${data.content}"** от ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;`;
 				break;
 
 			default:
