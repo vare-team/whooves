@@ -38,9 +38,13 @@ exports.run = async (client, msg) => {
 			.addField("Префикс", `**w.**`, true)
 			.addField("Статистика", `Команд исполнено: **${client.statistic.executedcmd}**\nИз них ошибок: **${client.statistic.erroredcmd}**`, true);
 			if (msg.flags.prefix != 'w.') embed.addField("Префикс сервера", `**${msg.flags.prefix}**`, true);
-			if (logchannel[0][0].logchannel) embed.addField("Канал логирования", `**<#${logchannel[0][0].logchannel}>**`, true);
+			// if (logchannel[0][0].logchannel) embed.addField("Канал логирования", `**<#${logchannel[0][0].logchannel}>**`, true);
 			// embed.addField("Ссылки", `[Сайт](https://akin.server-discord.com)\n[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Главный сервер](https://discord.gg/ZF3CKa3)`, true);
 			embed.addField("Ссылки", `[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Сервер](https://discord.gg/8KKVhTU)`, true);
+			if (msg.channel.type !== 'dm') {
+				let settings = await client.userLib.settingsGet(msg.guild.id);
+				embed.addField("Настройки", `Канал логирования: ${logchannel[0][0].logchannel ? `<#${logchannel[0][0].logchannel}>` : '**OFF**'}\nФильтр плохих слов: **${settings & client.userLib.settings.badwords ? 'ON' : 'OFF'}**\nИсправитель никнеймов: **${settings & client.userLib.settings.usernameChecker ? 'ON' : 'OFF'}**`, true);
+			}
 
 			msg.channel.send(embed);
 
