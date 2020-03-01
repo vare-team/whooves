@@ -296,11 +296,11 @@ module.exports = function (Discord, client, con) {
 				break;
 
 			case 'memberRemove':
-				text += `**Выход участника** ${data.user.tag};\nАккаунт зашёл на сервер __${this.moment(data.user.joinedAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
+				text += `**Выход участника** ${data.user.tag}  (ID: ${data.user.id});\nАккаунт зашёл на сервер __${this.moment(data.user.joinedAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
 				break;
 
 			case 'messageDelete':
-				text += `**Удаление сообщения** от ${data.user.tag}, в канале <#${data.channel.id}>;\n${data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`}`;
+				text += `**Удаление сообщения** от ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;\n${data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`}`;
 				break;
 
 			case 'messageDeleteBulk':

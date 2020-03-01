@@ -20,14 +20,14 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.RichEmbed();
+	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setAuthor(' 🔧 Настройки').setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL);
 
 	switch (args[0]) {
 		case 'prefix':
 			if (args[1].length > 5) {client.userLib.retError(msg, 'Префикс бота должен быть не более 5 символов!');return;}
 
 			client.userLib.db.update(`guilds`, {guildId: msg.guild.id, prefix: args[1] == 'w.' ? null : args[1]}, () => {
-				embed.setColor(client.userLib.colors.suc).setTitle('Префикс изменён!').setDescription(`Теперь префикс для вашего сервера это **${args[1]}**`).setFooter(msg.author.tag, msg.author.displayAvatarURL).setTimestamp();
+				embed.setDescription(`Теперь префикс для вашего сервера это **${args[1]}**`).setTitle('Префикс бота');
 				msg.channel.send(embed);
 			});
 			break;
@@ -35,7 +35,7 @@ exports.run = async (client, msg, args) => {
 		case 'log':
 			if (args[1].toLowerCase() !== 'off' && !msg.mentions.channels.first()) {client.userLib.retError(msg, 'Вы должны упомянуть канал или написать \`\`off\`\`!');return;}
 
-			embed.setColor(client.userLib.colors.suc).setTitle('Лог канал').setTimestamp();
+			embed.setTitle('Лог канал');
 
 			if (args[1].toLowerCase() === 'off') {
 				client.userLib.sendLogChannel("commandUse", msg.guild, {user: {tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL}, channel: {id: msg.channel.id}, content: 'отключение лог канала'});
@@ -56,7 +56,7 @@ exports.run = async (client, msg, args) => {
 				return;
 			}
 
-			embed.setColor(client.userLib.colors.suc).setTitle('Настройки').setTimestamp().setDescription(`Фильтр плохих слов **${args[1] === 'on' ? 'включен' : 'выключен'}**!`);
+			embed.setDescription(`Фильтр плохих слов **${args[1] === 'on' ? 'включен' : 'выключен'}**!`).setTitle('Фильтр плохих слов');
 			msg.channel.send(embed);
 			break;
 
@@ -71,7 +71,7 @@ exports.run = async (client, msg, args) => {
 				return;
 			}
 
-			embed.setColor(client.userLib.colors.suc).setTitle('Настройки').setTimestamp().setDescription(`Нормализация юзернеймов **${args[1] === 'on' ? 'включена' : 'выключена'}**!`);
+			embed.setDescription(`Нормализация юзернеймов **${args[1] === 'on' ? 'включена' : 'выключена'}**!`).setTitle('Исправление никнеймов');
 			msg.channel.send(embed);
 			break;
 	}
