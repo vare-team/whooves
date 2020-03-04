@@ -43,7 +43,7 @@ exports.run = async (client, msg) => {
 			embed.addField("Ссылки", `[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Сервер](https://discord.gg/8KKVhTU)`, true);
 			if (msg.channel.type !== 'dm') {
 				let settings = await client.userLib.settingsGet(msg.guild.id);
-				embed.addField("Настройки", `Канал логирования: ${logchannel[0][0].logchannel ? `<#${logchannel[0][0].logchannel}>` : '**OFF**'}\nФильтр плохих слов: **${settings & client.userLib.settings.badwords ? 'ON' : 'OFF'}**\nИсправитель никнеймов: **${settings & client.userLib.settings.usernameChecker ? 'ON' : 'OFF'}**`, true);
+				embed.addField("Настройки", `Канал логирования: ${logchannel[0][0].logchannel ? `<#${logchannel[0][0].logchannel}>` : client.userLib.emoji.err}\nФильтр плохих слов: **${settings & client.userLib.settings.badwords ? client.userLib.emoji.ready : client.userLib.emoji.err}**\nИсправитель никнеймов: **${settings & client.userLib.settings.usernameChecker ? client.userLib.emoji.ready : client.userLib.emoji.err}**`, true);
 			}
 
 			msg.channel.send({ embed: embed });

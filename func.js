@@ -200,7 +200,7 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.retError = (msg, reason = 'Какая разница вообще?') => {
 		msg.react('674326004872904733');
-		let embed = new Discord.MessageEmbed().setColor(this.colors.err).setTitle('Ошибка!').setDescription(reason).setFooter(msg.author.tag, msg.author.displayAvatarURL).setTimestamp();
+		let embed = new Discord.MessageEmbed().setColor(this.colors.err).setTitle(this.emoji.err + ' Ошибка!').setDescription(reason).setFooter(msg.author.tag, msg.author.displayAvatarURL()).setTimestamp();
 		msg.channel.send(`<@${msg.author.id}>`, embed);
 	};
 
