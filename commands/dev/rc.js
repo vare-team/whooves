@@ -23,7 +23,7 @@ exports.run = (client, msg, args) => {
 	command.help.module = cmd.help.module;
 	client.commands.set(cmd.help.name, command);
 
-	const notifyEmbed = new client.userLib.discord.RichEmbed()
+	const notifyEmbed = new client.userLib.discord.MessageEmbed()
 		.setDescription(`Команда ${cmd.help.name} обновлена.`)
 		.setColor(client.userLib.colors.suc);
 

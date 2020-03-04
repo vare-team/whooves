@@ -20,7 +20,7 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setAuthor(' 🔧 Настройки').setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL);
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setAuthor(' 🔧 Настройки').setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 	switch (args[0]) {
 		case 'prefix':
@@ -38,7 +38,7 @@ exports.run = async (client, msg, args) => {
 			embed.setTitle('Лог канал');
 
 			if (args[1].toLowerCase() === 'off') {
-				client.userLib.sendLogChannel("commandUse", msg.guild, {user: {tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL}, channel: {id: msg.channel.id}, content: 'отключение лог канала'});
+				client.userLib.sendLogChannel("commandUse", msg.guild, {user: {tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL()}, channel: {id: msg.channel.id}, content: 'отключение лог канала'});
 				client.userLib.db.upsert(`guilds`, {guildId: msg.guild.id, logchannel: null}, () => {embed.setDescription(`Лог канал отключён.`);msg.channel.send(embed);});
 			} else {
 				client.userLib.db.update(`guilds`, {guildId: msg.guild.id, logchannel: msg.mentions.channels.first().id}, () => {embed.setDescription(`Лог канал теперь ${msg.mentions.channels.first()}`);msg.channel.send(embed);})

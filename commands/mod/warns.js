@@ -13,11 +13,11 @@ exports.run = async (client, msg) => {
 	let warns = await client.userLib.db.promise().query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, msg.guild.id]);
 	warns = warns[0];
 
-	let embed = new client.userLib.discord.RichEmbed()
+	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle('Предупреждения ' + user.username)
 		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.avatarURL);
+		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 	let descGenerator = 'Количество предупреждений: **' + warns.length + '**\n\n';
 	for (let warn of warns) descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason}\n`;

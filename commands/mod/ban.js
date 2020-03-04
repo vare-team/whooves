@@ -41,6 +41,6 @@ exports.run = async (client, msg, args) => {
 	await msg.magicMention.user.send(`Вам был выдан бан на сервере \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
 	msg.guild.ban(msg.magicMention, {reason: msg.author.tag + ': ' + reason, days: clearmsg});
 
-	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`Бан ${msg.magicMention} выдан!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setDescription(`Бан ${msg.magicMention} выдан!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
 	msg.channel.send(embed);
 };

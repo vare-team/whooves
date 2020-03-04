@@ -17,7 +17,7 @@ exports.run = async (client, msg, args) => {
   let imageId = await client.userLib.request({url: `https://derpi.vlos.ru/search.json?random_image=true&filter_id=175480&q=explicit${args.length ? ',' + args.join(' ') : ''}`, json: true});
   imageId = imageId.id;
   if (!imageId) {
-    let embedErr = new client.userLib.discord.RichEmbed().setTitle('Derpibooru IMAGE 404').setDescription("По вашему запросу ничего не найдено.").setImage('https://derpicdn.net/img/view/2019/12/29/2233270.gif').setFooter(msg.author.tag, msg.author.displayAvatarURL).setColor(client.userLib.colors.war);
+    let embedErr = new client.userLib.discord.MessageEmbed().setTitle('Derpibooru IMAGE 404').setDescription("По вашему запросу ничего не найдено.").setImage('https://derpicdn.net/img/view/2019/12/29/2233270.gif').setFooter(msg.author.tag, msg.author.displayAvatarURL).setColor(client.userLib.colors.war);
     msg.channel.send(embedErr);return;
   }
 
@@ -25,7 +25,7 @@ exports.run = async (client, msg, args) => {
   pony = pony.image;
 
   let description = pony.tags.reduce((pr, cu) => pr + cu + ',', "**Тэги:** ").slice(0, -1);
-  let embed = new client.userLib.discord.RichEmbed()
+  let embed = new client.userLib.discord.MessageEmbed()
     .setTitle(`${pony.tags.indexOf("gay") != -1 ? ':rainbow_flag: ' : ''}Derpibooru ${pony.format == 'webm' ? 'VIDEO' : 'IMAGE'}#${pony.id}`)
     .setImage(pony.representations.full)
     .setFooter(msg.author.tag, msg.author.displayAvatarURL)

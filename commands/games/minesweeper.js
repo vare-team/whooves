@@ -34,7 +34,7 @@ exports.run = (client, msg, args) => {
 		return;
 	}
 
-	let	embed = new client.userLib.discord.RichEmbed()
+	let	embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle(`Сапёр ${minesweeper.rows}x${minesweeper.columns}\nБомб на уровне: ${minesweeper.mines}`)
 		.setDescription(pole);

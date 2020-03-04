@@ -40,11 +40,11 @@ const questions = {
 
 exports.run = (client, msg, args) => {
 	
-	let embed = new client.userLib.discord.RichEmbed()
+	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle('Магический шар')
 		.addField('Твой вопрос', `\`\`${args.join(' ')}\`\``)
-		.setFooter(msg.author.tag, msg.author.avatarURL);
+		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 	
 	if (questions.hasOwnProperty(args.join(' ').toLowerCase())) embed.addField('Ответ шара', `\`\`${questions[args.join(' ').toLowerCase()]}\`\``);
 	else embed.addField('Ответ шара', `\`\`${answers[client.userLib.randomIntInc(0, answers.length - 1)]}\`\``);

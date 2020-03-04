@@ -24,6 +24,6 @@ exports.run = async (client, msg) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.inf).setTitle('Баланс: ' + coins).setFooter(user.tag, user.displayAvatarURL);
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setTitle('Баланс: ' + coins).setFooter(user.tag, user.displayAvatarURL());
 	msg.channel.send(embed);
 };

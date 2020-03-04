@@ -33,8 +33,8 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.RichEmbed()
-		.setAuthor(msg.author.tag, msg.author.avatarURL)
+	let embed = new client.userLib.discord.MessageEmbed()
+		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 		.setColor(client.userLib.colors.inf);
 
 	let random = client.userLib.randomIntInc(0, 100);

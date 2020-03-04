@@ -9,7 +9,7 @@ exports.help = {
 };
 
 const { uptime } = require('os');
-const { version } = require("discord.js");
+const { version, MessageEmbed } = require("discord.js");
 
 exports.run = async (client, msg) => {
 
@@ -17,14 +17,14 @@ exports.run = async (client, msg) => {
 		//client.userLib.db.queryValue('SELECT logchannel FROM guilds WHERE guildId = ?', [msg.guild.id], (err, logchannel) =>
 	if (msg.channel.type !== 'dm') logchannel = await client.userLib.db.promise().query('SELECT logchannel FROM guilds WHERE guildId = ?', [msg.guild.id]);
 
-			let embed = new client.userLib.discord.RichEmbed()
-			.setAuthor(client.user.username + " - информация о боте", client.user.displayAvatarURL, 'https://akin.server-discord.com')
+			let embed = new MessageEmbed()
+			.setAuthor(client.user.username + " - информация о боте", client.user.displayAvatarURL())
 			.setColor(client.userLib.colors.inf)
 			.setTimestamp()
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL)
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 			.setTitle('Техническая информация')
 			.setDescription(`\`\`\`asciidoc\n
-• Пинг          :: ${Math.round(client.ping)} мс
+• Пинг          :: ${Math.round(client.ws.ping)} мс
 • ОЗУ исп.      :: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} МБ
 • Бот запустился:: ${client.userLib.moment(client.readyAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM,в HH:mm')}
 • Аптайм бота   :: ${Math.round(process.uptime()/3600)} ч.
@@ -33,7 +33,7 @@ exports.run = async (client, msg) => {
 • Discord.js    :: v${version}
 • Версия Node   :: ${process.version}
 • Версия бота   :: v${process.env.version}\`\`\``)
-			.addField("Разработчики", `**${client.users.get('166610390581641217').tag}** \n **${client.users.get('321705723216134154').tag}**`, true)
+			.addField("Разработчики", `**${client.users.cache.get('166610390581641217').tag}** \n **${client.users.cache.get('321705723216134154').tag}**`, true)
 			.addField("Команда помощи", `**w.help**`, true)
 			.addField("Префикс", `**w.**`, true)
 			.addField("Статистика", `Команд исполнено: **${client.statistic.executedcmd}**\nИз них ошибок: **${client.statistic.erroredcmd}**`, true);
@@ -46,6 +46,6 @@ exports.run = async (client, msg) => {
 				embed.addField("Настройки", `Канал логирования: ${logchannel[0][0].logchannel ? `<#${logchannel[0][0].logchannel}>` : '**OFF**'}\nФильтр плохих слов: **${settings & client.userLib.settings.badwords ? 'ON' : 'OFF'}**\nИсправитель никнеймов: **${settings & client.userLib.settings.usernameChecker ? 'ON' : 'OFF'}**`, true);
 			}
 
-			msg.channel.send(embed);
+			msg.channel.send({ embed: embed });
 
 };

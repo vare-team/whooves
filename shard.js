@@ -5,7 +5,7 @@ const manager = new ShardingManager('./whooves.js', { token: process.env.token }
 
 manager.spawn();
 
-manager.on('launch', (shard) => {
+manager.on('shardCreate', (shard) => {
 	const now = new Date;
 	console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth()+1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${shard.id}] | {ShardingManager} : Launched!`);
 });

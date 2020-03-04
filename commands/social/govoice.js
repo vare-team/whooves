@@ -22,9 +22,9 @@ exports.run = (client, msg, args) => {
 
 	for (let m of msg.member.voiceChannel.members.array()) m.setVoiceChannel(args[0]);
 
-	let embed = new client.userLib.discord.RichEmbed()
+	let embed = new client.userLib.discord.MessageEmbed()
 		.setDescription(`Было перемещено участников: **${count}**, в канал "**${govoice.name}**"`)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL)
+		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 		.setColor(client.userLib.colors.suc);
 
 	msg.channel.send(embed);

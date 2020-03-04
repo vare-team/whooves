@@ -1,6 +1,6 @@
 {
   "name": "whooves",
-  "version": "3.4.2",
+  "version": "3.4.5",
   "description": "Discord Bot",
   "main": "shard.js",
   "repository": {
@@ -14,8 +14,8 @@
   "homepage": "https://github.com/MegaVasiliy007/whooves#readme",
   "dependencies": {
     "canvas": "^2.5.0",
-    "discord.js": "^11.5.1",
-    "discord.js-minesweeper": "^1.0.5",
+    "discord.js": "^12.0.1",
+    "glitch-canvas": "^1.1.7",
     "moment": "^2.24.0",
     "mysql-utilities": "^1.1.0-alpha.3",
     "mysql2": "^2.1.0",

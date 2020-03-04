@@ -116,7 +116,7 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.sendLog = (log = 'Clap one hand', type = 'Auto') => {
 		const now = new Date;
-		console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] | {${type}} : ${log}`);
+		console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.ids}] | {${type}} : ${log}`);
 	};
 
 	this.settings = {
@@ -177,16 +177,16 @@ module.exports = function (Discord, client, con) {
 	this.presenceFunc = () => {
 		switch (this.presenceCount) {
 			case 0:
-				client.user.setPresence({game: {name: `w.help`, type: 'WATCHING'}});
+				client.user.setPresence({activity: {name: `w.help`, type: 'WATCHING'}});
 				break;
 			case 1:
-				client.user.setPresence({game: {name: `серверов: ${client.guilds.size}`, type: 'WATCHING'}});
+				client.user.setPresence({activity: {name: `серверов: ${client.guilds.size}`, type: 'WATCHING'}});
 				break;
 			case 2:
-				client.user.setPresence({game: {name: 'время', type: 'WATCHING'}});
+				client.user.setPresence({activity: {name: 'время', type: 'WATCHING'}});
 				break;
 			case 3:
-				client.user.setPresence({game: {name: 'хуффингтон', type: 'STREAMING'}});
+				client.user.setPresence({activity: {name: 'хуффингтон', type: 'STREAMING'}});
 				this.presenceCount = 0;
 		}
 		this.presenceCount++;
@@ -200,8 +200,8 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.retError = (msg, reason = 'Какая разница вообще?') => {
 		msg.react('674326004872904733');
-		let embed = new Discord.RichEmbed().setColor(this.colors.err).setTitle('Ошибка!').setDescription(reason).setFooter(msg.author.tag, msg.author.displayAvatarURL).setTimestamp();
-		msg.channel.send(`<@${msg.author.id}>`, embed).then((msgErr) => msgErr.delete(10000));
+		let embed = new Discord.MessageEmbed().setColor(this.colors.err).setTitle('Ошибка!').setDescription(reason).setFooter(msg.author.tag, msg.author.displayAvatarURL).setTimestamp();
+		msg.channel.send(`<@${msg.author.id}>`, embed);
 	};
 
 	/**
@@ -214,7 +214,7 @@ module.exports = function (Discord, client, con) {
 	this.autowarn = (user, guild, channel, reason) => {
 		client.userLib.db.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, () => {});
 
-		let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.avatarURL);
+		let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.avatarURL);
 
 		channel.send(embed);
 		client.userLib.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});

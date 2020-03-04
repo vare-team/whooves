@@ -16,7 +16,7 @@ exports.run = async (client, msg, args) => {
     return;
   }
   
-  let embed = new client.userLib.discord.RichEmbed()
+  let embed = new client.userLib.discord.MessageEmbed()
     .setColor(client.userLib.colors.inf)
     .setTitle('Информация о ' + body.ip)
     .addField('Страна', body.country.name_ru ? body.country.name_ru : 'Не ясно')

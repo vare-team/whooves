@@ -37,11 +37,11 @@ exports.run = async (client, msg, args) => {
 	let role = msg.guild.roles.get(mutedRole);
 
 	if (!role) {
-		let editEmbed = new client.userLib.discord.RichEmbed()
+		let editEmbed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setTitle(`Создание роли...`)
 			.setTimestamp()
-			.setFooter(msg.author.tag, msg.author.avatarURL)
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 			.setDescription(`${client.userLib.emoji.load} Создание роли\n${client.userLib.emoji.load} Установка прав для категорий\n${client.userLib.emoji.load} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`);
 
 		let msgs = await msg.channel.send(editEmbed);
@@ -80,13 +80,13 @@ exports.run = async (client, msg, args) => {
 	client.userLib.db.upsert('mutes', {userId: msg.magicMention.id, guildId: msg.guild.id, time: now}, () => {});
 	client.userLib.sc.pushTask({code: 'unMute', params: [role.id, msg.magicMention], time: now, timeAbsolute: true});
 
-	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`Мут ${msg.magicMention} выдан!\nКоличество минут до снятия: ${args[1]}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setDescription(`Мут ${msg.magicMention} выдан!\nКоличество минут до снятия: ${args[1]}`).setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
 	msg.channel.send(embed);
 	client.userLib.sendLogChannel('commandUse', msg.guild, {
 		user: {
 			tag: msg.author.tag,
 			id: msg.author.id,
-			avatar: msg.author.displayAvatarURL
+			avatar: msg.author.displayAvatarURL()
 		}, channel: {id: msg.channel.id}, content: `выдача мута ${msg.magicMention}`
 	});
 

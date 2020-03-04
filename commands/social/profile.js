@@ -30,11 +30,11 @@ exports.run = async (client, msg) => {
 	applyText(canvas, ctx, use.discriminator, 159, 257, 25, 238);
 	applyText(canvas, ctx, `Дело №${use.id}`, 8, 110, 26, 385, true);
 	applyText(canvas, ctx, client.userLib.moment(use.createdAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 349, 18, 385);
-	applyText(canvas, ctx, client.userLib.moment(msg.guild.members.get(use.id).joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385);
+	applyText(canvas, ctx, client.userLib.moment(msg.guild.members.cache.get(use.id).joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385);
 	applyText(canvas, ctx, use.bot ? 'Положительно' : 'Отрицательно', 22, 500, 18, 385);
 
-	if (use.avatarURL) {
-		ctx.drawImage(await client.userLib.loadImage(use.avatarURL), 20, 139, 131, 131);
+	if (use.displayAvatarURL()) {
+		ctx.drawImage(await client.userLib.loadImage(use.displayAvatarURL()), 20, 139, 131, 131);
 		ctx.drawImage(await client.userLib.loadImage('./images/up.png'), 0, 0);
 	}
 

@@ -14,6 +14,6 @@ exports.run = async (client, msg, args) => {
 
 	msg.guild.unban(args[0], msg.author.tag + ': ' + reason).catch(() => {});
 
-	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`Бан ${args[0]} снят!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setDescription(`Бан ${args[0]} снят!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
 	msg.channel.send(embed);
 };
