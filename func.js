@@ -15,7 +15,7 @@ module.exports = function (Discord, client, con) {
 		'166610390581641217': 0
 	};
 
-	this.nicknameReplacer = /[^\wА-Яа-яЁё \.?!,;:\-(\)"']/g;
+	this.nicknameReplacer = /[^\wА-Яа-яЁё \.?,;:\-(\)"']/g;
 
 	let replacer = {
 		'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
