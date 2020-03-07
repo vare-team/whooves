@@ -13,11 +13,11 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
 
-	let count = msg.guild.roles.filter(el => el.managed).size
+	let count = msg.guild.roles.cache.filter(el => el.managed).size
 		, i = 0
 		;
 
-	for (let role of msg.guild.roles.filter(el => el.managed).array()) await role.delete('Автогенерируемая роль').then(() => i++).catch();
+	for (let role of msg.guild.roles.cache.filter(el => el.managed).array()) await role.delete('Автогенерируемая роль').then(() => i++).catch();
 
 	if (i != count) {
 		client.userLib.retError(msg, 'Недостаточно прав для удаления!');

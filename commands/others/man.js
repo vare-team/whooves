@@ -86,7 +86,7 @@ async function pagesEmbed(data = {}, text = '', devData = {page: 0, title: ''}) 
 	let collector = await devData.msg.awaitReactions(
 		(reaction, user) => ['◀️', '▶️'].indexOf(reaction.emoji.name) != -1 && user.id == data.id,
 		{max: 1, time: 15000}).then(coll => coll.first() ? coll.first().emoji.name : 0);
-	await devData.msg.clearReactions();
+	await devData.msg.reactions.removeAll();
 	if (!collector) return;
 
 	if (collector == '◀️' && devData.page > 0) {devData.page--;}

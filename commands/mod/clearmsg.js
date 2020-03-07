@@ -22,5 +22,5 @@ exports.run = async (client, msg, args) => {
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
 		.setTimestamp();
 
-	msg.channel.send(embed).then(msgs => msgs.delete(10000));
+	msg.channel.send(embed).then(msgs => msgs.delete({ timeout: 10000 }));
 };

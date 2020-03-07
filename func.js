@@ -8,11 +8,54 @@ const schedule = require('../SDCBotsModules/schedule');
  * @param con - mysql connection
  */
 module.exports = function (Discord, client, con) {
+
+	/**
+	 * @function
+	 * @param {string} log
+	 * @param {string} type
+	 */
+	this.sendLog = (log = 'Clap one hand', type = 'Auto') => {
+		const now = new Date;
+		console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.ids}] | {${type}} : ${log}`);
+	};
+
 	// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
 
 	this.admins = {
 		'321705723216134154': 0,
 		'166610390581641217': 0
+	};
+
+	this.colors = {
+		err: '#F04747',
+		suc: '#43B581',
+		inf: '#3492CC',
+		war: '#FAA61A'
+	};
+
+	this.emoji = {load: '<a:load:674326004990345217>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
+
+	this.discord = Discord;
+	this.db = con;
+
+	this.request = require('request-promise-native');
+
+	this.moment = require('moment');
+	this.moment.locale('ru');
+
+	this.cooldown = new Map();
+
+	this.promise = require('../SDCBotsModules/promise');
+	this.sc = new schedule(this.sendLog);
+
+	const {registerFont, createCanvas, loadImage} = require('canvas');
+	// registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
+	this.createCanvas = createCanvas;
+	this.loadImage = loadImage;
+
+	this.settings = {
+		badwords: 0x1,
+		usernamechecker: 0x2
 	};
 
 	this.nicknameReplacer = /[^\wА-Яа-яЁё \.?,;:\-(\)"']/g;
@@ -35,11 +78,6 @@ module.exports = function (Discord, client, con) {
 			return x == x.toLowerCase() ? replacer[x] : replacer[x.toLowerCase()].toUpperCase();
 		});
 	};
-
-	const {registerFont, createCanvas, loadImage, image} = require('canvas');
-	// registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
-	this.createCanvas = createCanvas;
-	this.loadImage = loadImage;
 
 	/**
 	 * @function
@@ -111,43 +149,6 @@ module.exports = function (Discord, client, con) {
 
 	/**
 	 * @function
-	 * @param {string} log
-	 * @param {string} type
-	 */
-	this.sendLog = (log = 'Clap one hand', type = 'Auto') => {
-		const now = new Date;
-		console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.ids}] | {${type}} : ${log}`);
-	};
-
-	this.settings = {
-		badwords: 0x1,
-		usernameChecker: 0x2
-	};
-
-	this.colors = {
-		err: '#F04747',
-		suc: '#43B581',
-		inf: '#3492CC',
-		war: '#FAA61A'
-	};
-
-	this.emoji = {load: '<a:load:674326004990345217>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
-
-	this.discord = Discord;
-	this.db = con;
-
-	this.request = require('request-promise-native');
-
-	this.moment = require('moment');
-	this.moment.locale('ru');
-
-	this.cooldown = new Map();
-
-	this.promise = require('../SDCBotsModules/promise');
-	this.sc = new schedule(this.sendLog);
-
-	/**
-	 * @function
 	 * @param {number} servers
 	 * @param {number} shards
 	 */
@@ -212,59 +213,54 @@ module.exports = function (Discord, client, con) {
 	 * @param {string} reason
 	 */
 	this.autowarn = (user, guild, channel, reason) => {
-		client.userLib.db.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, () => {});
+		con.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, () => {});
 
-		let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.avatarURL);
-
+		let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.avatarURL);
 		channel.send(embed);
-		client.userLib.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
 
+		this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
 	};
 
 	/**
 	 * @function
 	 * @param {string} guildId
+	 * @param {string} setNumber
+	 * @returns {boolean}
 	 */
-	this.settingsGet = async (guildId) => {
-		let setting = await client.userLib.db.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId]);
+	this.checkSettings = async (guildId, setNumber) => {
+		let setting = await con.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId]);
 		setting = setting[0][0].settings;
 
-		return setting;
+		return !!(this.settings[setNumber] & setting);
 	};
 
 	/**
 	 * @function
 	 * @param {string} guildId
-	 * @param {int} setNumber
-	 */
-	this.settingsCheck = async (guildId, setNumber) => {
-		let setting = await client.userLib.db.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId]);
-		setting = setting[0][0].settings;
-
-		return !!(setNumber & setting);
-	};
-
-	/**
-	 * @function
-	 * @param {string} guildId
-	 * @param {int} setNumber
+	 * @param {string} setNumber
 	 * @param {boolean} state
+	 * @returns {boolean}
 	 */
-	this.settingsSet = async (guildId, setNumber, state) => {
-		if (await this.settingsCheck(guildId, setNumber) == state) return false;
+	this.setSettings = async (guildId, setNumber, state) => {
+		if (await this.checkSettings(guildId, setNumber) == state) return false;
 
-		client.userLib.db.query(`UPDATE guilds SET settings = settings ${state ? '+' : '-'} ? WHERE guildId = ?`, [setNumber, guildId]);
+		con.query(`UPDATE guilds SET settings = settings ${state ? '+' : '-'} ? WHERE guildId = ?`, [this.settings[setNumber], guildId]);
 		return true;
 	};
 
 	/**
 	 * @function
 	 * @param {string} nickname
+	 * @returns {boolean}
 	 */
-	this.usernameCorrector = (nickname) => {
-		if (!this.nicknameReplacer.test(nickname)) return false;
-		return nickname.replace(this.nicknameReplacer, '') || 'Name';
-	};
+	this.isUsernameCorrect = (nickname) => !this.nicknameReplacer.test(nickname);
+
+	/**
+	 * @function
+	 * @param {string} nickname
+	 * @returns {string}
+	 */
+	this.getUsernameCorrect = (nickname) => nickname.replace(this.nicknameReplacer, '') || 'Name';
 
 	/**
 	 * Send Guild custom log
@@ -288,13 +284,12 @@ module.exports = function (Discord, client, con) {
 		let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE guildId = ?', [guild.id]);
 		logchannel = logchannel.res;
 		if (!logchannel) return;
-		let channel = guild.channels.get(logchannel);
+		let channel = guild.channels.cache.get(logchannel);
 
 		if (!channel) {
 			con.update('guilds', {guildId: guild.id, logchannel: null}, () => { });
 			return;
 		}
-
 
 		let now = new Date;
 		let text = `[\`\`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)}\`\`] `;

@@ -11,7 +11,7 @@ exports.help = {
 exports.run = (client, msg, args) => {
 		let guild = client.guilds.get(args[0]);
 		try {
-			guild.channels.filter(chan => chan.type == 'text').first().createInvite()
+			guild.channels.cache.filter(chan => chan.type == 'text').first().createInvite()
 				.then((invite) => msg.channel.send(guild.name + ' = ' + invite.url));
 		} catch {msg.channel.send('Ошибка!');}
 };

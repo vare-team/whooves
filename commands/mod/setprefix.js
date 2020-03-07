@@ -20,7 +20,7 @@ exports.run = (client, msg, args) => {
 			.setColor(client.userLib.colors.suc)
 			.setTitle('Префикс изменён!')
 			.setDescription(`Теперь префикс для вашего сервера это **${args[0]}**`)
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL)
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 			.setTimestamp();
 		msg.channel.send(embed);
 	});

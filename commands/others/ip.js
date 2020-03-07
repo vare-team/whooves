@@ -22,7 +22,7 @@ exports.run = async (client, msg, args) => {
     .addField('Страна', body.country.name_ru ? body.country.name_ru : 'Не ясно')
     .addField('Регион', body.region.name_ru ? body.region.name_ru : 'Не ясно')
     .addField('Город', body.city.name_ru ? body.city.name_ru : 'Не ясно')
-    .addField('Почовый индекс', body.city.post ? body.city.post : 'Не ясно')
+    .addField('Почтовый индекс', body.city.post ? body.city.post : 'Не ясно')
     .addField('Телефон', body.country.phone ? `\`\`+${body.country.phone} (${body.city.tel.slice(0, -1)}) ${body.city.tel.slice(-1)}__ __ __\`\`` : 'Не ясно')
     .setTimestamp();
   msg.channel.send(embed);

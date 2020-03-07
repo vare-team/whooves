@@ -2,7 +2,7 @@ module.exports = (client) => {
 	client.userLib.sc.registerTask({code: 'presence', execute: client.userLib.presenceFunc});
 	client.userLib.sc.registerTask({code: 'sendSDC', execute: client.userLib.sendSDC});
 	client.userLib.sc.registerTask({code: 'unCooldown', execute: (times, id) => times.delete(id)});
-	client.userLib.sc.registerTask({code: 'unMute', execute: (mutedRole, member) => {member.removeRole(mutedRole, 'Снятие мута!').catch(() => {});}});
+	client.userLib.sc.registerTask({code: 'unMute', execute: (mutedRole, member) => {member.roles.remove(mutedRole, 'Снятие мута!').catch(() => {});}});
 
 	client.userLib.presenceFunc();
 	if (process.env.sdc) client.userLib.sendSDC();

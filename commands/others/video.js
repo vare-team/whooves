@@ -10,7 +10,7 @@ exports.help = {
 
 exports.run = (client, msg) => {
 	let embed = new client.userLib.discord.MessageEmbed()
-		.setAuthor(msg.member.voiceChannel.name, msg.guild.iconURL)
+		.setAuthor(msg.member.voiceChannel.name, msg.guild.iconURL())
 		.setDescription(`[Включить видеотрансляцию](https://discordapp.com/channels/${msg.guild.id}/${msg.member.voiceChannel.id})`)
 		.setColor(client.userLib.colors.inf);
 	msg.channel.send(embed);

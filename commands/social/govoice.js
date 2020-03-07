@@ -11,7 +11,7 @@ exports.help = {
 
 exports.run = (client, msg, args) => {
 
-	let govoice = msg.guild.channels.get(args[0]);
+	let govoice = msg.guild.channels.cache.get(args[0]);
 
 	if (!govoice || govoice.type != 'voice') {
 		client.userLib.retError(msg, 'Вы указали не корректный ID голосового канала!');

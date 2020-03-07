@@ -15,7 +15,7 @@ String.prototype.replaceAt = function(index, replacement) {
 };
 
 exports.run = async (client, msg, args) => {
-	if (['1','2','3','4','5','6','7', '8'].indexOf(args[0]) == -1) {
+	if (['1','2','3','4','5','6','7'].indexOf(args[0]) == -1) {
 		client.userLib.retError(msg, 'Неправильно указан номер фильтра.\n' + client.userLib.generateUsage(exports.help.usage));
 		return;
 	}
@@ -56,9 +56,8 @@ exports.run = async (client, msg, args) => {
 			break;
 		case '6':
 			ava.src = canvas.toDataURL("image/jpeg");
-			for (let i = 0; i < 5; i++) {
+			for (let i = 0; i < 5; i++)
 				ava.src = ava.src.replaceAt(client.userLib.randomIntInc(50, ava.src.length - 50), "0");
-			}
 			try {
 				ctx.drawImage(ava,0,0);
 			} catch (e) {

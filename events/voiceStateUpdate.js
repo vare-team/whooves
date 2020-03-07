@@ -1,13 +1,13 @@
-module.exports = async (client, oldMember, newMember) => {
-    if (!oldMember.voiceChannel) {
-      client.userLib.sendLogChannel("voiceStateAdd", newMember.guild, { user: { tag: oldMember.user.tag, id: oldMember.id, avatar: oldMember.user.displayAvatarURL }, channel: { name: newMember.voiceChannel.name }});
+module.exports = async (client, oldState, newState) => {
+    if (!oldState.channel) {
+      client.userLib.sendLogChannel("voiceStateAdd", newState.guild, { user: { tag: newState.member.user.tag, id: newState.member.id, avatar: newState.member.user.displayAvatarURL() }, channel: { name: newState.channel.name }});
     }
 
-    if (!newMember.voiceChannel) {
-      client.userLib.sendLogChannel("voiceStateRemove", oldMember.guild, {user: { tag: oldMember.user.tag, id: oldMember.id, avatar: oldMember.user.displayAvatarURL }, channel: { name: oldMember.voiceChannel.name }});
+    if (!newState.channel) {
+      client.userLib.sendLogChannel("voiceStateRemove", oldState.guild, {user: { tag: oldState.member.user.tag, id: oldState.member.id, avatar: oldState.member.user.displayAvatarURL() }, channel: { name: oldState.channel.name }});
     }
 
-    if ((oldMember.voiceChannel && newMember.voiceChannel) && oldMember.voiceChannel.id != newMember.voiceChannel.id) {
-      client.userLib.sendLogChannel("voiceStateUpdate", oldMember.guild, { user: { tag: oldMember.user.tag, id: oldMember.id, avatar: oldMember.user.displayAvatarURL }, channel: { oldName: oldMember.voiceChannel.name, newName: newMember.voiceChannel.name }});
+    if ((oldState.channel && newState.channel) && oldState.channelID != newState.channelID) {
+      client.userLib.sendLogChannel("voiceStateUpdate", oldState.guild, { user: { tag: oldState.member.user.tag, id: oldState.member.id, avatar: oldState.member.user.displayAvatarURL() }, channel: { oldName: oldState.channel.name, newName: newState.channel.name }});
     }
 };

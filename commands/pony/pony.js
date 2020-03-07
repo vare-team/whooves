@@ -13,10 +13,10 @@ exports.run = async (client, msg, args) => {
 
   let imageId = args[0] && args[0].startsWith('>') ?
     args[0].replace(/\D+/g, '') :
-    (await client.userLib.request({url: `https://derpi.vlos.ru/search.json?random_image=true&filter_id=56027&q=${args.length ? args.join(' ') : '*'}`, json: true})).id;
+    (await client.userLib.request({url: `https://derpibooru.org/search.json?random_image=true&filter_id=56027&q=${args.length ? args.join(' ') : '*'}`, json: true})).id;
   if (!imageId) {msg.channel.send(embedErr);return;}
 
-  let pony = await client.userLib.request({url: `https://derpi.vlos.ru/api/v1/json/images/${imageId}`, json: true}).catch(() => 0);
+  let pony = await client.userLib.request({url: `https://derpibooru.org/api/v1/json/images/${imageId}`, json: true}).catch(() => 0);
   if (!pony) {msg.channel.send(embedErr);return;}
   pony = pony.image;
 

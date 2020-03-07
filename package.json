@@ -15,11 +15,10 @@
   "dependencies": {
     "canvas": "^2.5.0",
     "discord.js": "^12.0.1",
-    "glitch-canvas": "^1.1.7",
     "moment": "^2.24.0",
     "mysql-utilities": "^1.1.0-alpha.3",
     "mysql2": "^2.1.0",
-    "request": "^2.88.0",
+    "request": "^2.88.2",
     "request-promise-native": "^1.0.8"
   },
   "scripts": {

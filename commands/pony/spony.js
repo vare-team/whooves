@@ -9,14 +9,14 @@ exports.help = {
 };
 
 exports.run = async (client, msg, args) => {
-  let imageId = await client.userLib.request({url: `https://derpi.vlos.ru/search.json?random_image=true&q=safe${args.length ? ',' + args.join(' ') : ''}`, json: true});
+  let imageId = await client.userLib.request({url: `https://derpibooru.org/search.json?random_image=true&q=safe${args.length ? ',' + args.join(' ') : ''}`, json: true});
   imageId = imageId.id;
   if (!imageId) {
     let embedErr = new client.userLib.discord.MessageEmbed().setTitle('Derpibooru IMAGE 404').setDescription("По вашему запросу ничего не найдено.").setImage('https://derpicdn.net/img/view/2019/12/29/2233270.gif').setFooter(msg.author.tag, msg.author.displayAvatarURL()).setColor(client.userLib.colors.war);
     msg.channel.send(embedErr);return;
   }
 
-  let pony = await client.userLib.request({url: `https://derpi.vlos.ru/api/v1/json/images/${imageId}`, json: true});
+  let pony = await client.userLib.request({url: `https://derpibooru.org/api/v1/json/images/${imageId}`, json: true});
   pony = pony.image;
 
   let description = pony.tags.reduce((pr, cu) => pr + cu + ',', "**Тэги:** ").slice(0, -1);

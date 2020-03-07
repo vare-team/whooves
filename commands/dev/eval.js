@@ -42,7 +42,7 @@ exports.run = async (client, msg, args) => {
 		const code = args.join(" ");
 		if (/client *\. *token/g.test(code)) {
 			temp = `**Исход: ошибка!**\n Наименование: \`\`Defend\`\` \n \n \`\`Try to catch token\`\``;
-			msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete(3000)}});
+			msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
 			return;
 		}
 		let t = performance.now();
@@ -52,10 +52,10 @@ exports.run = async (client, msg, args) => {
 		evaled = clean(evaled);
 		if (evaled.startsWith('Promise')) temp = `**Исход: успех!**\n Код выполнился за \`\`${t.toFixed(5)}\`\`мс.`;
 		else temp = `**Исход: успех!**\n `+(evaled.length > 2000 ? 'Исход итерации занял более 2К символов!' : `\`\`\`Js\n${evaled}\`\`\``)+` \n Код выполнился за \`\`${t.toFixed(5)}\`\`мс.`;
-		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete(3000)}});
+		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
 	} catch (err) {
 		temp = `**Исход: ошибка!**\n Наименование: \`\`${err.name}\`\` \n \n \`\`${err.message}\`\``;
-		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete(3000)}});
+		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
 	}
 
 	// let embed = new client.userLib.discord.MessageEmbed();

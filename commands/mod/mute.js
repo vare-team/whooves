@@ -12,7 +12,7 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
 	if (!msg.guild.me.hasPermission('MANAGE_ROLES')
-		|| msg.guild.channels.filter(
+		|| msg.guild.channels.cache.filter(
 			el => !(el.manageable && el.permissionsFor(client.user).has('MANAGE_ROLES'))
 		).size) {
 		client.userLib.retError(msg, 'Мне не доступна такая власть.');
@@ -34,7 +34,7 @@ exports.run = async (client, msg, args) => {
 
 	let mutedRole = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT mutedRole FROM guilds WHERE guildId = ?', [msg.guild.id]);
 	mutedRole = mutedRole.res;
-	let role = msg.guild.roles.get(mutedRole);
+	let role = msg.guild.roles.cache.get(mutedRole);
 
 	if (!role) {
 		let editEmbed = new client.userLib.discord.MessageEmbed()
@@ -46,26 +46,26 @@ exports.run = async (client, msg, args) => {
 
 		let msgs = await msg.channel.send(editEmbed);
 
-		role = await msg.guild.createRole({name: 'MutedWhooves', color: 'GREY', permissions: 0}, 'Создание мут роли для Хувза.');
+		role = await msg.guild.roles.create({data: {name: 'MutedWhooves', color: 'GREY', permissions: 0}, reason: 'Создание мут роли для Хувза.'});
 		editEmbed.setDescription(`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.load} Установка прав для категорий\n${client.userLib.emoji.load} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`);
 		msgs.edit(editEmbed);
 
-		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'category').array())
-			await ch.overwritePermissions(role, {SEND_MESSAGES: false, CONNECT: false});
+		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'category').array())
+			await ch.overwritePermissions([{id: role, deny: ['SEND_MESSAGES', 'CONNECT']}]);
 		editEmbed.setDescription(`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.load} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`);
 		msgs.edit(editEmbed);
 
-		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'text' && ch.parent && !ch.permissionOverwrites.has(role.id)).array())
-			await ch.overwritePermissions(role, {SEND_MESSAGES: false});
-		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'text' && !ch.parent).array())
-			await ch.overwritePermissions(role, {SEND_MESSAGES: false});
+		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'text' && ch.parent && !ch.permissionOverwrites.has(role.id)).array())
+			await ch.overwritePermissions([{id: role, deny: ['SEND_MESSAGES']}]);
+		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'text' && !ch.parent).array())
+			await ch.overwritePermissions([{id: role, deny: ['SEND_MESSAGES']}]);
 		editEmbed.setDescription(`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.ready} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`);
 		msgs.edit(editEmbed);
 
-		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'voice' && ch.parent && !ch.permissionOverwrites.has(role.id)).array())
-			await ch.overwritePermissions(role, {CONNECT: false});
-		for (const ch of msg.member.guild.channels.filter(ch => ch.type == 'voice' && !ch.parent).array())
-			await ch.overwritePermissions(role, {CONNECT: false});
+		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'voice' && ch.parent && !ch.permissionOverwrites.has(role.id)).array())
+			await ch.overwritePermissions([{id: role, deny: ['CONNECT']}]);
+		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'voice' && !ch.parent).array())
+			await ch.overwritePermissions([{id: role, deny: ['CONNECT']}]);
 		editEmbed.setDescription(`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.ready} Установка прав для чатов\n${client.userLib.emoji.ready} Установка прав для голосовых каналов`);
 		msgs.edit(editEmbed);
 
@@ -74,7 +74,7 @@ exports.run = async (client, msg, args) => {
 		msgs.edit(editEmbed);
 	}
 
-	msg.magicMention.addRole(role, 'Выдача мута!');
+	msg.magicMention.roles.add(role, 'Выдача мута!');
 	let now = new Date;
 	now.setMinutes(now.getMinutes() + +args[1]);
 	client.userLib.db.upsert('mutes', {userId: msg.magicMention.id, guildId: msg.guild.id, time: now}, () => {});
