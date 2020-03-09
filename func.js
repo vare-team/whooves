@@ -58,7 +58,8 @@ module.exports = function (Discord, client, con) {
 		usernamechecker: 0x2
 	};
 
-	this.nicknameReplacer = /[^\wА-Яа-яЁё \.?,;:\-(\)"']/g;
+	this.nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
+	this.nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё]/g;
 
 	let replacer = {
 		'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
@@ -253,14 +254,14 @@ module.exports = function (Discord, client, con) {
 	 * @param {string} nickname
 	 * @returns {boolean}
 	 */
-	this.isUsernameCorrect = (nickname) => !this.nicknameReplacer.test(nickname);
+	this.isUsernameCorrect = (nickname) => !(this.nicknameReplacerFirst.test(nickname) || this.nicknameReplacer.test(nickname));
 
 	/**
 	 * @function
 	 * @param {string} nickname
 	 * @returns {string}
 	 */
-	this.getUsernameCorrect = (nickname) => nickname.replace(this.nicknameReplacer, '') || 'Name';
+	this.getUsernameCorrect = (nickname) => nickname.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
 
 	/**
 	 * Send Guild custom log
