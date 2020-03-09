@@ -5,7 +5,8 @@ exports.help = {
 	usage: [{type: 'user', opt: 1}],
 	dm: 0,
 	tier: 0,
-	cooldown: 10
+	cooldown: 10,
+	hide: 1
 };
 
 const applyText = (canvas, ctx, text = '', x = 0, y = 0, fontSize = 18, width = 0, flag = false) => {
@@ -19,7 +20,11 @@ const applyText = (canvas, ctx, text = '', x = 0, y = 0, fontSize = 18, width = 
 exports.run = async (client, msg) => {
 	msg.channel.startTyping();
 
-	let use = msg.magicMention.user || msg.author;
+	let use = msg.magicMention || msg.member
+		, joinedAt = use.joinedAt
+	;
+
+	use = use.user;
 
 	const canvas = client.userLib.createCanvas(400, 600);
 	const ctx = canvas.getContext('2d');
@@ -29,11 +34,11 @@ exports.run = async (client, msg) => {
 	applyText(canvas, ctx, use.discriminator, 159, 257, 25, 238);
 	applyText(canvas, ctx, `Дело №${use.id}`, 8, 110, 26, 385, true);
 	applyText(canvas, ctx, client.userLib.moment(use.createdAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 349, 18, 385);
-	applyText(canvas, ctx, client.userLib.moment(msg.guild.members.get(use.id).joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385);
+	applyText(canvas, ctx, client.userLib.moment(joinedAt, "WWW MMM DD YYYY hh:mm:ss").format('Do MMMM, YYYYг.'), 22, 423, 18, 385);
 	applyText(canvas, ctx, use.bot ? 'Положительно' : 'Отрицательно', 22, 500, 18, 385);
 
-	if (use.avatarURL) {
-		ctx.drawImage(await client.userLib.loadImage(use.avatarURL), 20, 139, 131, 131);
+	if (use.displayAvatarURL()) {
+		ctx.drawImage(await client.userLib.loadImage(use.displayAvatarURL()), 20, 139, 131, 131);
 		ctx.drawImage(await client.userLib.loadImage('./images/up.png'), 0, 0);
 	}
 

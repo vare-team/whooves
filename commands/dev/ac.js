@@ -23,7 +23,7 @@ exports.run = (client, msg, args) => {
 		client.commands.set(args[1], props);
 	}
 
-	const notifyEmbed = new client.userLib.discord.RichEmbed()
+	const notifyEmbed = new client.userLib.discord.MessageEmbed()
 		.setDescription(`Команда ${args[1]} загружена.`)
 		.setColor(client.userLib.colors.suc);
 

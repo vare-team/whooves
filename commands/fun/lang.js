@@ -9,10 +9,10 @@ exports.help = {
 };
 
 exports.run = (client, msg, args) => {
-	let embed = new client.userLib.discord.RichEmbed()
+	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.suc)
 		.setDescription(client.userLib.translate(args.join(' ')))
-		.setAuthor(msg.author.tag, msg.author.avatarURL)
+		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 		.setFooter('Исправление раскладки текста');
 
 	msg.channel.send(embed);

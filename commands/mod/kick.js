@@ -37,6 +37,6 @@ exports.run = async (client, msg, args) => {
 	await msg.magicMention.user.send(`Вы были кикнуты с сервера \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
 	msg.magicMention.kick(reason);
 
-	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.suc).setDescription(`${msg.magicMention} был кикнут!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.avatarURL);
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setDescription(`${msg.magicMention} был кикнут!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
 	msg.channel.send(embed);
 };

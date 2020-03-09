@@ -22,7 +22,7 @@ exports.run = async (client, msg, args) => {
     return;
   }
 
-  let embed = new client.userLib.discord.RichEmbed()
+  let embed = new client.userLib.discord.MessageEmbed()
     .setThumbnail(data[0].portrait)
     .addField("Имя", data[0].name)
     .addField("Платформа", data[0].platform.toUpperCase())

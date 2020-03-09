@@ -1,5 +1,13 @@
+const badWords = require('../badwords.js');
+
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
+
+	if (msg.channel.type !== 'dm' && await client.userLib.checkSettings(msg.guild.id, 'badwords') && badWords.some(w => msg.content.toLowerCase().includes(w))) {
+		client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
+		msg.delete();
+	}
+
 	msg.flags = {};
 
 	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
@@ -22,7 +30,7 @@ module.exports = async (client, msg) => {
 	const cmd = client.commands.get(command.toLowerCase()) || client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(command.toLowerCase()));
 	if (!cmd) return;
 
-	if (msg.channel.type != 'dm' && !msg.channel.memberPermissions(client.user).has('EMBED_LINKS')) {
+	if (msg.channel.type != 'dm' && !msg.channel.permissionsFor(msg.guild.me).has('EMBED_LINKS')) {
 		msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
 		return;
 	}
@@ -61,8 +69,8 @@ module.exports = async (client, msg) => {
 	//Magic Mention
 	if (cmd.help.userMentionPosition !== undefined && args[cmd.help.userMentionPosition] && cmd.help.userMentionPosition != -1) {
 		msg.magicMention = msg.mentions.members.first()
-			|| msg.guild.members.get(args[cmd.help.userMentionPosition])
-			|| msg.guild.members.find(val => val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
+			|| msg.guild.members.cache.get(args[cmd.help.userMentionPosition])
+			|| msg.guild.members.cache.find(val => val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
 			|| false;
 	} else {
 		msg.magicMention = 0;
@@ -81,7 +89,7 @@ module.exports = async (client, msg) => {
 		tempError += 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.\n';
 	if (cmd.help.channelMention && !msg.mentions.channels.first())
 		tempError += 'Нужно указать канал.\n';
-	if (cmd.help.hasVoice && !msg.member.voiceChannel)
+	if (cmd.help.hasVoice && !msg.member.voice.channel)
 		tempError += 'Вы должны находиться в голосовом канале!\n';
 	if (cmd.help.hasAttach && !msg.attachments.size)
 		tempError += 'Вы должны прикрепить файл!\n';

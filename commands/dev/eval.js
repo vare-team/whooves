@@ -31,7 +31,7 @@ exports.run = async (client, msg, args) => {
 	/**********************/
 	// Быстрые переменные из client
 
-	let embed = new client.userLib.discord.RichEmbed();
+	let embed = new client.userLib.discord.MessageEmbed();
 
 	/**********************/
 
@@ -42,7 +42,7 @@ exports.run = async (client, msg, args) => {
 		const code = args.join(" ");
 		if (/client *\. *token/g.test(code)) {
 			temp = `**Исход: ошибка!**\n Наименование: \`\`Defend\`\` \n \n \`\`Try to catch token\`\``;
-			msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete(3000)}});
+			msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
 			return;
 		}
 		let t = performance.now();
@@ -52,16 +52,16 @@ exports.run = async (client, msg, args) => {
 		evaled = clean(evaled);
 		if (evaled.startsWith('Promise')) temp = `**Исход: успех!**\n Код выполнился за \`\`${t.toFixed(5)}\`\`мс.`;
 		else temp = `**Исход: успех!**\n `+(evaled.length > 2000 ? 'Исход итерации занял более 2К символов!' : `\`\`\`Js\n${evaled}\`\`\``)+` \n Код выполнился за \`\`${t.toFixed(5)}\`\`мс.`;
-		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete(3000)}});
+		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
 	} catch (err) {
 		temp = `**Исход: ошибка!**\n Наименование: \`\`${err.name}\`\` \n \n \`\`${err.message}\`\``;
-		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete(3000)}});
+		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
 	}
 
-	// let embed = new client.userLib.discord.RichEmbed();
-	// let systemembed = new client.userLib.discord.RichEmbed().setAuthor('Исход: в процессе.').setColor('#FAA61A').setFooter(msg.author.tag);
+	// let embed = new client.userLib.discord.MessageEmbed();
+	// let systemembed = new client.userLib.discord.MessageEmbed().setAuthor('Исход: в процессе.').setColor('#FAA61A').setFooter(msg.author.tag);
 	// msg.channel.send(systemembed).then(msge => {
-	//   let embededit = new client.userLib.discord.RichEmbed();
+	//   let embededit = new client.userLib.discord.MessageEmbed();
 	//   try {
 	//     const code = args.join(" ");
 	// 		if (code.indexOf('token') != -1) {
@@ -77,7 +77,7 @@ exports.run = async (client, msg, args) => {
 	//     else embededit.setAuthor('Исход: успех!').setTitle('Результат:').setDescription(evaled.length > 2000 ? 'Исход итерации занял более 2К символов!' : `\`\`\`Js\n${clean(evaled)}\`\`\``).addField('Информация', `Код выполнился за \`\`${t1 - t0}\`\`мс.`).setColor(evaled.length > 2000 ? '#727C8A' : '#43B581').setFooter(msg.author.tag);
 	//     msge.edit(embededit);
 	//   } catch (err) {
-	//     embededit = new client.userLib.discord.RichEmbed().setAuthor('Исход: ошибка!').setTitle('Сообщение:').addField('Информация об ошибке', `Наименование: \`\`${err.name}\`\`\nСтрока: \`\`${err.lineNumber}\`\`\nПозиция: \`\`${err.columnNumber}\`\``).setColor('#F04747').setDescription(`\`\`${err.message}\`\``).setFooter(msg.author.tag);
+	//     embededit = new client.userLib.discord.MessageEmbed().setAuthor('Исход: ошибка!').setTitle('Сообщение:').addField('Информация об ошибке', `Наименование: \`\`${err.name}\`\`\nСтрока: \`\`${err.lineNumber}\`\`\nПозиция: \`\`${err.columnNumber}\`\``).setColor('#F04747').setDescription(`\`\`${err.message}\`\``).setFooter(msg.author.tag);
 	//     msge.edit(embededit);
 	//   }
 	// });

@@ -10,6 +10,10 @@ exports.help = {
   cooldown: 10
 };
 
+String.prototype.replaceAt = function(index, replacement) {
+	return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+};
+
 exports.run = async (client, msg, args) => {
 	if (['1','2','3','4','5','6','7'].indexOf(args[0]) == -1) {
 		client.userLib.retError(msg, 'Неправильно указан номер фильтра.\n' + client.userLib.generateUsage(exports.help.usage));
@@ -21,15 +25,13 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	if (msg.attachments.first() && msg.attachments.first().filesize > 8*1024*1024) {
+	if (msg.attachments.first() && msg.attachments.first().size > 8*1024*1024) {
 		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
 		return;
 	}
 
-	msg.channel.startTyping();
-
 	let use = msg.magicMention.user || msg.author;
-	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL+'?size=512';
+	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL({format: 'png', dynamic: false, size: 512});
 
 	const ava = await client.userLib.loadImage(use)
 			, canvas = client.userLib.createCanvas(ava.width, ava.height)
@@ -53,8 +55,15 @@ exports.run = async (client, msg, args) => {
 			distort(ctx, 0, 0, ava.width, ava.height);
 			break;
 		case '6':
-			contrast(ctx, 0, 0, ava.width, ava.height);
-			distort(ctx, 0, 0, ava.width, ava.height, client.userLib.randomIntInc(5, 15));
+			ava.src = canvas.toDataURL("image/jpeg");
+			for (let i = 0; i < 5; i++)
+				ava.src = ava.src.replaceAt(client.userLib.randomIntInc(50, ava.src.length - 50), "0");
+			try {
+				ctx.drawImage(ava,0,0);
+			} catch (e) {
+				client.userLib.retError(msg,'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.');
+				return;
+			}
 			break;
 		case '7':
 			greyscale(ctx, 0, 0, ava.width, ava.height);
@@ -62,14 +71,17 @@ exports.run = async (client, msg, args) => {
 			break;
 	}
 
-	await msg.channel.send({
-		files: [
-			{
-				attachment: args[0] == 6 ? canvas.toBuffer('image/jpeg', {quality: client.userLib.randomIntInc(0, 100)}) : canvas.toBuffer(),
-				name: `filter.jpeg`
-			}]
-	});
-	msg.channel.stopTyping();
+	let embed = new client.userLib.discord.MessageEmbed()
+		.attachFiles({
+			attachment: canvas.toBuffer(),
+			name: `filter.jpeg`
+		})
+		.setImage('attachment://filter.jpeg')
+		.setColor(client.userLib.colors.inf)
+		.setTitle('Фильтр: ' + args[0])
+		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+
+	msg.channel.send(embed)
 };
 
 

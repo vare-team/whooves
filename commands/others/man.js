@@ -33,20 +33,20 @@ exports.run = (client, msg, args) => {
 	}
 
 	if (args[0] == 'ls') {
-		let embed = new client.userLib.discord.RichEmbed()
+		let embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setTitle(':paperclip: Список документов:')
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL)
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 			.setDescription(Object.keys(docs).reduce((pr, cr, ind) => pr += `\`\`${ind + 1}.:\`\` ${cr}\n${docs[cr].description}\n\n`, ''));
 		msg.channel.send(embed);
 		return;
 	}
 
 	let doc = docs[args[0]];
-	let embed = new client.userLib.discord.RichEmbed()
+	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle(':mag_right: Документ: ' + args[0])
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL)
+		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 	;
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
@@ -86,7 +86,7 @@ async function pagesEmbed(data = {}, text = '', devData = {page: 0, title: ''}) 
 	let collector = await devData.msg.awaitReactions(
 		(reaction, user) => ['◀️', '▶️'].indexOf(reaction.emoji.name) != -1 && user.id == data.id,
 		{max: 1, time: 15000}).then(coll => coll.first() ? coll.first().emoji.name : 0);
-	await devData.msg.clearReactions();
+	await devData.msg.reactions.removeAll();
 	if (!collector) return;
 
 	if (collector == '◀️' && devData.page > 0) {devData.page--;}

@@ -1,3 +1,4 @@
+
 exports.help = {
   name: "say",
   description: "Написать от имени бота.",
@@ -9,7 +10,7 @@ exports.help = {
 };
 
 exports.run = (client, msg, args) => {
-	let embed = new client.userLib.discord.RichEmbed().setColor(client.userLib.colors.inf).setDescription(args.join(" "));
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setDescription(args.join(" "));
 	msg.channel.send(embed);
 	msg.delete();
 };

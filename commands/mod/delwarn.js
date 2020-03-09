@@ -19,14 +19,14 @@ exports.run = (client, msg, args) => {
 
 		if (affR > 1) client.userLib.sendLog('Пизда! Удаление варнов сломалось!');
 
-		let embed = new client.userLib.discord.RichEmbed()
+		let embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.war)
 			.setTitle(`Снятие предупреждения.`)
 			.setDescription(`Предупреждение *${args[1]}* снято с пользователя ${msg.magicMention}.`)
 			.setTimestamp()
-			.setFooter(msg.author.tag, msg.author.avatarURL);
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 		msg.channel.send(embed);
-		client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL }, channel: { id: msg.channel.id }, content: `снятие предупреждения (ID:${args[1]}) с ${msg.magicMention}`});
+		client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() }, channel: { id: msg.channel.id }, content: `снятие предупреждения (ID:${args[1]}) с ${msg.magicMention}`});
 	});
 };

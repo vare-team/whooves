@@ -30,11 +30,11 @@ modules = {
 exports.run = (client, msg, args) => {
 
 	if (!args.length) {
-		let embed = new client.userLib.discord.RichEmbed()
+		let embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setDescription(`Вы можете написать \`${msg.flags.prefix}help [название команды]\` чтобы получить подробную информацию!`)
 			.setTitle(':paperclip: Список команд:')
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL);
+			.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 		readdirSync('./commands/').filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
 			.filter(el => el != 'dev' || el == 'dev' && client.userLib.admins.hasOwnProperty(msg.author.id))
@@ -59,10 +59,10 @@ exports.run = (client, msg, args) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.RichEmbed()
+	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle("🔎 Команда: " + command.help.name)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL);
+		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 	if (command.help.description) embed.setDescription(command.help.description);
 	if (command.help.aliases.length) embed.addField("Псевдонимы", command.help.aliases.join(', '), true);

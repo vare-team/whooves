@@ -8,12 +8,58 @@ const schedule = require('../SDCBotsModules/schedule');
  * @param con - mysql connection
  */
 module.exports = function (Discord, client, con) {
+
+	/**
+	 * @function
+	 * @param {string} log
+	 * @param {string} type
+	 */
+	this.sendLog = (log = 'Clap one hand', type = 'Auto') => {
+		const now = new Date;
+		console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.ids}] | {${type}} : ${log}`);
+	};
+
 	// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
 
 	this.admins = {
 		'321705723216134154': 0,
 		'166610390581641217': 0
 	};
+
+	this.colors = {
+		err: '#F04747',
+		suc: '#43B581',
+		inf: '#3492CC',
+		war: '#FAA61A'
+	};
+
+	this.emoji = {load: '<a:load:674326004990345217>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
+
+	this.discord = Discord;
+	this.db = con;
+
+	this.request = require('request-promise-native');
+
+	this.moment = require('moment');
+	this.moment.locale('ru');
+
+	this.cooldown = new Map();
+
+	this.promise = require('../SDCBotsModules/promise');
+	this.sc = new schedule(this.sendLog);
+
+	const {registerFont, createCanvas, loadImage} = require('canvas');
+	// registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
+	this.createCanvas = createCanvas;
+	this.loadImage = loadImage;
+
+	this.settings = {
+		badwords: 0x1,
+		usernamechecker: 0x2
+	};
+
+	this.nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
+	this.nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё]/g;
 
 	let replacer = {
 		'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
@@ -33,11 +79,6 @@ module.exports = function (Discord, client, con) {
 			return x == x.toLowerCase() ? replacer[x] : replacer[x.toLowerCase()].toUpperCase();
 		});
 	};
-
-	const {registerFont, createCanvas, loadImage} = require('canvas');
-	// registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
-	this.createCanvas = createCanvas;
-	this.loadImage = loadImage;
 
 	/**
 	 * @function
@@ -109,38 +150,6 @@ module.exports = function (Discord, client, con) {
 
 	/**
 	 * @function
-	 * @param {string} log
-	 * @param {string} type
-	 */
-	this.sendLog = (log = 'Clap one hand', type = 'Auto') => {
-		const now = new Date;
-		console.log(`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)} | Shard[${client.shard.id}] | {${type}} : ${log}`);
-	};
-
-	this.colors = {
-		err: '#F04747',
-		suc: '#43B581',
-		inf: '#3492CC',
-		war: '#FAA61A'
-	};
-
-	this.emoji = {load: '<a:load:674326004990345217>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
-
-	this.discord = Discord;
-	this.db = con;
-
-	this.request = require('request-promise-native');
-
-	this.moment = require('moment');
-	this.moment.locale('ru');
-
-	this.cooldown = new Map();
-
-	this.promise = require('../SDCBotsModules/promise');
-	this.sc = new schedule(this.sendLog);
-
-	/**
-	 * @function
 	 * @param {number} servers
 	 * @param {number} shards
 	 */
@@ -170,16 +179,16 @@ module.exports = function (Discord, client, con) {
 	this.presenceFunc = () => {
 		switch (this.presenceCount) {
 			case 0:
-				client.user.setPresence({game: {name: `w.help`, type: 'WATCHING'}});
+				client.user.setPresence({activity: {name: `w.help`, type: 'WATCHING'}});
 				break;
 			case 1:
-				client.user.setPresence({game: {name: `серверов: ${client.guilds.size}`, type: 'WATCHING'}});
+				client.user.setPresence({activity: {name: `серверов: ${client.guilds.size}`, type: 'WATCHING'}});
 				break;
 			case 2:
-				client.user.setPresence({game: {name: 'время', type: 'WATCHING'}});
+				client.user.setPresence({activity: {name: 'время', type: 'WATCHING'}});
 				break;
 			case 3:
-				client.user.setPresence({game: {name: 'хуффингтон', type: 'STREAMING'}});
+				client.user.setPresence({activity: {name: 'хуффингтон', type: 'STREAMING'}});
 				this.presenceCount = 0;
 		}
 		this.presenceCount++;
@@ -193,9 +202,66 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.retError = (msg, reason = 'Какая разница вообще?') => {
 		msg.react('674326004872904733');
-		let embed = new Discord.RichEmbed().setColor(this.colors.err).setTitle('Ошибка!').setDescription(reason).setFooter(msg.author.tag, msg.author.displayAvatarURL).setTimestamp();
-		msg.channel.send(`<@${msg.author.id}>`, embed).then((msgErr) => msgErr.delete(10000));
+		let embed = new Discord.MessageEmbed().setColor(this.colors.err).setTitle(this.emoji.err + ' Ошибка!').setDescription(reason).setFooter(msg.author.tag, msg.author.displayAvatarURL()).setTimestamp();
+		msg.channel.send(`<@${msg.author.id}>`, embed);
 	};
+
+	/**
+	 * @function
+	 * @param {object} user
+	 * @param {object} guild
+	 * @param {object} channel
+	 * @param {string} reason
+	 */
+	this.autowarn = (user, guild, channel, reason) => {
+		con.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, () => {});
+
+		let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.avatarURL);
+		channel.send(embed);
+
+		this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
+	};
+
+	/**
+	 * @function
+	 * @param {string} guildId
+	 * @param {string} setNumber
+	 * @returns {boolean}
+	 */
+	this.checkSettings = async (guildId, setNumber) => {
+		let setting = await con.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId]);
+		setting = setting[0][0].settings;
+
+		return !!(this.settings[setNumber] & setting);
+	};
+
+	/**
+	 * @function
+	 * @param {string} guildId
+	 * @param {string} setNumber
+	 * @param {boolean} state
+	 * @returns {boolean}
+	 */
+	this.setSettings = async (guildId, setNumber, state) => {
+		if (await this.checkSettings(guildId, setNumber) == state) return false;
+
+		con.query(`UPDATE guilds SET settings = settings ${state ? '+' : '-'} ? WHERE guildId = ?`, [this.settings[setNumber], guildId]);
+		return true;
+	};
+
+	/**
+	 * @function
+	 * @param {string} nickname
+	 * @returns {boolean}
+	 */
+	this.isUsernameCorrect = (nickname) => !(this.nicknameReplacerFirst.test(nickname) || this.nicknameReplacer.test(nickname));
+
+	/**
+	 * @function
+	 * @param {string} nickname
+	 * @returns {string}
+	 */
+	this.getUsernameCorrect = (nickname) => nickname.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
 
 	/**
 	 * Send Guild custom log
@@ -219,13 +285,12 @@ module.exports = function (Discord, client, con) {
 		let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE guildId = ?', [guild.id]);
 		logchannel = logchannel.res;
 		if (!logchannel) return;
-		let channel = guild.channels.get(logchannel);
+		let channel = guild.channels.cache.get(logchannel);
 
 		if (!channel) {
 			con.update('guilds', {guildId: guild.id, logchannel: null}, () => { });
 			return;
 		}
-
 
 		let now = new Date;
 		let text = `[\`\`${('00' + now.getDate()).slice(-2) + '.' + ('00' + (now.getMonth() + 1)).slice(-2) + ' ' + ('00' + now.getHours()).slice(-2) + ':' + ('00' + now.getMinutes()).slice(-2) + ':' + ('00' + now.getSeconds()).slice(-2)}\`\`] `;
@@ -234,39 +299,39 @@ module.exports = function (Discord, client, con) {
 		if (!type) return console.warn('Error! Тип не указан');
 		switch (type) {
 			case 'memberAdd':
-				text += `**Заход участника** <@${data.user.id}> (ID: ${data.user.id});\nАккаунт зарегистрирован __${this.moment(data.user.createdAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
+				text += `📈 **Заход участника** ${data.user.tag} (ID: ${data.user.id});\nАккаунт зарегистрирован __${this.moment(data.user.createdAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
 				break;
 
 			case 'memberRemove':
-				text += `**Выход участника** <@${data.user.id}>;\nАккаунт зашёл на сервер __${this.moment(data.user.joinedAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
+				text += `📉 **Выход участника** ${data.user.tag}  (ID: ${data.user.id});\nАккаунт зашёл на сервер __${this.moment(data.user.joinedAt, 'WWW MMM DD YYYY HH:mm:ss').fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
 				break;
 
 			case 'messageDelete':
-				text += `**Удаление сообщения** от <@${data.user.id}>, в канале <#${data.channel.id}>;\n${data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`}`;
+				text += `✂ **Удаление сообщения** от ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;\n${data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`}`;
 				break;
 
 			case 'messageDeleteBulk':
-				text += `**Массовое удаление сообщений** в канале <#${data.channel.id}>, было удалено __${data.size}__`;
+				text += `✂📂 **Массовое удаление сообщений** в канале <#${data.channel.id}>, было удалено __${data.size}__`;
 				break;
 
 			case 'messageUpdate':
-				text += `**Изменение сообщения** от <@${data.user.id}>, в канале <#${data.channel.id}>;\n${data.oldContent.length + data.newContent.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.oldContent}\n\`\`======\`\`\n${data.newContent}`}`;
+				text += `✏ **Изменение сообщения** ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;\n${data.oldContent.length + data.newContent.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.oldContent}\n\`\`======\`\`\n${data.newContent}`}`;
 				break;
 
 			case 'voiceStateAdd':
-				text += `**Подключение к каналу** от <@${data.user.id}>, канал "__${data.channel.name}__";`;
+				text += `☎ **Подключение к каналу** ${data.user.tag}  (ID: ${data.user.id}), канал "__${data.channel.name}__";`;
 				break;
 
 			case 'voiceStateRemove':
-				text += `**Отключение от канала** от <@${data.user.id}>, канала "__${data.channel.name}__";`;
+				text += `☎ **Отключение от канала** ${data.user.tag}  (ID: ${data.user.id}), канала "__${data.channel.name}__";`;
 				break;
 
 			case 'voiceStateUpdate':
-				text += `**Перемещение между каналами** от <@${data.user.id}>, из канала "__${data.channel.oldName}__", в канал "__${data.channel.newName}__";`;
+				text += `☎ **Перемещение между каналами** ${data.user.tag}  (ID: ${data.user.id}), из канала "__${data.channel.oldName}__", в канал "__${data.channel.newName}__";`;
 				break;
 
 			case 'commandUse':
-				text += `**Действие: "${data.content}"** от <@${data.user.id}>, в канале <#${data.channel.id}>;`;
+				text += `🔨 **Действие: "${data.content}"** от ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;`;
 				break;
 
 			default:

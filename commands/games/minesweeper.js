@@ -11,33 +11,33 @@ exports.help = {
 	hide: 1
 };
 
-const Minesweeper = require('discord.js-minesweeper');
+// const Minesweeper = require('discord.js-minesweeper');
 
 exports.run = (client, msg, args) => {
 
-	if (args[0] && isNaN(+args[0]) || args[1] && isNaN(+args[1]) || args[2] && isNaN(+args[2])) {
-		client.userLib.retError(msg, 'Всё должно быть числами.');
-		return;
-	}
+	// if (args[0] && isNaN(+args[0]) || args[1] && isNaN(+args[1]) || args[2] && isNaN(+args[2])) {
+	// 	client.userLib.retError(msg, 'Всё должно быть числами.');
+	// 	return;
+	// }
 
-	const minesweeper = new Minesweeper({
-		rows: args[0],
-		columns: args[1],
-		mines: args[2],
-		returnType: 'emoji',
-	});
+	// const minesweeper = new Minesweeper({
+	// 	rows: args[0],
+	// 	columns: args[1],
+	// 	mines: args[2],
+	// 	returnType: 'emoji',
+	// });
 
-	let pole = minesweeper.start();
+	// let pole = minesweeper.start();
 
-	if (!pole) {
-		client.userLib.retError(msg, 'Ошибка генерации. Не правильные параметры.');
-		return;
-	}
+	// if (!pole) {
+	// 	client.userLib.retError(msg, 'Ошибка генерации. Не правильные параметры.');
+	// 	return;
+	// }
 
-	let	embed = new client.userLib.discord.RichEmbed()
-		.setColor(client.userLib.colors.inf)
-		.setTitle(`Сапёр ${minesweeper.rows}x${minesweeper.columns}\nБомб на уровне: ${minesweeper.mines}`)
-		.setDescription(pole);
+	// let	embed = new client.userLib.discord.MessageEmbed()
+	// 	.setColor(client.userLib.colors.inf)
+	// 	.setTitle(`Сапёр ${minesweeper.rows}x${minesweeper.columns}\nБомб на уровне: ${minesweeper.mines}`)
+	// 	.setDescription(pole);
 	
-	msg.channel.send(embed);
+	// msg.channel.send(embed);
 };
