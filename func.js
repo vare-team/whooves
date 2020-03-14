@@ -21,6 +21,8 @@ module.exports = function (Discord, client, con) {
 
 	// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
 
+	this.badWords = require('./badwords.js');
+
 	this.admins = {
 		'321705723216134154': 0,
 		'166610390581641217': 0
@@ -153,7 +155,7 @@ module.exports = function (Discord, client, con) {
 	 * @param {number} servers
 	 * @param {number} shards
 	 */
-	this.sendSDC = (servers = client.guilds.size, shards = client.shard.count) => {
+	this.sendSDC = (servers = client.guilds.cache.size, shards = client.shard.count) => {
 		this.sendLog(`{SDC} Guilds: ${servers}, Shards: ${shards}`);
 		this.request({
 			method: 'POST',
@@ -182,7 +184,7 @@ module.exports = function (Discord, client, con) {
 				client.user.setPresence({activity: {name: `w.help`, type: 'WATCHING'}});
 				break;
 			case 1:
-				client.user.setPresence({activity: {name: `серверов: ${client.guilds.size}`, type: 'WATCHING'}});
+				client.user.setPresence({activity: {name: `серверов: ${client.guilds.cache.size}`, type: 'WATCHING'}});
 				break;
 			case 2:
 				client.user.setPresence({activity: {name: 'время', type: 'WATCHING'}});
