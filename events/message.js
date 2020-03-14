@@ -68,6 +68,7 @@ module.exports = async (client, msg) => {
 	if (cmd.help.userMentionPosition !== undefined && args[cmd.help.userMentionPosition] && cmd.help.userMentionPosition != -1) {
 		msg.magicMention = msg.mentions.members.first()
 			|| msg.guild.members.cache.get(args[cmd.help.userMentionPosition])
+			|| msg.guild.members.cache.find(val => val.displayName.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
 			|| msg.guild.members.cache.find(val => val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
 			|| false;
 	} else {
