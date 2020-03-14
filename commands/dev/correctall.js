@@ -17,6 +17,8 @@ exports.run = async (client, msg) => {
 		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 		.setDescription('Никнеймы: \n');
 
+	await msg.guild.members.fetch();
+
 	for (let member of msg.guild.members.cache.array()) {
 		let name = member.displayName
 			, correctName = client.userLib.getUsernameCorrect(name)

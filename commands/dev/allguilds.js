@@ -10,7 +10,7 @@ exports.help = {
 
 exports.run = (client, msg) => {
 	let temp = '```\n';
-	for (let i of client.guilds.array()) {
+	for (let i of client.guilds.cache.array()) {
 		if ((temp+`${i.name} - ${i.memberCount} (ID: ${i.id})\n\`\`\``).length >= 2000) {
 			msg.channel.send(temp+'```');
 			temp = '```\n';

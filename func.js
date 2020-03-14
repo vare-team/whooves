@@ -21,6 +21,8 @@ module.exports = function (Discord, client, con) {
 
 	// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
 
+	this.badWords = require('./badwords.js');
+
 	this.admins = {
 		'321705723216134154': 0,
 		'166610390581641217': 0
