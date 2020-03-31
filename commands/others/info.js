@@ -8,7 +8,8 @@ exports.help = {
   cooldown: 5
 };
 
-const { uptime } = require('os');
+const { uptime } = require('os'),
+	{ version } = require('../../package');
 
 exports.run = async (client, msg) => {
 
@@ -27,7 +28,7 @@ exports.run = async (client, msg) => {
 
 • Discord.js    :: v${client.userLib.discord.version}
 • Версия Node   :: ${process.version}
-• Версия бота   :: v${process.env.version}\`\`\``)
+• Версия бота   :: v${version}\`\`\``)
 				.addField("Разработчики", `**${client.users.cache.get('166610390581641217').tag}** \n **${client.users.cache.get('321705723216134154').tag}**`, true)
 				.addField("Команда помощи", `**w.help**`, true)
 				.addField("Префикс", `**w.**`, true)

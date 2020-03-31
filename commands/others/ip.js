@@ -3,7 +3,7 @@ exports.help = {
   description: "Данные по IP адресу",
   aliases: [],
   usage: [{type: 'text', opt: 0, name: 'ip'}],
-  dm: 0,
+  dm: 1,
   tier: 0,
   cooldown: 5
 };

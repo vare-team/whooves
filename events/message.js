@@ -84,7 +84,9 @@ module.exports = async (client, msg) => {
 		tempError += 'Количество аргументов не верно!\n';
 	if (cmd.help.userMention && !msg.magicMention)
 		tempError += 'Введённая вами команда требует упоминания.\n';
-	if (cmd.help.userMention && msg.magicMention && msg.magicMention.id == msg.author.id)
+	if (cmd.help.userMention && msg.magicMention
+		&& msg.magicMention.id == msg.author.id
+		&& msg.guild.ownerID !== msg.member.id)
 		tempError += 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.\n';
 	if (cmd.help.channelMention && !msg.mentions.channels.first())
 		tempError += 'Нужно указать канал.\n';

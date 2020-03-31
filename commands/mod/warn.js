@@ -4,7 +4,7 @@ exports.help = {
 	aliases: ['w'],
   usage: [{type: 'user', opt: 0},
   	      {type: 'text', opt: 1, name: 'причина'}],
-	dm: 1,
+	dm: 0,
 	tier: -1,
   cooldown: 5
 };

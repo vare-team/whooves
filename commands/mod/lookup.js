@@ -3,7 +3,7 @@ exports.help = {
 	description: "Получить информацию о пользователе или приглашении по ID.",
 	aliases: ['lu', 'lk'],
 	usage: [{type: 'text', opt: 0, name: 'id'}],
-	dm: 0,
+	dm: 1,
 	tier: 0,
 	cooldown: 5
 };
