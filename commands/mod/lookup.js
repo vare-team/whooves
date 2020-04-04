@@ -16,7 +16,7 @@ exports.run = async (client, msg, args) => {
 	else object = await client.fetchInvite(args[0]).catch(() => 0);
 
 	if (!object) {
-		client.userLib.retError(msg, 'Гильдии/Приглашения с таким ID не найдено.');
+		client.userLib.retError(msg, 'Пользователя/Приглашения с таким ID не найдено.');
 		return;
 	}
 
