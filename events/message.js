@@ -1,7 +1,7 @@
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
 
-	if (msg.channel.type !== 'dm' && await client.userLib.checkSettings(msg.guild.id, 'badwords') && client.userLib.badWords.some(w => msg.content.toLowerCase().replace(/[^a-zа-яЁё ]/g,'').trim().split(/ +/g).includes(w))) {
+	if (msg.channel.type !== 'dm' && await client.userLib.checkSettings(msg.guild.id, 'badwords') && client.userLib.badWords.some(w => msg.content.toLowerCase().replace(/[^a-zа-яЁё ]/g,'').replace('ё','е').trim().split(/ +/g).includes(w))) {
 		client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
 		msg.delete();
 	}
@@ -11,7 +11,7 @@ module.exports = async (client, msg) => {
 	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
 	msg.flags.prefix = prefix;
 
-	if (msg.content === `<@${client.user.id}>`) {
+	if (msg.content === `<@!${client.user.id}>`) {
 		msg.reply(`Мой префикс \`\`${prefix}\`\`\nМожешь написать \`\`${prefix}help\`\` для помощи.`);
 		return;
 	}
@@ -51,7 +51,7 @@ module.exports = async (client, msg) => {
 		cmd.help.argsCount = 0;
 		cmd.help.usageStr = client.userLib.generateUsage(cmd.help.usage);
 		for (let us of cmd.help.usage) {
-			if (!us.opt) {
+			if (us.opt === 0) {
 				cmd.help.argsCount++;
 				if (!cmd.help.args) cmd.help.args = true;
 				if (us.type === 'user') cmd.help.userMention = true;
@@ -68,6 +68,7 @@ module.exports = async (client, msg) => {
 	if (cmd.help.userMentionPosition !== undefined && args[cmd.help.userMentionPosition] && cmd.help.userMentionPosition != -1) {
 		msg.magicMention = msg.mentions.members.first()
 			|| msg.guild.members.cache.get(args[cmd.help.userMentionPosition])
+			|| msg.guild.members.cache.find(val => val.displayName.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
 			|| msg.guild.members.cache.find(val => val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
 			|| false;
 	} else {
@@ -83,7 +84,9 @@ module.exports = async (client, msg) => {
 		tempError += 'Количество аргументов не верно!\n';
 	if (cmd.help.userMention && !msg.magicMention)
 		tempError += 'Введённая вами команда требует упоминания.\n';
-	if (cmd.help.userMention && msg.magicMention && msg.magicMention.id == msg.author.id)
+	if (cmd.help.userMention && msg.magicMention
+		&& msg.magicMention.id == msg.author.id
+		&& msg.guild.ownerID !== msg.member.id)
 		tempError += 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.\n';
 	if (cmd.help.channelMention && !msg.mentions.channels.first())
 		tempError += 'Нужно указать канал.\n';
@@ -97,7 +100,6 @@ module.exports = async (client, msg) => {
 		return;
 	}
 	//CHECK ARGS
-
 
 	if (!client.userLib.admins.hasOwnProperty(msg.author.id)) {
 		if (!client.userLib.cooldown.has(cmd.help.name)) {

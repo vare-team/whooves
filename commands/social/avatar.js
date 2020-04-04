@@ -3,7 +3,7 @@ exports.help = {
   description: "Ссылка на аватара пользователя",
 	aliases: ['a'],
   usage: [{type: 'user', opt: 1}],
-	dm: 0,
+	dm: 1,
   tier: 0,
   cooldown: 1
 };

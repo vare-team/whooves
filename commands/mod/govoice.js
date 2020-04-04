@@ -1,7 +1,7 @@
 exports.help = {
 	name: "govoice",
 	description: "Переместить всех в вашем голосовом канале в указанный канал.",
-	aliases: ['gv'],
+	aliases: ['gv', 'merge'],
 	usage: [{type: 'text', opt: 0, name: 'ID Канала'},
 					{type: 'voice'}],
 	dm: 0,
@@ -9,7 +9,7 @@ exports.help = {
 	cooldown: 15
 };
 
-exports.run = (client, msg, args) => {
+exports.run = async (client, msg, args) => {
 
 	let govoice = msg.guild.channels.cache.get(args[0]);
 
@@ -18,9 +18,12 @@ exports.run = (client, msg, args) => {
 		return;
 	}
 
-	let count = msg.member.voiceChannel.members.size;
+	let count = msg.member.voice.channel.members.size, error = '';
 
-	for (let m of msg.member.voiceChannel.members.array()) m.setVoiceChannel(args[0]);
+	for (let m of msg.member.voice.channel.members.array())
+		await m.voice.setChannel(govoice).catch(() => {count--; error += m.user.tag + ', ';});
+
+	client.userLib.retError(msg, 'Недостаточно прав для перемещения пользователя(ей): '+error.slice(0, -2));
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setDescription(`Было перемещено участников: **${count}**, в канал "**${govoice.name}**"`)

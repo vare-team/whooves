@@ -3,7 +3,7 @@ exports.help = {
 	description: "Получить информацию о пользователе или приглашении по ID.",
 	aliases: ['lu', 'lk'],
 	usage: [{type: 'text', opt: 0, name: 'id'}],
-	dm: 0,
+	dm: 1,
 	tier: 0,
 	cooldown: 5
 };
@@ -16,7 +16,7 @@ exports.run = async (client, msg, args) => {
 	else object = await client.fetchInvite(args[0]).catch(() => 0);
 
 	if (!object) {
-		client.userLib.retError(msg, 'Гильдии/Приглашения с таким ID не найдено.');
+		client.userLib.retError(msg, 'Пользователя/Приглашения с таким ID не найдено.');
 		return;
 	}
 

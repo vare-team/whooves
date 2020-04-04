@@ -1,7 +1,7 @@
 exports.help = {
-  name: "delwarn",
+  name: "unwarn",
   description: "Снять предупреждение с учасика",
-	aliases: ['delw', 'dw'],
+	aliases: ['delw', 'dw', 'delwarn'],
   usage: [{type: 'user', opt: 0},
   	      {type: 'text', opt: 0, name: 'id'}],
 	dm: 0,

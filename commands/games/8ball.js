@@ -3,7 +3,7 @@ exports.help = {
   description: "Задайте магическому шару вопрос и он на него ответит!",
 	aliases: ['ball', 'bl', '8'],
   usage: [{type: 'text', opt: 0, name: 'вопрос'}],
-	dm: 0,
+	dm: 1,
   tier: 0,
   cooldown: 5
 };
