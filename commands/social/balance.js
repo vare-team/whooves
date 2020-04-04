@@ -19,7 +19,7 @@ exports.run = async (client, msg) => {
 	let coins = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue,'SELECT money FROM users WHERE userId = ?', [user.id]);
 	coins = coins.res;
 
-	if (!coins) {
+	if (!coins && coins !== 0) {
 		client.userLib.retError(msg, 'Ваш баланс пуст, так как у вас даже ещё кошелька нет!\nПопробуй написать что-нибудь в чат для начала.');
 		return;
 	}

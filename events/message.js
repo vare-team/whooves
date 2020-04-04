@@ -51,7 +51,7 @@ module.exports = async (client, msg) => {
 		cmd.help.argsCount = 0;
 		cmd.help.usageStr = client.userLib.generateUsage(cmd.help.usage);
 		for (let us of cmd.help.usage) {
-			if (!us.opt) {
+			if (us.opt === 0) {
 				cmd.help.argsCount++;
 				if (!cmd.help.args) cmd.help.args = true;
 				if (us.type === 'user') cmd.help.userMention = true;
@@ -100,7 +100,6 @@ module.exports = async (client, msg) => {
 		return;
 	}
 	//CHECK ARGS
-
 
 	if (!client.userLib.admins.hasOwnProperty(msg.author.id)) {
 		if (!client.userLib.cooldown.has(cmd.help.name)) {
