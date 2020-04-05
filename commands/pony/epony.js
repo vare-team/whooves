@@ -5,7 +5,8 @@ exports.help = {
   usage: [{type: 'text', opt: 1, name: 'запрос'}],
   dm: 1,
   tier: 0,
-  cooldown: 5
+  cooldown: 5,
+  hide: 1
 };
 
 exports.run = async (client, msg, args) => {

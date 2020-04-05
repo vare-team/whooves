@@ -39,7 +39,7 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setAuthor(' 🔧 Настройки').setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setAuthor('🔧 Настройки').setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 	switch (args[0]) {
 		case 'prefix':

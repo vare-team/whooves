@@ -218,7 +218,7 @@ module.exports = function (Discord, client, con) {
 	this.autowarn = (user, guild, channel, reason) => {
 		con.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, () => {});
 
-		let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.avatarURL);
+		let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.displayAvatarURL());
 		channel.send(embed);
 
 		this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
