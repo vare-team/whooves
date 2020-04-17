@@ -61,7 +61,7 @@ module.exports = function (Discord, client, con) {
 	};
 
 	this.nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
-	this.nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё]/g;
+	this.nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё .|-]/g;
 
 	let replacer = {
 		'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
