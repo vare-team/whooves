@@ -1,6 +1,6 @@
 exports.help = {
 	name: 'settings',
-	description: 'Настройки бота.\n\`\`prefix [prefix] - префикс бота\nlog [#channel/off] - лог канал\nbadwords [on/off] - фильтр мата\nnormalusername [on/off] - антиюникод в никах\`\`',
+	description: 'Настройки бота.\n\`\`prefix [prefix] - префикс бота\nlog [#channel/off] - лог канал\nbadwords [on/off] - фильтр мата\nusernamechecker [on/off] - антиюникод в никах\`\`',
 	aliases: ['set'],
 	usage: [
 		{type: 'text', opt: 0, name: 'параметр'},

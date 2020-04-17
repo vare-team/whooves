@@ -21,6 +21,7 @@ exports.run = async (client, msg, args) => {
 			});
 			break;
 		case 'rm':
+			if (!args[1]) {client.userLib.retError(msg, 'Укажите ID записи!'); return;}
 			client.userLib.db.delete('notes', {noteId: args[1], userId: msg.author.id}, (e, res) => {
 				if (!res) {
 					client.userLib.retError(msg, 'Тщательно проверив свои записи, я не нашёл заметки с такими данными.');

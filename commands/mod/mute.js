@@ -51,21 +51,21 @@ exports.run = async (client, msg, args) => {
 		msgs.edit(editEmbed);
 
 		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'category').array())
-			await ch.overwritePermissions([{id: role, deny: ['SEND_MESSAGES', 'CONNECT']}]);
+			await ch.createOverwrite(role, {'SEND_MESSAGES': false, 'CONNECT': false});
 		editEmbed.setDescription(`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.load} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`);
 		msgs.edit(editEmbed);
 
 		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'text' && ch.parent && !ch.permissionOverwrites.has(role.id)).array())
-			await ch.overwritePermissions([{id: role, deny: ['SEND_MESSAGES']}]);
+			await ch.createOverwrite(role, {'SEND_MESSAGES': false});
 		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'text' && !ch.parent).array())
-			await ch.overwritePermissions([{id: role, deny: ['SEND_MESSAGES']}]);
+			await ch.createOverwrite(role, {'SEND_MESSAGES': false});
 		editEmbed.setDescription(`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.ready} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`);
 		msgs.edit(editEmbed);
 
 		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'voice' && ch.parent && !ch.permissionOverwrites.has(role.id)).array())
-			await ch.overwritePermissions([{id: role, deny: ['CONNECT']}]);
+			await ch.createOverwrite(role, {'CONNECT': false});
 		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'voice' && !ch.parent).array())
-			await ch.overwritePermissions([{id: role, deny: ['CONNECT']}]);
+			await ch.createOverwrite(role, {'CONNECT': false});
 		editEmbed.setDescription(`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.ready} Установка прав для чатов\n${client.userLib.emoji.ready} Установка прав для голосовых каналов`);
 		msgs.edit(editEmbed);
 
