@@ -221,7 +221,7 @@ module.exports = function (Discord, client, con) {
 			let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription(`Причина: **${reason ? reason : 'Не указана'}**\nID предупреждения: **${id}**`).setTimestamp().setFooter(client.user.tag, client.user.displayAvatarURL());
 			channel.send(embed);
 
-			this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
+			this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения (ID: ${id}) ${user} по причине: ${reason}`});
 		})
 	};
 

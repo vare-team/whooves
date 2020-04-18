@@ -25,6 +25,6 @@ exports.run = (client, msg, args) => {
 			.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 		msg.channel.send(embed);
-		client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() }, channel: { id: msg.channel.id }, content: `выдача предупреждения ${msg.magicMention.user} по причине: ${args.slice(1).join(' ')}`});
+		client.userLib.sendLogChannel("commandUse", msg.guild, { user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() }, channel: { id: msg.channel.id }, content: `выдача предупреждения (ID: ${id}) ${msg.magicMention.user} по причине: ${args.slice(1).join(' ')}`});
 	});
 };
