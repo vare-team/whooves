@@ -26,9 +26,14 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
+	if (bet > 1000000) {
+		client.userLib.retError(msg, 'Минестерство морали установило ограничение в 1.000.000 на одну ставку.\nСожалею.');
+		return;
+	}
+
 	let uscoins = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue,'SELECT money FROM users WHERE userId = ?', [msg.author.id]);
 
-	if (uscoins < bet) {
+	if (uscoins.res < bet) {
 		client.userLib.retError(msg, 'Мечтать хорошо, не спорю, но у тебя нет такого количества денег.');
 		return;
 	}

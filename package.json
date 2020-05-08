@@ -1,6 +1,6 @@
 {
   "name": "whooves",
-  "version": "3.5.3",
+  "version": "3.5.4",
   "description": "Discord Bot",
   "main": "shard.js",
   "repository": {
