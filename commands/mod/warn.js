@@ -11,6 +11,11 @@ exports.help = {
 
 exports.run = (client, msg, args) => {
 
+	if (args.slice(1).join(' ').length > 300) {
+		client.userLib.retError(msg, 'Причина не может содержать в себе более 300 символов!');
+		return;
+	}
+
 	client.userLib.db.insert('warns', {
 		userId: msg.magicMention.id,
 		guildId: msg.guild.id,
