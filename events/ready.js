@@ -9,7 +9,7 @@ module.exports = (client) => {
 
 	client.userLib.db.query('SELECT guildId, userId, time, mutedRole FROM mutes LEFT JOIN guilds using(guildId) WHERE time > now()', (err, fields) => {
 		for (let field of fields)
-			client.userLib.sc.pushTask({code: 'unMute', params: [field.mutedRole, client.guilds.get(field.guildId).members.get(field.userId)], time: field.time, timeAbsolute: true});
+			client.userLib.sc.pushTask({code: 'unMute', params: [field.mutedRole, client.guilds.cache.get(field.guildId).members.cache.get(field.userId)], time: field.time, timeAbsolute: true});
 	});
 
 	client.userLib.sendLog(`Shard ready!`, 'ShardingManager');
