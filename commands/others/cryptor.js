@@ -1,7 +1,7 @@
 exports.help = {
 	name: "cryptor",
 	description: "Простенький шифратор сообщений.\n\`\`crypt - Зашифровать\ndecrypt - Расшифровать\`\`",
-	aliases: ['crypt'],
+	aliases: ['crypt', 'encrypt'],
 	usage: [{type: 'text', opt: 0, name: 'режим'}, {type: 'text', opt: 0, name: 'текст'}],
 	dm: 1,
 	tier: 0,
@@ -9,15 +9,15 @@ exports.help = {
 };
 
 exports.run = (client, msg, args) => {
-	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setTitle("Cryptor").setFooter(msg.author.tag, msg.author.displayAvatarURL());
+	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setTitle("🔐 Encryptor").setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 	switch (args[0]) {
 		case 'crypt':
-			embed.setDescription('```' + crypt(args.slice(1).join(' ')) + '```')
+			embed.setDescription('Режим: **шифровка**\n```' + crypt(args.slice(1).join(' ')) + '```')
 			break;
 
 		case 'decrypt':
-			embed.setDescription('```' + decrypt(args.slice(1).join('')) + '```')
+			embed.setDescription('Режим: **дешифровка**\n```' + decrypt(args.slice(1).join('')) + '```')
 			break;
 	}
 
