@@ -30,7 +30,7 @@ module.exports = async (client, msg) => {
 	if (!cmd) return;
 
 	if (msg.channel.type != 'dm' && !msg.channel.permissionsFor(msg.guild.me).has('EMBED_LINKS')) {
-		msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
+		msg.reply('Хмм... Ошибочка. У бота недостаточно прав!');
 		return;
 	}
 
@@ -42,7 +42,7 @@ module.exports = async (client, msg) => {
 	if (cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier,
 		msg.channel.type === 'dm' ? {ownerID: msg.author.id, member: msg.author}
 			: {ownerID: msg.guild.ownerID, member: msg.member})) {
-		client.userLib.retError(msg, 'Не достаточно прав!');
+		client.userLib.retError(msg, 'Недостаточно прав!');
 		return;
 	}
 
