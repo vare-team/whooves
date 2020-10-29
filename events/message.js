@@ -1,10 +1,15 @@
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
 
-	msg.badWordsCheck = msg.content.toLowerCase().replace(/[^a-zа-яЁё ]/g,'').replace('ё','е').trim().split(/ +/g);
-	if (msg.channel.type !== 'dm' && await client.userLib.checkSettings(msg.guild.id, 'badwords') && client.userLib.badWords.some(w => msg.badWordsCheck.includes(w))) {
-		client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
-		msg.delete();
+
+	if (msg.channel.type !== 'dm' && !client.userLib.checkPerm(-1,
+		msg.channel.type === 'dm' ? {ownerID: msg.author.id, member: msg.author}
+			: {ownerID: msg.guild.ownerID, member: msg.member})) {
+		msg.badWordsCheck = msg.content.toLowerCase().replace(/[^a-zа-яЁё ]/g, '').replace('ё', 'е').trim().split(/ +/g);
+		if (await client.userLib.checkSettings(msg.guild.id, 'badwords') && client.userLib.badWords.some(w => msg.badWordsCheck.includes(w))) {
+			client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
+			msg.delete();
+		}
 	}
 
 	msg.flags = {};
