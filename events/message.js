@@ -12,7 +12,7 @@ module.exports = async (client, msg) => {
 	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
 	msg.flags.prefix = prefix;
 
-	if (msg.content === `<@!${client.user.id}>`) {
+	if (msg.content === `<@!${client.user.id}>` || msg.content === `<@${client.user.id}>`) {
 		msg.reply(`Мой префикс \`\`${prefix}\`\`\nМожешь написать \`\`${prefix}help\`\` для помощи.`);
 		return;
 	}
