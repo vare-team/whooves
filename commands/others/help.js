@@ -68,7 +68,7 @@ exports.run = (client, msg, args) => {
 	if (command.help.aliases.length) embed.addField("Псевдонимы", command.help.aliases.join(', '), true);
 	if (command.help.usage.length) embed.addField("Использование", `${msg.flags.prefix}${command.help.name} \`\`${client.userLib.generateUsage(command.help.usage)}\`\``, true);
 	embed.addField("Доступно", tiers[command.help.tier]);
-	embed.addField("Время между использованиями", `Секунд: \`\`${command.cooldown || 3}\`\``);
+	embed.addField("Время между использованиями", `Секунд: \`\`${command.help.cooldown || 3}\`\``);
 
 	msg.channel.send(embed);
 };
