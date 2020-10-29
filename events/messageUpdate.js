@@ -12,5 +12,5 @@ module.exports = async (client, oldmsg, newmsg) => {
 
 	if (oldmsg.content == newmsg.content) return;
 
-	client.userLib.sendLogChannel("messageUpdate", oldmsg.guild, { user: { tag: oldmsg.author.tag, id: oldmsg.member.id, avatar: oldmsg.member.user.displayAvatarURL() }, oldContent: oldmsg.cleanContent ? oldmsg.cleanContent.replace('@here', 'here').replace('@everyone', '**@**everypony') : 'Что-то', newContent: newmsg.cleanContent ? newmsg.cleanContent.replace('@here', '**@**here').replace('@everyone', '**@**everypony') : 'Что-то', channel: { id: oldmsg.channel.id }});
+	client.userLib.sendLogChannel("messageUpdate", oldmsg.guild, { user: { tag: oldmsg.author.tag, id: oldmsg.member.id, avatar: oldmsg.member.user.displayAvatarURL() }, oldContent: oldmsg.cleanContent ? oldmsg.cleanContent.replace(client.userLib.mentionDetect, '**@**🏓') : 'Что-то', newContent: newmsg.cleanContent ? newmsg.cleanContent.replace(client.userLib.mentionDetect, '**@**🏓') : 'Что-то', channel: { id: oldmsg.channel.id }});
 };
