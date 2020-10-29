@@ -5,7 +5,8 @@ exports.help = {
   usage: [{type: 'text', opt: 1, name: 'ID'}],
   dm: 1,
   tier: 0,
-  cooldown: 5
+  cooldown: 5,
+  hide: true // Разобраться с ебучим API Derpibooru
 };
 
 exports.run = async (client, msg, args) => {

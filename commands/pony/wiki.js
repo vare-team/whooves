@@ -5,7 +5,8 @@ exports.help = {
 	usage: [{type: 'text', opt: 0, name: 'запрос'}],
 	dm: 1,
 	tier: 0,
-	cooldown: 5
+	cooldown: 5,
+	hide: true // КАКОГО ХУЯ ЭТИХ МЕТОДОВ БОЛЬШЕ НЕТ? Найти, если ещё есть, другие методы для запросов.
 };
 
 exports.run = async (client, msg, args) => {
