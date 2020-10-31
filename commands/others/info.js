@@ -29,7 +29,7 @@ exports.run = async (client, msg) => {
 • Discord.js    :: v${client.userLib.discord.version}
 • Версия Node   :: ${process.version}
 • Версия бота   :: v${version}\`\`\``)
-				.addField("Разработчики", `**${client.users.cache.get('166610390581641217').tag}** \n **${client.users.cache.get('321705723216134154').tag}**`, true)
+				.addField("Разработчики", `**${client.users.cache.get('166610390581641217') ? client.users.cache.get('166610390581641217').tag : 'Dellyare#0720'}** \n **${client.users.cache.get('321705723216134154') ? client.users.cache.get('321705723216134154').tag : 'MegaVasiliy007#3301'}**`, true)
 				.addField("Команда помощи", `**w.help**`, true)
 				.addField("Префикс", `**w.**`, true)
 				.addField("Статистика", `Команд исполнено: **${client.statistic.executedcmd}**\nИз них ошибок: **${client.statistic.erroredcmd}**`, true);

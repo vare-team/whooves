@@ -1,10 +1,13 @@
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
 
-	msg.badWordsCheck = msg.content.toLowerCase().replace(/[^a-zа-яЁё ]/g,'').replace('ё','е').trim().split(/ +/g);
-	if (msg.channel.type !== 'dm' && await client.userLib.checkSettings(msg.guild.id, 'badwords') && client.userLib.badWords.some(w => msg.badWordsCheck.includes(w))) {
-		client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
-		msg.delete();
+
+	if (msg.channel.type !== 'dm' && !client.userLib.checkPerm(-1, {ownerID: msg.guild.ownerID, member: msg.member})) {
+		msg.badWordsCheck = msg.content.toLowerCase().replace(/[^a-zа-яЁё ]/g, '').replace('ё', 'е').trim().split(/ +/g);
+		if (await client.userLib.checkSettings(msg.guild.id, 'badwords') && client.userLib.badWords.some(w => msg.badWordsCheck.includes(w))) {
+			client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
+			msg.delete();
+		}
 	}
 
 	msg.flags = {};
@@ -12,7 +15,7 @@ module.exports = async (client, msg) => {
 	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
 	msg.flags.prefix = prefix;
 
-	if (msg.content === `<@!${client.user.id}>`) {
+	if (msg.content === `<@!${client.user.id}>` || msg.content === `<@${client.user.id}>`) {
 		msg.reply(`Мой префикс \`\`${prefix}\`\`\nМожешь написать \`\`${prefix}help\`\` для помощи.`);
 		return;
 	}
@@ -30,7 +33,7 @@ module.exports = async (client, msg) => {
 	if (!cmd) return;
 
 	if (msg.channel.type != 'dm' && !msg.channel.permissionsFor(msg.guild.me).has('EMBED_LINKS')) {
-		msg.reply('Хмм... Ошибочка. У бота не достаточно прав!');
+		msg.reply('Хмм... Ошибочка. У бота недостаточно прав!');
 		return;
 	}
 
@@ -42,7 +45,7 @@ module.exports = async (client, msg) => {
 	if (cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier,
 		msg.channel.type === 'dm' ? {ownerID: msg.author.id, member: msg.author}
 			: {ownerID: msg.guild.ownerID, member: msg.member})) {
-		client.userLib.retError(msg, 'Не достаточно прав!');
+		client.userLib.retError(msg, 'Недостаточно прав!');
 		return;
 	}
 

@@ -62,6 +62,7 @@ module.exports = function (Discord, client, con) {
 
 	this.nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
 	this.nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё .|-]/g;
+	this.mentionDetect = /@everyone|@here/gm;
 
 	let replacer = {
 		'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
@@ -216,12 +217,13 @@ module.exports = function (Discord, client, con) {
 	 * @param {string} reason
 	 */
 	this.autowarn = (user, guild, channel, reason) => {
-		con.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, () => {});
+		con.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, (err, id) => {
 
-		let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription('Причина:' + reason).setTimestamp().setFooter(client.user.tag, client.user.displayAvatarURL());
-		channel.send(embed);
+			let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription(`Причина: **${reason ? reason : 'Не указана'}**\nID предупреждения: **${id}**`).setTimestamp().setFooter(client.user.tag, client.user.displayAvatarURL());
+			channel.send(embed);
 
-		this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения ${user} по причине: ${reason}`});
+			this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения (ID: ${id}) ${user} по причине: ${reason}`});
+		})
 	};
 
 	/**
