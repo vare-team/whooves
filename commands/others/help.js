@@ -24,7 +24,8 @@ modules = {
 	pony: 'Пони-команды',
 	mod: 'Модерация и конфигурация',
 	social: 'Социальные',
-	others: 'Остальные'
+	others: 'Остальные',
+	images: 'Работа с изображениями'
 };
 
 exports.run = (client, msg, args) => {

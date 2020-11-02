@@ -5,7 +5,7 @@ exports.help = {
   usage: [{type: 'text', opt: 0, name: '1-7'},
 	        {type: 'user', opt: 1},
 	        {type: 'attach', opt: 1}],
-	dm: 0,
+	dm: 1,
 	tier: 0,
   cooldown: 10
 };

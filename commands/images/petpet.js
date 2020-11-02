@@ -1,12 +1,23 @@
 exports.help = {
-	name: "animate",
-	description: "Создание анимации из изображения.",
-	aliases: ['gif'],
-	usage: [{type: 'user', opt: 1}],
-	dm: 0,
+	name: "petpet",
+	description: "Погладить что-нибудь.\n\n*Основано на [PetPet Generator](https://benisland.neocities.org/petpet/)*",
+	aliases: ['pet', 'pat'],
+	usage: [{type: 'user', opt: 1}, {type: 'attach', opt: 1}],
+	dm: 1,
 	tier: 0,
 	cooldown: 10
 };
+
+class Sprite {
+	constructor(options) {
+		this.ctx = options.ctx;
+
+		this.image = options.image;
+
+		this.width = options.width;
+		this.height = options.height;
+	}
+}
 
 exports.run = async (client, msg, args) => {
 
@@ -28,11 +39,13 @@ exports.run = async (client, msg, args) => {
 		, ctx = canvas.getContext('2d')
 		, GifEncoder = require('gif-encoder');
 
+	const hand = await client.userLib.loadImage('./images/hand.png');
+
 	let gif = new GifEncoder(256, 256, {
 		highWaterMark: 8 * 1024 * 1024
 	});
 
-	gif.setFrameRate(24);
+	gif.setFrameRate(16);
 	gif.setQuality(20);
 	gif.setRepeat(0);
 	gif.setTransparent(0x000000);
@@ -42,25 +55,30 @@ exports.run = async (client, msg, args) => {
 
 	gif.writeHeader();
 
-	function drawRotated(degrees){
+	for (let frame = 0; frame < 5; frame++) {
 		ctx.clearRect(0,0,canvas.width,canvas.height);
-		ctx.save();
-		ctx.translate(canvas.width/2,canvas.height/2);
-		ctx.rotate(degrees*Math.PI/180);
-		ctx.drawImage(ava,-canvas.width/2,-canvas.width/2, 256, 256);
-		ctx.globalCompositeOperation='destination-in';
-		ctx.beginPath();
-		ctx.arc(0,0,canvas.width/2,0,Math.PI*2);
-		ctx.closePath();
-		ctx.fill();
-		ctx.restore();
+
+		switch (frame) {
+			case 0:
+				ctx.drawImage(ava, 41, 50, 207, 213)
+				break;
+			case 1:
+				ctx.drawImage(ava, 37, 77, 213, 189)
+				break;
+			case 2:
+				ctx.drawImage(ava, 33, 97, 229, 171)
+				break;
+			case 3:
+				ctx.drawImage(ava, 33, 85, 212, 177)
+				break;
+			case 4:
+				ctx.drawImage(ava, 38, 48, 201, 216)
+				break;
+		}
+		ctx.drawImage(hand, 112 * frame, 0, 111, 112, 0, 0, canvas.width, canvas.height);
+
+		gif.addFrame(ctx.getImageData(0, 0, canvas.width, canvas.height).data);
 	}
-
-
-  for (let frame = 1; frame < 37; frame++) {
-	  drawRotated(frame * 10);
-	  gif.addFrame(ctx.getImageData(0, 0, canvas.width, canvas.height).data);
-  }
 
 	gif.finish();
 
