@@ -8,17 +8,6 @@ exports.help = {
 	cooldown: 10
 };
 
-class Sprite {
-	constructor(options) {
-		this.ctx = options.ctx;
-
-		this.image = options.image;
-
-		this.width = options.width;
-		this.height = options.height;
-	}
-}
-
 exports.run = async (client, msg, args) => {
 
 	if (msg.attachments.first() && !msg.attachments.first().width) {
