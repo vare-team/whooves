@@ -74,6 +74,15 @@ module.exports = function (Discord, client, con) {
 
 	/**
 	 * @function
+	 * @param {int} ms
+	 * @returns {promise}
+	 */
+	this.delay = (ms) => {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	/**
+	 * @function
 	 * @param {string} str
 	 * @returns {string}
 	 */
