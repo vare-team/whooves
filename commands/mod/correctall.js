@@ -1,7 +1,7 @@
 exports.help = {
 	name: "correctall",
 	description: "Исправляет все никнеймы участников на сервере.",
-	aliases: [],
+	aliases: ['ca'],
 	usage: [],
 	dm: 0,
 	tier: -3,
@@ -13,6 +13,11 @@ exports.run = async (client, msg) => {
 	let counter = 0
 		, name
 		, correctName;
+
+	if (!msg.member.guild.me.hasPermission('MANAGE_NICKNAMES')) return client.userLib.retError(
+			msg,
+			'Для этой команды необходимо право «Управление никнеймами»!'
+		);
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
@@ -45,17 +50,8 @@ exports.run = async (client, msg) => {
 		}
 	}
 
-
-	if (counter) {
-		embed.setDescription(embed.description);
-		embed.setTitle(client.userLib.emoji.ready + " Отредактировано: " + counter + '/' + msg.guild.memberCount);
-	} else {
-		embed.setDescription('');
-		embed.setTitle(client.userLib.emoji.ready + " Изменений нет!");
-	}
-
-
+	if (counter) embed.setTitle(client.userLib.emoji.ready + " Отредактировано: " + counter + '/' + msg.guild.memberCount);
+	else embed.setTitle(client.userLib.emoji.ready + " Изменений нет!");
 
 	msgEdit.edit(embed);
-
 };
