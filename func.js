@@ -23,6 +23,8 @@ module.exports = function (Discord, client, con) {
 
 	this.badWords = require('./badwords.js');
 
+	this.correctorList = require('./corrector.js')
+
 	this.admins = {
 		'321705723216134154': 0,
 		'166610390581641217': 0
@@ -274,7 +276,16 @@ module.exports = function (Discord, client, con) {
 	 * @param {string} nickname
 	 * @returns {string}
 	 */
-	this.getUsernameCorrect = (nickname) => nickname.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
+	this.getUsernameCorrect = (nickname) => {
+		let corrected = "";
+
+		for (let char = 0; char < nickname.length; char++) {
+			corrected += this.correctorList[nickname[char]] ?? nickname[char];
+			console.log(nickname.charCodeAt(char), nickname[char])
+		}
+		// nickname.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
+		return corrected;
+	};
 
 	/**
 	 * Send Guild custom log

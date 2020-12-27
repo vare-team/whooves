@@ -26,7 +26,6 @@ exports.run = async (client, msg) => {
 
 	let msgEdit = await msg.channel.send(embed);
 
-
 	await msg.guild.members.fetch();
 
 	embed
