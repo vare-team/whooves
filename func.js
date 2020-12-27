@@ -280,11 +280,12 @@ module.exports = function (Discord, client, con) {
 		let corrected = "";
 
 		for (let char = 0; char < nickname.length; char++) {
-			corrected += this.correctorList[nickname[char]] ?? nickname[char];
-			console.log(nickname.charCodeAt(char), nickname[char])
+			if (this.correctorList.hasOwnProperty(nickname[char])) corrected += this.correctorList[nickname[char]];
+			else if (this.correctorList.hasOwnProperty(nickname[char] + nickname[char + 1])) corrected += this.correctorList[nickname[char] + nickname[char + 1]]
+			else corrected += nickname[char];
 		}
-		// nickname.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
-		return corrected;
+
+		return corrected.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
 	};
 
 	/**
