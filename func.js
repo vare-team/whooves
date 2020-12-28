@@ -74,6 +74,12 @@ module.exports = function (Discord, client, con) {
 		'n': 'т', 'm': 'ь', ',': 'б', '.': 'ю', '/': '.', '&': '?', '?': ',', '~': 'Ё', '`': 'ё'
 	};
 
+	const nicknameParts = {
+		prefixes: ["A", "Ex", "Im", "Il", "In", "Ret", "Un", "De", "Int"],
+		root: ["bler", "ses", "wis", "let", "ger", "mon", "lot", "far"],
+		suffixes: ["er", "or", "an", "ian", "ist", "ant", "ee", "ess", "ent", "ity", "ance", "ion", "dom", "th"]
+}
+
 	/**
 	 * @function
 	 * @param {int} ms
@@ -293,11 +299,9 @@ module.exports = function (Discord, client, con) {
 	 * @returns {string}
 	 */
 	this.getRandomNickname = () => {
-		let prefixes = ["A", "Ex", "Im", "Il", "In", "Ret", "Un", "De", "Int"],
-				root = ["bler", "ses", "wis", "let", "ger", "mon", "lot", "far"],
-				suffixes = ["er", "or", "an", "ian", "ist", "ant", "ee", "ess", "ent", "ity", "ance", "ion", "dom", "th"];
-
-		return prefixes[this.randomIntInc(0, prefixes.length)] + root[this.randomIntInc(0, root.length)] + suffixes[this.randomIntInc(0, suffixes.length)];
+		return nicknameParts.prefixes[this.randomIntInc(0, nicknameParts.prefixes.length)]
+			+ nicknameParts.root[this.randomIntInc(0, nicknameParts.root.length)]
+			+ nicknameParts.suffixes[this.randomIntInc(0, nicknameParts.suffixes.length)];
 	}
 
 	/**
