@@ -23,6 +23,8 @@ module.exports = function (Discord, client, con) {
 
 	this.badWords = require('./badwords.js');
 
+	this.correctorList = require('./corrector.js')
+
 	this.admins = {
 		'321705723216134154': 0,
 		'166610390581641217': 0
@@ -35,7 +37,7 @@ module.exports = function (Discord, client, con) {
 		war: '#FAA61A'
 	};
 
-	this.emoji = {load: '<a:load:674326004990345217>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
+	this.emoji = {load: '<a:load:793027778554888202>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
 
 	this.discord = Discord;
 	this.db = con;
@@ -71,6 +73,12 @@ module.exports = function (Discord, client, con) {
 		';': 'ж', '\'': 'э', 'z': 'я', 'x': 'ч', 'c': 'с', 'v': 'м', 'b': 'и',
 		'n': 'т', 'm': 'ь', ',': 'б', '.': 'ю', '/': '.', '&': '?', '?': ',', '~': 'Ё', '`': 'ё'
 	};
+
+	const nicknameParts = {
+		prefixes: ["A", "Ex", "Im", "Il", "In", "Ret", "Un", "De", "Int"],
+		root: ["bler", "ses", "wis", "let", "ger", "mon", "lot", "far"],
+		suffixes: ["er", "or", "an", "ian", "ist", "ant", "ee", "ess", "ent", "ity", "ance", "ion", "dom", "th"]
+}
 
 	/**
 	 * @function
@@ -227,11 +235,13 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.autowarn = (user, guild, channel, reason) => {
 		con.insert('warns', {userId: user.id, guildId: guild.id, who: client.user.id, reason: '[AUTO] ' + reason}, (err, id) => {
+			con.query('SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?', [user.id, guild.id], (err, count) => {
 
-			let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription(`Причина: **${reason ? reason : 'Не указана'}**\nID предупреждения: **${id}**`).setTimestamp().setFooter(client.user.tag, client.user.displayAvatarURL());
+			let embed = new Discord.MessageEmbed().setColor(this.colors.war).setTitle(`${user.tag} выдано предупреждение!`).setDescription(`Причина: **${reason ? reason : 'Не указана'}**\nВсего предупреждений: **${count[0]["COUNT(*)"]}**\nID предупреждения: **${id}**`).setTimestamp().setFooter(client.user.tag, client.user.displayAvatarURL());
 			channel.send(embed);
 
 			this.sendLogChannel("commandUse", guild, { user: { tag: client.user.tag, id: client.user.id, avatar: client.user.displayAvatarURL() }, channel: { id: channel.id }, content: `выдача предупреждения (ID: ${id}) ${user} по причине: ${reason}`});
+			})
 		})
 	};
 
@@ -274,7 +284,27 @@ module.exports = function (Discord, client, con) {
 	 * @param {string} nickname
 	 * @returns {string}
 	 */
-	this.getUsernameCorrect = (nickname) => nickname.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
+	this.getUsernameCorrect = (nickname) => {
+		let corrected = "";
+
+		for (let char = 0; char < nickname.length; char++) {
+			if (this.correctorList.hasOwnProperty(nickname[char])) corrected += this.correctorList[nickname[char]];
+			else if (this.correctorList.hasOwnProperty(nickname[char] + nickname[char + 1])) corrected += this.correctorList[nickname[char] + nickname[char + 1]]
+			else corrected += nickname[char];
+		}
+
+		return corrected.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || this.getRandomNickname();
+	};
+
+	/**
+	 * @function
+	 * @returns {string}
+	 */
+	this.getRandomNickname = () => {
+		return nicknameParts.prefixes[this.randomIntInc(0, nicknameParts.prefixes.length)]
+			+ nicknameParts.root[this.randomIntInc(0, nicknameParts.root.length)]
+			+ nicknameParts.suffixes[this.randomIntInc(0, nicknameParts.suffixes.length)];
+	}
 
 	/**
 	 * Send Guild custom log

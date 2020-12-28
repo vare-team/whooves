@@ -87,7 +87,7 @@ module.exports = async (client, msg) => {
 	if (cmd.help.args && cmd.help.argsCount > args.length)
 		tempError += 'Количество аргументов не верно!\n';
 	if (cmd.help.userMention && !msg.magicMention)
-		tempError += 'Введённая вами команда требует упоминания.\n';
+		tempError += 'Введённая вами команда требует упоминания!\n';
 	if (cmd.help.userMention && msg.magicMention
 		&& msg.magicMention.id == msg.author.id
 		&& msg.guild.ownerID !== msg.member.id)

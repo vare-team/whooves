@@ -1,7 +1,7 @@
 exports.help = {
 	name: "cryptor",
 	description: "Простенький шифратор сообщений.\n\`\`crypt - Зашифровать\ndecrypt - Расшифровать\`\`",
-	aliases: ['crypt', 'encrypt'],
+	aliases: ['crypt', 'encrypt', 'ct'],
 	usage: [{type: 'text', opt: 0, name: 'режим'}, {type: 'text', opt: 0, name: 'текст'}],
 	dm: 1,
 	tier: 0,
@@ -19,6 +19,9 @@ exports.run = (client, msg, args) => {
 		case 'decrypt':
 			embed.setDescription('Режим: **дешифровка**\n```' + decrypt(args.slice(1).join('')) + '```')
 			break;
+
+		default:
+			return client.userLib.retError(msg, 'Указан неверный режим!')
 	}
 
 	msg.channel.send(embed);
@@ -39,7 +42,7 @@ function decrypt(crypted) {
 	let cryptSeed = crypted.charCodeAt(0) - 11;
 	text += String.fromCodePoint(crypted.charCodeAt(0) - 11);
 	for (let i = 1; i < crypted.length; i++) {
-		text += String.fromCodePoint(crypted.charCodeAt(i) - i - cryptSeed);
+		if (crypted.charCodeAt(i) - i - cryptSeed > 0) text += String.fromCodePoint(crypted.charCodeAt(i) - i - cryptSeed);
 	}
 	return text;
 }
