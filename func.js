@@ -285,8 +285,20 @@ module.exports = function (Discord, client, con) {
 			else corrected += nickname[char];
 		}
 
-		return corrected.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || 'Name';
+		return corrected.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || this.getRandomNickname();
 	};
+
+	/**
+	 * @function
+	 * @returns {string}
+	 */
+	this.getRandomNickname = () => {
+		let prefixes = ["A", "Ex", "Im", "Il", "In", "Ret", "Un", "De", "Int"],
+				root = ["bler", "ses", "wis", "let", "ger", "mon", "lot", "far"],
+				suffixes = ["er", "or", "an", "ian", "ist", "ant", "ee", "ess", "ent", "ity", "ance", "ion", "dom", "th"];
+
+		return prefixes[this.randomIntInc(0, prefixes.length)] + root[this.randomIntInc(0, root.length)] + suffixes[this.randomIntInc(0, suffixes.length)];
+	}
 
 	/**
 	 * Send Guild custom log
