@@ -37,7 +37,7 @@ module.exports = function (Discord, client, con) {
 		war: '#FAA61A'
 	};
 
-	this.emoji = {load: '<a:load:674326004990345217>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
+	this.emoji = {load: '<a:load:793027778554888202>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
 
 	this.discord = Discord;
 	this.db = con;
