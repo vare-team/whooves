@@ -301,9 +301,9 @@ module.exports = function (Discord, client, con) {
 	 * @returns {string}
 	 */
 	this.getRandomNickname = () => {
-		return nicknameParts.prefixes[this.randomIntInc(0, nicknameParts.prefixes.length)]
-			+ nicknameParts.root[this.randomIntInc(0, nicknameParts.root.length)]
-			+ nicknameParts.suffixes[this.randomIntInc(0, nicknameParts.suffixes.length)];
+		return nicknameParts.prefixes[this.randomIntInc(0, nicknameParts.prefixes.length-1)]
+			+ nicknameParts.root[this.randomIntInc(0, nicknameParts.root.length-1)]
+			+ nicknameParts.suffixes[this.randomIntInc(0, nicknameParts.suffixes.length-1)];
 	}
 
 	/**
