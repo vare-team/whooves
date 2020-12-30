@@ -4,7 +4,7 @@ exports.help = {
 	aliases: ['ca'],
 	usage: [],
 	dm: 0,
-	tier: -3,
+	tier: -2,
 	cooldown: 300
 };
 
@@ -28,9 +28,7 @@ exports.run = async (client, msg) => {
 
 	await msg.guild.members.fetch();
 
-	embed
-		.setColor(client.userLib.colors.suc)
-		.setDescription('');
+	embed.setColor(client.userLib.colors.suc);
 
 	for (let member of msg.guild.members.cache.array()) {
 		name = member.displayName;
