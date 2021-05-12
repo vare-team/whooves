@@ -2,7 +2,7 @@ exports.help = {
 	name: "ban",
 	description: "Выдать бан участнику.",
 	aliases: ['bn'],
-	usage: [{type: 'user', opt: 0},
+	usage: [{type: 'user', opt: 1},
 					{type: 'text', opt: 1, name: 'причина'},
 					{type: 'text', opt: 1, name: '-force'},
 					{type: 'text', opt: 1, name: '-clearmsg'}],
@@ -12,7 +12,13 @@ exports.help = {
 };
 
 exports.run = async (client, msg, args) => {
-	if (!msg.magicMention.bannable) {
+	if (!msg.magicMention) {
+		if (!/^[0-9]{18}/.test(args[0])) return client.userLib.retError(msg, "При отсутствии упоминания должен быть указан ID пользователя!");
+		msg.magicMention = await client.users.fetch(args[0]).catch(() => 0);
+		if (!msg.magicMention) return client.userLib.retError(msg, 'Пользователя с таким ID не найдено.');
+	}
+
+	if (!msg.magicMention.bannable && typeof msg.magicMention.bannable !== 'undefined') {
 		client.userLib.retError(msg, 'Я не могу забанить этого участника!\nЕго защитная магия превосходит мои умения!');
 		return;
 	}
@@ -38,7 +44,7 @@ exports.run = async (client, msg, args) => {
 
 	let reason = args.slice(1).join(' ') || 'Причина не указана';
 
-	await msg.magicMention.user.send(`Вам был выдан бан на сервере \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
+	// await msg.magicMention.user.send(`Вам был выдан бан на сервере \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
 	msg.guild.members.ban(msg.magicMention, {reason: msg.author.tag + ': ' + reason, days: clearmsg});
 
 	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.suc).setDescription(`Бан ${msg.magicMention} выдан!\nПричина: ${reason}`).setTimestamp().setFooter(msg.author.tag, msg.author.displayAvatarURL());
