@@ -4,6 +4,8 @@ module.exports = (client, msgs) => {
 			tag: 'NullPony#0000',
 			id: '',
 			avatar: client.user.defaultAvatarURL
-		}, channel: {id: msgs.first().channel.id}
+		},
+		channel: {id: msgs.first().channel.id},
+		size: msgs.size
 	});
 };
