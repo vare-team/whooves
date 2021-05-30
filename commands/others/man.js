@@ -6,7 +6,8 @@ exports.help = {
 					{type: 'text', opt: 1, name: 'en/ru'}],
 	dm: 1,
 	tier: 0,
-	cooldown: 5
+	cooldown: 5,
+	interactions: 1
 };
 
 const { readdir } = require("fs")
@@ -22,11 +23,13 @@ readdir('./docs/', (err, files) => {
 			delete require.cache[require.resolve(`../../docs/${el}`)];
 		} catch (e) { console.warn(e) }
 	});
-	console.log(Object.keys(docs));
+	// console.log(Object.keys(docs));
 });
 //PARSE DOCS
 
 exports.run = (client, msg, args) => {
+	if (!['en', 'ru'].includes(args[1])) args[1] = "";
+
 	if (args[0] != 'ls' && !docs[args[0]]) {
 		client.userLib.retError(msg, 'Документ не найден.');
 		return;
@@ -50,47 +53,102 @@ exports.run = (client, msg, args) => {
 	;
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
-	pagesEmbed({id: msg.author.id, embed: embed, channel: msg.channel}, doc.text[args[1]] ? doc.text[args[1]] : Object.values(doc.text)[0]);
+	let text = doc.text[args[1]] ? doc.text[args[1]] : Object.values(doc.text)[0],
+			page = 0,
+			message = new client.userLib.discord.APIMessage(msg.author, {}),
+			components = [];
+
+	if (!msg.author.id || !embed || !msg.channel) return;
+
+	if (typeof text == 'string' && text.length < 2048) {embed.setDescription(text);msg.channel.send(embed);return;}
+	if (typeof text == 'string') {text = text.match(/[\s\S]{1,2048}/g);}
+
+	embed.setDescription(text[page]);
+
+	components.push({
+		"type": 2,
+		"label": "Назад",
+		"style": 1,
+		"disabled": page == 0,
+		"custom_id": exports.help.name + "_" + msg.author.id + "_" + embed.title.split(" ")[2] + "_" + page + "_back_" + args[1]
+	});
+	components.push({
+		"type": 2,
+		"label": `${page+1} из ${text.length}`,
+		"style": 2,
+		"disabled": true,
+		"custom_id": "disabled"
+	});
+	components.push({
+		"type": 2,
+		"label": "Вперёд",
+		"style": 1,
+		"disabled": page == text.length - 1,
+		"custom_id": exports.help.name + "_" + msg.author.id + "_" + embed.title.split(" ")[2] + "_" + page + "_next_" + args[1]
+	});
+
+	message.data = {
+		"embed": embed,
+		"components": [
+			{
+				"type": 1,
+				"components": components
+			}
+		]
+	}
+
+	msg.channel.send(message);
 };
 
-/**
- * @author MegaVasiliy007
- * @function pagesEmbed
- * @async
- * @param {Object} data
- * @param {string} data.id
- * @param {Object} data.embed
- * @param {Object} data.channel
- * @param {string | Array} text
- * @param {Object} devData
- * @param {number} devData.page
- * @param {string} devData.title
- * @param {Object} [devData.msg]
- * @returns {Promise<void>}
- */
-async function pagesEmbed(data = {}, text = '', devData = {page: 0, title: ''}) {
-	if (!data.id || !data.embed || !data.channel) {return;}
+exports.interaction = async (client, interaction, args) => {
 
-	if (typeof text == 'string' && text.length < 2048) {data.embed.setDescription(text);data.channel.send(data.embed);return;}
-	if (typeof text == 'string') {text = text.match(/[\s\S]{1,2048}/g);}
-	if (!devData.title) devData.title = data.embed.title;
+	let oldEmbed = interaction.message.embeds[0],
+			components = [],
+			page = +args[3],
+			text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0];
 
-	data.embed.setDescription(text[devData.page])
-		.setTitle(devData.title + ` [${devData.page+1}/${text.length}]`);
-	if (devData.msg) await devData.msg.edit(data.embed);
-	else devData.msg = await data.channel.send(data.embed);
+	if (!oldEmbed) return;
 
-	if (devData.page != 0) await devData.msg.react('◀️');
-	if (devData.page != text.length - 1) await devData.msg.react('▶️');
+	page = args[4] === "next" ? page+1 : page-1;
 
-	let collector = await devData.msg.awaitReactions(
-		(reaction, user) => ['◀️', '▶️'].indexOf(reaction.emoji.name) != -1 && user.id == data.id,
-		{max: 1, time: 15000}).then(coll => coll.first() ? coll.first().emoji.name : 0);
-	await devData.msg.reactions.removeAll();
-	if (!collector) return;
+	text = text.match(/[\s\S]{1,2048}/g);
 
-	if (collector == '◀️' && devData.page > 0) {devData.page--;}
-	else if (collector == '▶️' && devData.page < text.length - 1) {devData.page++;}
+	oldEmbed.description = text[page];
 
-	pagesEmbed(data, text, devData);
-}
+	components.push({
+		"type": 2,
+		"label": "Назад",
+		"style": 1,
+		"disabled": page == 0,
+		"custom_id": exports.help.name + "_" + args[1] + "_" + args[2] + "_" + page + "_back_" + args[5]
+	});
+	components.push({
+		"type": 2,
+		"label": `${page+1} из ${text.length}`,
+		"style": 2,
+		"disabled": true,
+		"custom_id": "disabled"
+	});
+	components.push({
+		"type": 2,
+		"label": "Вперёд",
+		"style": 1,
+		"disabled": page == text.length - 1,
+		"custom_id": exports.help.name + "_" + args[1] + "_" + args[2] + "_" + page + "_next_" + args[5]
+	});
+
+
+	client.api.interactions(interaction.id, interaction.token).callback.post({data: {
+			type: 7,
+			data: {
+				"embeds": [oldEmbed],
+				"components": [
+					{
+						"type": 1,
+						"components": components
+					}
+				]
+			}
+		}})
+
+};
