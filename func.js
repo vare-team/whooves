@@ -124,6 +124,9 @@ module.exports = function (Discord, client, con) {
 		if (type === 'dm') {
 			return `Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: 'DM'`;
 		}
+		if (type === 'interaction') {
+			return `Interaction: ${command}, By: @${msg.member.user.username}#${msg.member.user.discriminator}(${msg.member.user.id}), ${msg.guild_id != undefined ? `Guild ID: ${msg.guild_id}` : "DM"} => ${msg.channel_id}, custom_id: "${msg.data.custom_id}"`;
+		}
 
 		return `Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`;
 	};
