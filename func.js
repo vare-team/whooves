@@ -47,6 +47,8 @@ module.exports = function (Discord, client, con) {
 	this.moment = require('moment');
 	this.moment.locale('ru');
 
+	this.crypt = require('crypto-js');
+
 	this.cooldown = new Map();
 
 	this.promise = require('../SDCBotsModules/promise');
@@ -79,6 +81,24 @@ module.exports = function (Discord, client, con) {
 		root: ["bler", "ses", "wis", "let", "ger", "mon", "lot", "far"],
 		suffixes: ["er", "or", "an", "ian", "ist", "ant", "ee", "ess", "ent", "ity", "ance", "ion", "dom", "th"]
 }
+
+	/**
+	 * @function
+	 * @param {Array} args
+	 * @returns {string}
+	 */
+	this.AEScrypt = (args = []) => {
+		return this.crypt.AES.encrypt(args.join(":"), process.env.secret).toString();
+	};
+
+	/**
+	 * @function
+	 * @param {string} string
+	 * @returns {string}
+	 */
+	this.AESdecrypt = (string = "") => {
+		return this.crypt.AES.decrypt(string, process.env.secret).toString(this.crypt.enc.Utf8);
+	};
 
 	/**
 	 * @function
@@ -125,7 +145,7 @@ module.exports = function (Discord, client, con) {
 			return `Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: 'DM'`;
 		}
 		if (type === 'interaction') {
-			return `Interaction: ${command}, By: @${msg.member.user.username}#${msg.member.user.discriminator}(${msg.member.user.id}), ${msg.guild_id != undefined ? `Guild ID: ${msg.guild_id}` : "DM"} => ${msg.channel_id}, custom_id: "${msg.data.custom_id}"`;
+			return `Interaction: ${command}, By: @${msg.member.user.username}#${msg.member.user.discriminator}(${msg.member.user.id}), ${msg.guild_id != undefined ? `Guild ID: ${msg.guild_id}` : "DM"} => ${msg.channel_id}, custom_id: "${msg.data.custom_id}"(${this.AESdecrypt(msg.data.custom_id)})`;
 		}
 
 		return `Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`;

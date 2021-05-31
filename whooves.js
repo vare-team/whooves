@@ -30,7 +30,7 @@ readdir("./events/", (err, files) => {
 });
 
 client.ws.on('INTERACTION_CREATE', async interaction => {
-  const args = interaction.data["custom_id"].split("_");
+  const args = client.userLib.AESdecrypt(interaction.data["custom_id"]).split(":");
 
   if (!interaction.member) {
     interaction.member = {};

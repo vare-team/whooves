@@ -70,7 +70,7 @@ exports.run = (client, msg, args) => {
 		"label": "Назад",
 		"style": 1,
 		"disabled": page == 0,
-		"custom_id": exports.help.name + "_" + msg.author.id + "_" + embed.title.split(" ")[2] + "_" + page + "_back_" + args[1]
+		"custom_id": client.userLib.AEScrypt([exports.help.name, msg.author.id, embed.title.split(" ")[2], page, "back", args[1]])
 	});
 	components.push({
 		"type": 2,
@@ -84,7 +84,7 @@ exports.run = (client, msg, args) => {
 		"label": "Вперёд",
 		"style": 1,
 		"disabled": page == text.length - 1,
-		"custom_id": exports.help.name + "_" + msg.author.id + "_" + embed.title.split(" ")[2] + "_" + page + "_next_" + args[1]
+		"custom_id": client.userLib.AEScrypt([exports.help.name, msg.author.id, embed.title.split(" ")[2], page, "next", args[1]])
 	});
 
 	message.data = {
@@ -120,7 +120,7 @@ exports.interaction = async (client, interaction, args) => {
 		"label": "Назад",
 		"style": 1,
 		"disabled": page == 0,
-		"custom_id": exports.help.name + "_" + args[1] + "_" + args[2] + "_" + page + "_back_" + args[5]
+		"custom_id": client.userLib.AEScrypt([exports.help.name, args[1], args[2], page, "back", args[5]])
 	});
 	components.push({
 		"type": 2,
@@ -134,7 +134,7 @@ exports.interaction = async (client, interaction, args) => {
 		"label": "Вперёд",
 		"style": 1,
 		"disabled": page == text.length - 1,
-		"custom_id": exports.help.name + "_" + args[1] + "_" + args[2] + "_" + page + "_next_" + args[5]
+		"custom_id": client.userLib.AEScrypt([exports.help.name, args[1], args[2], page, "next", args[5]])
 	});
 
 
