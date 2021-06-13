@@ -37,7 +37,12 @@ module.exports = function (Discord, client, con) {
 		war: '#FAA61A'
 	};
 
-	this.emoji = {load: '<a:load:793027778554888202>', ready: '<a:checkmark:674326004252016695>', err: '<a:error:674326004872904733>'};
+	this.emoji = {load: '<a:load:793027778554888202>',
+			ready: '<a:checkmark:674326004252016695>',
+			err: '<a:error:674326004872904733>',
+			readyObj: {"id": "849711299020849243", "name": "em1", "animated": false},
+			errObj: {"id": "849711300082401310", "name": "em", "animated": false}
+	};
 
 	this.discord = Discord;
 	this.db = con;
