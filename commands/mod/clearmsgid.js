@@ -4,7 +4,7 @@ exports.help = {
 	aliases: ["cmi"],
 	usage: [{type: 'text', opt: 0, name: 'ID Сообщения'}],
 	dm: 0,
-	tier: -1,
+	tier: 2,
 	cooldown: 5
 };
 
