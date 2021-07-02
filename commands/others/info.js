@@ -1,7 +1,7 @@
 exports.help = {
   name: "info",
   description: "Информация о боте",
-	aliases: ['i'],
+	aliases: ['i', 'invite'],
   usage: [],
 	dm: 1,
   tier: 0,
