@@ -21,6 +21,18 @@ module.exports = function (Discord, client, con) {
 
 	// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
 
+	if (process.env.webhookId && process.env.webhookToken) this.webhook = new Discord.WebhookClient(process.env.webhookId, process.env.webhookToken);
+
+	/**
+	 * @function
+	 * @param {string} content
+	 */
+	this.sendWebhookLog = (content = 'Clap one hand') => {
+		if (!this.webhook) return;
+
+		this.webhook.send(content);
+	};
+
 	this.badWords = require('./badwords.js');
 
 	this.correctorList = require('./corrector.js')

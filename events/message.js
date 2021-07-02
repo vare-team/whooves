@@ -133,7 +133,8 @@ module.exports = async (client, msg) => {
 		client.statistic.executedcmd++;
 	} catch (err) {
 		client.userLib.sendLog(client.userLib.generateErrLog(msg.channel.type, cmd.help.name, msg, err), 'ERROR!');
-		client.userLib.retError(msg, 'Я не могу выполнить эту команду сейчас, но разработчики обязательно приступят к решению этой проблемы!');
+		client.userLib.sendWebhookLog(client.userLib.generateErrLog(msg.channel.type, cmd.help.name, msg, err));
+		client.userLib.retError(msg, 'Произошло исключение в работе команды!');
 		client.statistic.erroredcmd++;
 	}
 
