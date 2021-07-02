@@ -1,25 +1,27 @@
 exports.help = {
-	name: "eval",
-	description: "Испольнение кода",
+	name: 'eval',
+	description: 'Испольнение кода',
 	aliases: [],
-	usage: [{type: 'text', opt: 0, name: 'JavaScript'}],
+	usage: [{ type: 'text', opt: 0, name: 'JavaScript' }],
 	dm: 1,
 	tier: 2,
-	cooldown: 0
+	cooldown: 0,
 };
 
-function clean(text) {return typeof(text) !== "string" ? text : text.replace(/`/g, `\`${String.fromCharCode(8203)}`).replace(/@/g, `@${String.fromCharCode(8203)}`);}
+function clean(text) {
+	return typeof text !== 'string'
+		? text
+		: text.replace(/`/g, `\`${String.fromCharCode(8203)}`).replace(/@/g, `@${String.fromCharCode(8203)}`);
+}
 
 /**********************/
 // Константы доступные в коде
 
-const os = require('os')
-	, fs = require('fs')
-	, { performance } = require('perf_hooks')
-	, master = '166610390581641217'
-	, mega = '321705723216134154'
-;
-
+const os = require('os'),
+	fs = require('fs'),
+	{ performance } = require('perf_hooks'),
+	master = '166610390581641217',
+	mega = '321705723216134154';
 /**********************/
 
 exports.run = async (client, msg, args) => {
@@ -37,25 +39,41 @@ exports.run = async (client, msg, args) => {
 
 	let temp = 'В процессе.';
 	let msge = await msg.channel.send(temp);
-	
+
 	try {
-		const code = args.join(" ");
+		const code = args.join(' ');
 		if (/client *\. *token/g.test(code)) {
 			temp = `**Исход: ошибка!**\n Наименование: \`\`Defend\`\` \n \n \`\`Try to catch token\`\``;
-			msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
+			msge.edit(temp).then(() => {
+				if (msg.author.id == mega) {
+					msge.delete({ timeout: 3000 });
+				}
+			});
 			return;
 		}
 		let t = performance.now();
 		let evaled = eval(code);
 		t = performance.now() - t;
-		if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
+		if (typeof evaled !== 'string') evaled = require('util').inspect(evaled);
 		evaled = clean(evaled);
 		if (evaled.startsWith('Promise')) temp = `**Исход: успех!**\n Код выполнился за \`\`${t.toFixed(5)}\`\`мс.`;
-		else temp = `**Исход: успех!**\n `+(evaled.length > 2000 ? 'Исход итерации занял более 2К символов!' : `\`\`\`Js\n${evaled}\`\`\``)+` \n Код выполнился за \`\`${t.toFixed(5)}\`\`мс.`;
-		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
+		else
+			temp =
+				`**Исход: успех!**\n ` +
+				(evaled.length > 2000 ? 'Исход итерации занял более 2К символов!' : `\`\`\`Js\n${evaled}\`\`\``) +
+				` \n Код выполнился за \`\`${t.toFixed(5)}\`\`мс.`;
+		msge.edit(temp).then(() => {
+			if (msg.author.id == mega) {
+				msge.delete({ timeout: 3000 });
+			}
+		});
 	} catch (err) {
 		temp = `**Исход: ошибка!**\n Наименование: \`\`${err.name}\`\` \n \n \`\`${err.message}\`\``;
-		msge.edit(temp).then(() => {if (msg.author.id == mega) {msge.delete({ timeout: 3000 })}});
+		msge.edit(temp).then(() => {
+			if (msg.author.id == mega) {
+				msge.delete({ timeout: 3000 });
+			}
+		});
 	}
 
 	// let embed = new client.userLib.discord.MessageEmbed();

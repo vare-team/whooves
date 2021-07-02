@@ -1,12 +1,14 @@
 exports.help = {
-  name: "setbalance",
-  description: "Установить баланс участнику",
+	name: 'setbalance',
+	description: 'Установить баланс участнику',
 	aliases: ['sb'],
-  usage: [{type: 'text', opt: 0, name: 'кол-во'},
-	        {type: 'user', opt: 1}],
+	usage: [
+		{ type: 'text', opt: 0, name: 'кол-во' },
+		{ type: 'user', opt: 1 },
+	],
 	dm: 0,
-  tier: 1,
-  cooldown: 5
+	tier: 1,
+	cooldown: 5,
 };
 
 exports.run = (client, msg, args) => {

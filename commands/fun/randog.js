@@ -1,17 +1,17 @@
 exports.help = {
-  name: "randog",
-  description: "Случайная картинка с собакеным",
+	name: 'randog',
+	description: 'Случайная картинка с собакеным',
 	aliases: ['dog'],
-  usage: [],
+	usage: [],
 	dm: 0,
-  tier: 0,
-  cooldown: 5,
-	hide: 1
+	tier: 0,
+	cooldown: 5,
+	hide: 1,
 };
 
 exports.run = async (client, msg) => {
 	msg.channel.startTyping();
-	let body = await client.userLib.request({url: 'https://api.thedogapi.com/v1/images/search', json: true});
+	let body = await client.userLib.request({ url: 'https://api.thedogapi.com/v1/images/search', json: true });
 
 	const embed = new client.userLib.discord.MessageEmbed()
 		.setAuthor(`Вот тебе случайный собакен 😄`)

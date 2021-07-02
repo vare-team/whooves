@@ -1,16 +1,18 @@
 exports.help = {
-  name: "warns",
-  description: "Количество ваших предупреждений",
+	name: 'warns',
+	description: 'Количество ваших предупреждений',
 	aliases: [],
-  usage: [{type: 'user', opt: 1}],
+	usage: [{ type: 'user', opt: 1 }],
 	dm: 0,
 	tier: 0,
-  cooldown: 15
+	cooldown: 15,
 };
 
 exports.run = async (client, msg) => {
 	let user = msg.magicMention.user || msg.author;
-	let warns = await client.userLib.db.promise().query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, msg.guild.id]);
+	let warns = await client.userLib.db
+		.promise()
+		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, msg.guild.id]);
 	warns = warns[0];
 
 	let embed = new client.userLib.discord.MessageEmbed()

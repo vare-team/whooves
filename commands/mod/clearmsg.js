@@ -1,11 +1,11 @@
 exports.help = {
-  name: "clearmsg",
-  description: "Очистить сообщения",
+	name: 'clearmsg',
+	description: 'Очистить сообщения',
 	aliases: ['cm', 'c', 'cl'],
-  usage: [{type: 'text', opt: 0, name: 'кол-во'}],
+	usage: [{ type: 'text', opt: 0, name: 'кол-во' }],
 	dm: 0,
 	tier: -1,
-  cooldown: 5
+	cooldown: 5,
 };
 
 exports.run = async (client, msg, args) => {

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const RED = 0;
 const GREEN = 1;
@@ -7,7 +7,6 @@ const BORDER_ENERGY = 1000;
 
 /** Seam carver removes low energy seams in an image from HTML5 canvas. */
 class SeamCarver {
-
 	/**
 	 *
 	 * Init seam carver
@@ -19,7 +18,7 @@ class SeamCarver {
 		this.canvas = canvas;
 		this.width = canvas.width;
 		this.height = canvas.height;
-		this.context = canvas.getContext("2d");
+		this.context = canvas.getContext('2d');
 		this.imageData = this.context.getImageData(0, 0, this.width, this.height);
 		this.picture = this.imageData.data;
 
@@ -47,11 +46,11 @@ class SeamCarver {
 	 *
 	 */
 	pixelToIndex(x, y) {
-		if (x < 0 || x >= (this.width * 4) || y < 0 || y >= this.height) {
-			throw new Error('IndexOutOfBoundsException : ' +  x + ',' + y);
+		if (x < 0 || x >= this.width * 4 || y < 0 || y >= this.height) {
+			throw new Error('IndexOutOfBoundsException : ' + x + ',' + y);
 		}
 		// * 4 for rgba
-		return ((y * this.width) + x) * 4;
+		return (y * this.width + x) * 4;
 	}
 
 	indexToX(index) {
@@ -62,7 +61,6 @@ class SeamCarver {
 		return parseInt(index / (this.width * 4));
 	}
 
-
 	rgbToNum(red, green, blue) {
 		var rgb = red;
 		rgb = (rgb << 8) + green;
@@ -71,18 +69,18 @@ class SeamCarver {
 	}
 
 	numToRgb(num) {
-		var red = (num >> 16) & 0xFF;
-		var green = (num >> 8) & 0xFF;
-		var blue = num & 0xFF;
+		var red = (num >> 16) & 0xff;
+		var green = (num >> 8) & 0xff;
+		var blue = num & 0xff;
 		return [red, green, blue];
 	}
 
 	isBorderPixel(x, y) {
-		return (x <= 0 || y <= 0 || x >= this.width-1 || y >= this.height-1);
+		return x <= 0 || y <= 0 || x >= this.width - 1 || y >= this.height - 1;
 	}
 
 	pixelInRange(x, y) {
-		return (x >= 0 && y >= 0 && x <= this.width-1 && y <= this.height-1);
+		return x >= 0 && y >= 0 && x <= this.width - 1 && y <= this.height - 1;
 	}
 
 	/**
@@ -106,12 +104,12 @@ class SeamCarver {
 
 		// TODO: Could include self in this calculation
 		var score = Math.sqrt(
-			(p[pos_xpost+RED]   - p[pos_xant+RED])  *(p[pos_xpost+RED]   - p[pos_xant+RED]) +
-			(p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +
-			(p[pos_xpost+BLUE]  - p[pos_xant+BLUE]) *(p[pos_xpost+BLUE]  - p[pos_xant+BLUE]) +
-			(p[pos_ypost+RED]   - p[pos_yant+RED])  *(p[pos_ypost+RED]   - p[pos_yant+RED]) +
-			(p[pos_ypost+GREEN] - p[pos_yant+GREEN])*(p[pos_ypost+GREEN] - p[pos_yant+GREEN]) +
-			(p[pos_ypost+BLUE]  - p[pos_yant+BLUE]) *(p[pos_ypost+BLUE]  - p[pos_yant+BLUE])
+			(p[pos_xpost + RED] - p[pos_xant + RED]) * (p[pos_xpost + RED] - p[pos_xant + RED]) +
+				(p[pos_xpost + GREEN] - p[pos_xant + GREEN]) * (p[pos_xpost + GREEN] - p[pos_xant + GREEN]) +
+				(p[pos_xpost + BLUE] - p[pos_xant + BLUE]) * (p[pos_xpost + BLUE] - p[pos_xant + BLUE]) +
+				(p[pos_ypost + RED] - p[pos_yant + RED]) * (p[pos_ypost + RED] - p[pos_yant + RED]) +
+				(p[pos_ypost + GREEN] - p[pos_yant + GREEN]) * (p[pos_ypost + GREEN] - p[pos_yant + GREEN]) +
+				(p[pos_ypost + BLUE] - p[pos_yant + BLUE]) * (p[pos_ypost + BLUE] - p[pos_yant + BLUE])
 		);
 		return score;
 	}
@@ -127,7 +125,7 @@ class SeamCarver {
 		energy_cell.vminsum = Number.POSITIVE_INFINITY;
 
 		// last row
-		if (y >= this.height-1) {
+		if (y >= this.height - 1) {
 			energy_cell.vminsum = energy_cell.energy;
 			energy_cell.minx = x;
 		} else {
@@ -181,7 +179,7 @@ class SeamCarver {
 		for (var y = this.height - 1; y >= 0; y--) {
 			// This can be in any order ...
 			for (var x = 0; x < this.width; x++) {
-				var energy = this.recalculate(x,y);
+				var energy = this.recalculate(x, y);
 				this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
 				this.energyMatrix[x][y] = energy.energy;
 				this.minsumMatrix[x][y] = energy.vminsum;
@@ -213,7 +211,7 @@ class SeamCarver {
 		// Follow down to get array
 		var y = 0;
 		while (y < this.height - 1) {
-			xminsum = this.minxMatrix[xminsum][y]
+			xminsum = this.minxMatrix[xminsum][y];
 			y++;
 			vseam[y] = xminsum;
 		}
@@ -232,22 +230,21 @@ class SeamCarver {
 			var deletedCol = vseam[row];
 
 			// copy across pixels before seam col
-			for (var col = 0; col < deletedCol; col ++) {
+			for (var col = 0; col < deletedCol; col++) {
 				var oldPos = this.pixelToIndex(col, row);
-				var pos = oldPos - (row * 4)
-				for (var i = 0; i < 4; i ++) {
+				var pos = oldPos - row * 4;
+				for (var i = 0; i < 4; i++) {
 					this.imageData.data[pos + i] = this.picture[oldPos + i];
 				}
 			}
 
 			// Start at deleted col
 			// Can ignore last column as we will delete it
-			for (var col = deletedCol; col < this.width - 1; col ++) {
-
+			for (var col = deletedCol; col < this.width - 1; col++) {
 				// copy across pixels after seam col
-				var pos = this.pixelToIndex(col, row) - (row * 4);
+				var pos = this.pixelToIndex(col, row) - row * 4;
 				var pos_right = this.pixelToIndex(col + 1, row);
-				for (var i = 0; i < 4; i ++) {
+				for (var i = 0; i < 4; i++) {
 					this.imageData.data[pos + i] = this.picture[pos_right + i];
 				}
 
@@ -288,7 +285,7 @@ class SeamCarver {
 			var deletedCol = vseam[row];
 			var affectedCols = [];
 
-			for (var i = -1; i < 1; i ++) {
+			for (var i = -1; i < 1; i++) {
 				var col = deletedCol + i;
 
 				if (this.pixelInRange(col, row)) {
@@ -316,7 +313,6 @@ class SeamCarver {
 		var lastCol = this.width - 1;
 
 		while (enqueuedCols) {
-
 			// This iterates in topological order (bottom to top)
 			var col = enqueuedCols.pop();
 			var pixelIndex = this.pixelToIndex(col, row);
@@ -332,7 +328,7 @@ class SeamCarver {
 			this.minsumMatrix[col][row] = Number.POSITIVE_INFINITY;
 
 			// check three parents in row below
-			for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+			for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i++) {
 				var parentVminsum = this.minsumMatrix[i][row + 1];
 				var newVminsum = parentVminsum + nodeEnergy;
 
@@ -350,7 +346,7 @@ class SeamCarver {
 			if (oldVminsum === this.minsumMatrix[col][row]) continue;
 
 			// enqueue three affected children from row above
-			for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+			for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i++) {
 				var childIndex = this.pixelToIndex(i, row - 1);
 				if (!enqueued[childIndex]) {
 					enqueued[childIndex] = true;
@@ -383,24 +379,24 @@ class SeamCarver {
 		this.canvas.width = this.imageData.width;
 		this.canvas.height = this.imageData.height;
 
-		if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
+		if (field === 'energy' || field === 'vminsum' || field !== this.imageData.dataField) {
 			this.imageData = this.context.createImageData(this.width, this.height);
 			this.imageData.dataField = field;
 
-			for (var row = 0; row < this.height; row ++) {
-				for (var col = 0; col < this.width; col ++) {
+			for (var row = 0; row < this.height; row++) {
+				for (var col = 0; col < this.width; col++) {
 					var pos = this.pixelToIndex(col, row);
 
 					if (field === 'energy') {
 						var val = this.energyMatrix[col][row];
-						var normalizedVal = Math.min(255, ((val / 255) * 255));
+						var normalizedVal = Math.min(255, (val / 255) * 255);
 					} else if (field === 'minsum') {
 						var val = this.minsumMatrix[col][row];
-						var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
+						var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255;
 					} else if (field === 'minx') {
 						var val = this.minxMatrix[col][row];
 						var direction = val - col + 1;
-						for (var i = 0; i < 3; i ++) {
+						for (var i = 0; i < 3; i++) {
 							this.imageData.data[pos + i] = 0;
 						}
 						if (direction >= 0 && direction <= 2) {
@@ -410,22 +406,19 @@ class SeamCarver {
 						continue;
 					} else {
 						// rgb
-						for (var i = 0; i < 4; i ++) {
+						for (var i = 0; i < 4; i++) {
 							this.imageData.data[pos + i] = this.picture[pos + i];
 						}
 						continue;
 					}
 
-					for (var i = 0; i < 3; i ++) {
+					for (var i = 0; i < 3; i++) {
 						this.imageData.data[pos + i] = normalizedVal;
 					}
 					// make opaque
 					this.imageData.data[pos + 3] = 255;
-
 				}
 			}
-
-
 		}
 
 		this.context.putImageData(this.imageData, 0, 0);
@@ -438,7 +431,6 @@ class SeamCarver {
 		console.log(this.toString(field));
 	}
 
-
 	/**
 	 * Returns string of internal matrix
 	 */
@@ -446,9 +438,9 @@ class SeamCarver {
 		field = field || 'rgb';
 		var lines = '';
 		if (field === 'rgb') {
-			for (var y = 0; y < this.height; y ++) {
-				for (var x = 0; x < this.width; x ++) {
-					var pos = this.pixelToIndex(x, y)
+			for (var y = 0; y < this.height; y++) {
+				for (var x = 0; x < this.width; x++) {
+					var pos = this.pixelToIndex(x, y);
 					var rgb = Array.prototype.slice.call(this.picture, pos, pos + 3);
 					lines += (this.rgbToNum(rgb[0], rgb[1], rgb[2]) / 100000).toFixed(2) + '\t';
 				}
@@ -468,11 +460,10 @@ class SeamCarver {
 					}
 
 					if (val || val === 0) {
-						lines += val.toFixed(2) + "\t";
+						lines += val.toFixed(2) + '\t';
 					} else {
 						lines += '-----\t';
 					}
-
 				}
 				lines += '\n';
 			}

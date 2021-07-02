@@ -1,22 +1,28 @@
 exports.help = {
-  name: "filter",
-  description: "Применить фильтр\n\`\`1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?\`\`",
+	name: 'filter',
+	description:
+		'Применить фильтр\n``1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?``',
 	aliases: ['f'],
-  usage: [{type: 'text', opt: 0, name: '1-7'},
-	        {type: 'user', opt: 1},
-	        {type: 'attach', opt: 1}],
+	usage: [
+		{ type: 'text', opt: 0, name: '1-7' },
+		{ type: 'user', opt: 1 },
+		{ type: 'attach', opt: 1 },
+	],
 	dm: 1,
 	tier: 0,
-  cooldown: 10
+	cooldown: 10,
 };
 
-String.prototype.replaceAt = function(index, replacement) {
+String.prototype.replaceAt = function (index, replacement) {
 	return this.substr(0, index) + replacement + this.substr(index + replacement.length);
 };
 
 exports.run = async (client, msg, args) => {
-	if (['1','2','3','4','5','6','7'].indexOf(args[0]) == -1) {
-		client.userLib.retError(msg, 'Неправильно указан номер фильтра.\n' + client.userLib.generateUsage(exports.help.usage));
+	if (['1', '2', '3', '4', '5', '6', '7'].indexOf(args[0]) == -1) {
+		client.userLib.retError(
+			msg,
+			'Неправильно указан номер фильтра.\n' + client.userLib.generateUsage(exports.help.usage)
+		);
 		return;
 	}
 
@@ -25,17 +31,19 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	if (msg.attachments.first() && msg.attachments.first().size > 8*1024*1024) {
+	if (msg.attachments.first() && msg.attachments.first().size > 8 * 1024 * 1024) {
 		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
 		return;
 	}
 
 	let use = msg.magicMention.user || msg.author;
-	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL({format: 'png', dynamic: false, size: 512});
+	use = msg.attachments.first()
+		? msg.attachments.first().url
+		: use.displayAvatarURL({ format: 'png', dynamic: false, size: 512 });
 
-	const ava = await client.userLib.loadImage(use)
-			, canvas = client.userLib.createCanvas(ava.width, ava.height)
-			, ctx = canvas.getContext('2d');
+	const ava = await client.userLib.loadImage(use),
+		canvas = client.userLib.createCanvas(ava.width, ava.height),
+		ctx = canvas.getContext('2d');
 	ctx.drawImage(ava, 0, 0, ava.width, ava.height);
 
 	switch (args[0]) {
@@ -55,13 +63,16 @@ exports.run = async (client, msg, args) => {
 			distort(ctx, 0, 0, ava.width, ava.height);
 			break;
 		case '6':
-			ava.src = canvas.toDataURL("image/jpeg");
+			ava.src = canvas.toDataURL('image/jpeg');
 			for (let i = 0; i < 5; i++)
-				ava.src = ava.src.replaceAt(client.userLib.randomIntInc(50, ava.src.length - 50), "0");
+				ava.src = ava.src.replaceAt(client.userLib.randomIntInc(50, ava.src.length - 50), '0');
 			try {
-				ctx.drawImage(ava,0,0);
+				ctx.drawImage(ava, 0, 0);
 			} catch (e) {
-				client.userLib.retError(msg,'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.');
+				client.userLib.retError(
+					msg,
+					'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.'
+				);
 				return;
 			}
 			break;
@@ -74,21 +85,20 @@ exports.run = async (client, msg, args) => {
 	let embed = new client.userLib.discord.MessageEmbed()
 		.attachFiles({
 			attachment: canvas.toBuffer(),
-			name: `filter.jpeg`
+			name: `filter.jpeg`,
 		})
 		.setImage('attachment://filter.jpeg')
 		.setColor(client.userLib.colors.inf)
 		.setTitle('Фильтр: ' + args[0])
 		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
-	msg.channel.send(embed)
+	msg.channel.send(embed);
 };
-
 
 function greyscale(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
 	for (let i = 0; i < data.data.length; i += 4) {
-		const brightness = (0.34 * data.data[i]) + (0.5 * data.data[i + 1]) + (0.16 * data.data[i + 2]);
+		const brightness = 0.34 * data.data[i] + 0.5 * data.data[i + 1] + 0.16 * data.data[i + 2];
 		data.data[i] = brightness;
 		data.data[i + 1] = brightness;
 		data.data[i + 2] = brightness;
@@ -109,7 +119,7 @@ function invert(ctx, x, y, width, height) {
 function sepia(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
 	for (let i = 0; i < data.data.length; i += 4) {
-		const brightness = (0.34 * data.data[i]) + (0.5 * data.data[i + 1]) + (0.16 * data.data[i + 2]);
+		const brightness = 0.34 * data.data[i] + 0.5 * data.data[i + 1] + 0.16 * data.data[i + 2];
 		data.data[i] = brightness + 100;
 		data.data[i + 1] = brightness + 50;
 		data.data[i + 2] = brightness;
@@ -119,12 +129,12 @@ function sepia(ctx, x, y, width, height) {
 }
 function contrast(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
-	const factor = (259 / 100) + 1;
+	const factor = 259 / 100 + 1;
 	const intercept = 128 * (1 - factor);
 	for (let i = 0; i < data.data.length; i += 4) {
-		data.data[i] = (data.data[i] * factor) + intercept;
-		data.data[i + 1] = (data.data[i + 1] * factor) + intercept;
-		data.data[i + 2] = (data.data[i + 2] * factor) + intercept;
+		data.data[i] = data.data[i] * factor + intercept;
+		data.data[i + 1] = data.data[i + 1] * factor + intercept;
+		data.data[i + 2] = data.data[i + 2] * factor + intercept;
 	}
 	ctx.putImageData(data, x, y);
 	return ctx;
@@ -137,8 +147,8 @@ function distort(ctx, x = 0, y = 0, width = 0, height = 0, amplitude = 60, strid
 		for (let j = 0; j < height; j++) {
 			const xs = Math.round(amplitude * Math.sin(2 * Math.PI * 3 * (j / height)));
 			const ys = Math.round(amplitude * Math.cos(2 * Math.PI * 3 * (i / width)));
-			const dest = (j * stride) + (i * strideLevel);
-			const src = ((j + ys) * stride) + ((i + xs) * strideLevel);
+			const dest = j * stride + i * strideLevel;
+			const src = (j + ys) * stride + (i + xs) * strideLevel;
 			data.data[dest] = temp.data[src];
 			data.data[dest + 1] = temp.data[src + 1];
 			data.data[dest + 2] = temp.data[src + 2];

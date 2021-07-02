@@ -1,21 +1,19 @@
 exports.help = {
-	name: "clearmsgid",
-	description: "Очистить канал до определённого сообщения",
-	aliases: ["cmi"],
-	usage: [{type: 'text', opt: 0, name: 'ID Сообщения'}],
+	name: 'clearmsgid',
+	description: 'Очистить канал до определённого сообщения',
+	aliases: ['cmi'],
+	usage: [{ type: 'text', opt: 0, name: 'ID Сообщения' }],
 	dm: 0,
 	tier: 2,
-	cooldown: 5
+	cooldown: 5,
 };
 
 exports.run = async (client, msg, args) => {
-
-	if (/([0-9]){18,19,20,21}/.test(args[0]))
-		return client.userLib.retError(msg, "ID сообщения введено не верно!");
+	if (/([0-9]){18,19,20,21}/.test(args[0])) return client.userLib.retError(msg, 'ID сообщения введено не верно!');
 
 	const currentMsg = await msg.channel.messages.fetch(args[0]).catch(() => 0);
 	if (!currentMsg || currentMsg.channel.id !== msg.channel.id)
-		return client.userLib.retError(msg, "Сообщение не найдено!");
+		return client.userLib.retError(msg, 'Сообщение не найдено!');
 
 	await msg.channel.messages.fetch();
 
@@ -30,5 +28,4 @@ exports.run = async (client, msg, args) => {
 		.setTimestamp();
 
 	msg.channel.send(embed).then(msgs => msgs.delete({ timeout: 10000 }));
-
 };

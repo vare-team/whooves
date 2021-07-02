@@ -1,11 +1,11 @@
 exports.help = {
-	name: "remove",
-	description: "Выгнать бота с сервера",
+	name: 'remove',
+	description: 'Выгнать бота с сервера',
 	aliases: [],
-	usage: [{type: 'text', opt: 0, name: 'id'}],
+	usage: [{ type: 'text', opt: 0, name: 'id' }],
 	dm: 1,
 	tier: 1,
-	cooldown: 0
+	cooldown: 0,
 };
 
 exports.run = (client, msg, args) => {
@@ -13,5 +13,7 @@ exports.run = (client, msg, args) => {
 	try {
 		guild.leave();
 		msg.channel.send('OK!');
-	} catch {msg.channel.send('Ошибка!');}
+	} catch {
+		msg.channel.send('Ошибка!');
+	}
 };

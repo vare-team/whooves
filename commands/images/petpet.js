@@ -1,36 +1,38 @@
 exports.help = {
-	name: "petpet",
-	description: "Погладить что-нибудь.\n\n*Основано на [PetPet Generator](https://benisland.neocities.org/petpet/)*",
+	name: 'petpet',
+	description: 'Погладить что-нибудь.\n\n*Основано на [PetPet Generator](https://benisland.neocities.org/petpet/)*',
 	aliases: ['pet', 'pat'],
-	usage: [{type: 'user', opt: 1}, {type: 'attach', opt: 1}],
+	usage: [
+		{ type: 'user', opt: 1 },
+		{ type: 'attach', opt: 1 },
+	],
 	dm: 1,
 	tier: 0,
-	cooldown: 10
+	cooldown: 10,
 };
 
 const GifEncoder = require('gif-encoder');
 const { createWriteStream } = require('fs');
 
 exports.run = async (client, msg, args) => {
-
 	if (msg.attachments.first() && !msg.attachments.first().width) {
 		client.userLib.retError(msg, 'Файл должен быть изображением.');
 		return;
 	}
 
-	if (msg.attachments.first() && msg.attachments.first().size > 8*1024*1024) {
+	if (msg.attachments.first() && msg.attachments.first().size > 8 * 1024 * 1024) {
 		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
 		return;
 	}
 
 	let use = msg.magicMention.user || msg.author;
-	use = msg.attachments.first() ? msg.attachments.first().url : use.displayAvatarURL({format: 'jpg', dynamic: false, size: 256});
+	use = msg.attachments.first()
+		? msg.attachments.first().url
+		: use.displayAvatarURL({ format: 'jpg', dynamic: false, size: 256 });
 
-	const ava = await client.userLib.loadImage(use)
-		, canvas = client.userLib.createCanvas(256, 256)
-		, ctx = canvas.getContext('2d')
-	;
-
+	const ava = await client.userLib.loadImage(use),
+		canvas = client.userLib.createCanvas(256, 256),
+		ctx = canvas.getContext('2d');
 	const hand = await client.userLib.loadImage('./images/hand.png');
 
 	const gif = new GifEncoder(256, 256, { highWaterMark: 8 * 1024 * 1024 });
@@ -44,23 +46,23 @@ exports.run = async (client, msg, args) => {
 	gif.writeHeader();
 
 	for (let frame = 0; frame < 5; frame++) {
-		ctx.clearRect(0,0,canvas.width,canvas.height);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 		switch (frame) {
 			case 0:
-				ctx.drawImage(ava, 41, 50, 207, 213)
+				ctx.drawImage(ava, 41, 50, 207, 213);
 				break;
 			case 1:
-				ctx.drawImage(ava, 37, 77, 213, 189)
+				ctx.drawImage(ava, 37, 77, 213, 189);
 				break;
 			case 2:
-				ctx.drawImage(ava, 33, 97, 229, 171)
+				ctx.drawImage(ava, 33, 97, 229, 171);
 				break;
 			case 3:
-				ctx.drawImage(ava, 33, 85, 212, 177)
+				ctx.drawImage(ava, 33, 85, 212, 177);
 				break;
 			case 4:
-				ctx.drawImage(ava, 38, 48, 201, 216)
+				ctx.drawImage(ava, 38, 48, 201, 216);
 				break;
 		}
 		ctx.drawImage(hand, 112 * frame, 0, 111, 112, 0, 0, canvas.width, canvas.height);
@@ -74,7 +76,7 @@ exports.run = async (client, msg, args) => {
 		const embed = new client.userLib.discord.MessageEmbed()
 			.attachFiles({
 				attachment: 'img.gif',
-				name: `img.gif`
+				name: `img.gif`,
 			})
 			.setImage('attachment://img.gif')
 			.setColor(client.userLib.colors.inf)

@@ -1,10 +1,17 @@
 module.exports = async (client, msg) => {
 	if (msg.author.bot) return;
 
-
-	if (msg.channel.type !== 'dm' && !client.userLib.checkPerm(-1, {ownerID: msg.guild.ownerID, member: msg.member})) {
-		msg.badWordsCheck = msg.content.toLowerCase().replace(/[^a-zа-яЁё ]/g, '').replace('ё', 'е').trim().split(/ +/g);
-		if (await client.userLib.checkSettings(msg.guild.id, 'badwords') && client.userLib.badWords.some(w => msg.badWordsCheck.includes(w))) {
+	if (msg.channel.type !== 'dm' && !client.userLib.checkPerm(-1, { ownerID: msg.guild.ownerID, member: msg.member })) {
+		msg.badWordsCheck = msg.content
+			.toLowerCase()
+			.replace(/[^a-zа-яЁё ]/g, '')
+			.replace('ё', 'е')
+			.trim()
+			.split(/ +/g);
+		if (
+			(await client.userLib.checkSettings(msg.guild.id, 'badwords')) &&
+			client.userLib.badWords.some(w => msg.badWordsCheck.includes(w))
+		) {
 			client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
 			msg.delete();
 		}
@@ -12,7 +19,17 @@ module.exports = async (client, msg) => {
 
 	msg.flags = {};
 
-	let prefix = msg.channel.type == 'dm' ? 'w.' : (await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue, 'SELECT prefix FROM guilds WHERE guildId = ?', [msg.guild.id])).res || 'w.';
+	let prefix =
+		msg.channel.type == 'dm'
+			? 'w.'
+			: (
+					await client.userLib.promise(
+						client.userLib.db,
+						client.userLib.db.queryValue,
+						'SELECT prefix FROM guilds WHERE guildId = ?',
+						[msg.guild.id]
+					)
+			  ).res || 'w.';
 	msg.flags.prefix = prefix;
 
 	if (msg.content === `<@!${client.user.id}>` || msg.content === `<@${client.user.id}>`) {
@@ -24,12 +41,15 @@ module.exports = async (client, msg) => {
 		client.userLib.db.query('INSERT INTO users (userId, tag) VALUES (?, ?) ON DUPLICATE KEY UPDATE xp = xp + ?', [
 			msg.author.id,
 			msg.author.tag,
-			client.userLib.randomIntInc(1, 5)]);
+			client.userLib.randomIntInc(1, 5),
+		]);
 		return;
 	}
 
 	const [command, ...args] = msg.content.slice(prefix.length).trim().split(/ +/g);
-	const cmd = client.commands.get(command.toLowerCase()) || client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(command.toLowerCase()));
+	const cmd =
+		client.commands.get(command.toLowerCase()) ||
+		client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(command.toLowerCase()));
 	if (!cmd) return;
 
 	if (msg.channel.type != 'dm' && !msg.channel.permissionsFor(msg.guild.me).has('EMBED_LINKS')) {
@@ -42,13 +62,18 @@ module.exports = async (client, msg) => {
 		return;
 	}
 
-	if (cmd.help.tier && !client.userLib.checkPerm(cmd.help.tier,
-		msg.channel.type === 'dm' ? {ownerID: msg.author.id, member: msg.author}
-			: {ownerID: msg.guild.ownerID, member: msg.member})) {
+	if (
+		cmd.help.tier &&
+		!client.userLib.checkPerm(
+			cmd.help.tier,
+			msg.channel.type === 'dm'
+				? { ownerID: msg.author.id, member: msg.author }
+				: { ownerID: msg.guild.ownerID, member: msg.member }
+		)
+	) {
 		client.userLib.retError(msg, 'Недостаточно прав!');
 		return;
 	}
-
 
 	// USAGE PARSER
 	if (cmd.help.usage.length) {
@@ -69,12 +94,21 @@ module.exports = async (client, msg) => {
 	// USAGE PARSE
 
 	//Magic Mention
-	if (cmd.help.userMentionPosition !== undefined && args[cmd.help.userMentionPosition] && cmd.help.userMentionPosition != -1) {
-		msg.magicMention = msg.mentions.members.first()
-			|| msg.guild.members.cache.get(args[cmd.help.userMentionPosition])
-			|| msg.guild.members.cache.find(val => val.displayName.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
-			|| msg.guild.members.cache.find(val => val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase()))
-			|| false;
+	if (
+		cmd.help.userMentionPosition !== undefined &&
+		args[cmd.help.userMentionPosition] &&
+		cmd.help.userMentionPosition != -1
+	) {
+		msg.magicMention =
+			msg.mentions.members.first() ||
+			msg.guild.members.cache.get(args[cmd.help.userMentionPosition]) ||
+			msg.guild.members.cache.find(val =>
+				val.displayName.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase())
+			) ||
+			msg.guild.members.cache.find(val =>
+				val.user.username.toLowerCase().startsWith(args[cmd.help.userMentionPosition].toLowerCase())
+			) ||
+			false;
 	} else {
 		msg.magicMention = 0;
 	}
@@ -82,32 +116,32 @@ module.exports = async (client, msg) => {
 
 	//CHECK ARGS
 	let tempError = '';
-	if (cmd.help.args && !args.length)
-		tempError += 'Аргументы команды введены не верно!\n';
-	if (cmd.help.args && cmd.help.argsCount > args.length)
-		tempError += 'Количество аргументов не верно!\n';
-	if (cmd.help.userMention && !msg.magicMention)
-		tempError += 'Введённая вами команда требует упоминания!\n';
-	if (cmd.help.userMention && msg.magicMention
-		&& msg.magicMention.id == msg.author.id
-		&& msg.guild.ownerID !== msg.member.id)
+	if (cmd.help.args && !args.length) tempError += 'Аргументы команды введены не верно!\n';
+	if (cmd.help.args && cmd.help.argsCount > args.length) tempError += 'Количество аргументов не верно!\n';
+	if (cmd.help.userMention && !msg.magicMention) tempError += 'Введённая вами команда требует упоминания!\n';
+	if (
+		cmd.help.userMention &&
+		msg.magicMention &&
+		msg.magicMention.id == msg.author.id &&
+		msg.guild.ownerID !== msg.member.id
+	)
 		tempError += 'Само~~удволетворение~~упоминание никогда к хорошему не приводило.\n';
-	if (cmd.help.channelMention && !msg.mentions.channels.first())
-		tempError += 'Нужно указать канал.\n';
-	if (cmd.help.hasVoice && !msg.member.voice.channel)
-		tempError += 'Вы должны находиться в голосовом канале!\n';
-	if (cmd.help.hasAttach && !msg.attachments.size)
-		tempError += 'Вы должны прикрепить файл!\n';
+	if (cmd.help.channelMention && !msg.mentions.channels.first()) tempError += 'Нужно указать канал.\n';
+	if (cmd.help.hasVoice && !msg.member.voice.channel) tempError += 'Вы должны находиться в голосовом канале!\n';
+	if (cmd.help.hasAttach && !msg.attachments.size) tempError += 'Вы должны прикрепить файл!\n';
 
 	if (tempError) {
-		client.userLib.retError(msg, `${tempError}\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usageStr}\`\``);
+		client.userLib.retError(
+			msg,
+			`${tempError}\nИспользование команды: \`\`${prefix}${cmd.help.name} ${cmd.help.usageStr}\`\``
+		);
 		return;
 	}
 	//CHECK ARGS
 
 	if (!client.userLib.admins.hasOwnProperty(msg.author.id)) {
 		if (!client.userLib.cooldown.has(cmd.help.name)) {
-			client.userLib.cooldown.set(cmd.help.name, new Map);
+			client.userLib.cooldown.set(cmd.help.name, new Map());
 		}
 
 		const now = Date.now();
@@ -116,15 +150,23 @@ module.exports = async (client, msg) => {
 			let expirationTime = times.get(msg.author.id) + cmd.help.cooldown * 1000;
 			if (now <= expirationTime) {
 				let timeLeft = (expirationTime - now) / 1000;
-				client.userLib.retError(msg, `Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(timeLeft)}\`\` и попробуй снова!`);
-				client.userLib.sendLog(`Try use: ${command}, Time left: ${timeLeft}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`, 'Info');
+				client.userLib.retError(
+					msg,
+					`Убери копыта от клавиатуры, пожалуйста.\nУспокойся, досчитай до \`\`${Math.round(
+						timeLeft
+					)}\`\` и попробуй снова!`
+				);
+				client.userLib.sendLog(
+					`Try use: ${command}, Time left: ${timeLeft}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`,
+					'Info'
+				);
 				return;
 			}
 		}
 
 		times.set(msg.author.id, now);
 
-		client.userLib.sc.pushTask({code: 'unCooldown', time: cmd.help.cooldown * 1000, params: [times, msg.author.id]});
+		client.userLib.sc.pushTask({ code: 'unCooldown', time: cmd.help.cooldown * 1000, params: [times, msg.author.id] });
 	}
 
 	try {
@@ -137,7 +179,6 @@ module.exports = async (client, msg) => {
 		client.userLib.retError(msg, 'Произошло исключение в работе команды!');
 		client.statistic.erroredcmd++;
 	}
-
 };
 
 /*

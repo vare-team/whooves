@@ -1,11 +1,11 @@
 exports.help = {
-	name: "sync",
-	description: "Синхронизация",
+	name: 'sync',
+	description: 'Синхронизация',
 	aliases: [],
 	usage: [],
 	dm: 1,
 	tier: 1,
-	cooldown: 0
+	cooldown: 0,
 };
 
 exports.run = async (client, msg) => {
@@ -21,8 +21,15 @@ exports.run = async (client, msg) => {
 		let temp = '';
 		console.log(result);
 		for (let i of result) {
-			client.userLib.db.insert('guilds', {guildId: i}, () => {});
-			temp += 'no in db: ' + i + ' ' + (await client.shard.broadcastEval(`this.guilds.cache.get('${i}') ? this.guilds.cache.get('${i}').name : 0`)).find(l => l) + '\n';
+			client.userLib.db.insert('guilds', { guildId: i }, () => {});
+			temp +=
+				'no in db: ' +
+				i +
+				' ' +
+				(
+					await client.shard.broadcastEval(`this.guilds.cache.get('${i}') ? this.guilds.cache.get('${i}').name : 0`)
+				).find(l => l) +
+				'\n';
 		}
 		msg.channel.send(temp).catch(() => msg.channel.send('Серверов нет'));
 	});

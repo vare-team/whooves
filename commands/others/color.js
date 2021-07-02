@@ -1,11 +1,11 @@
 exports.help = {
-	name: "color",
-	description: "Ифнормация о цвете",
-	aliases: ["colour"],
-	usage: [{type: 'text', opt: 0, name: '#HEX'}],
+	name: 'color',
+	description: 'Ифнормация о цвете',
+	aliases: ['colour'],
+	usage: [{ type: 'text', opt: 0, name: '#HEX' }],
 	dm: 1,
 	tier: 0,
-	cooldown: 5
+	cooldown: 5,
 };
 
 exports.run = async (client, msg, args) => {
@@ -23,17 +23,22 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	let body = await client.userLib.request('https://www.thecolorapi.com/id?hex=' + args[0], {json: true});
+	let body = await client.userLib.request('https://www.thecolorapi.com/id?hex=' + args[0], { json: true });
 
 	if (!body) return client.userLib.retError(msg, 'Ошибка API.');
 
-	embed.setColor(color)
-		.setTitle("Цвет " + body.name.value)
-		.addField("RGB", `Red: **${body.rgb.r}**\nGreen: **${body.rgb.g}**\nBlued: **${body.rgb.b}**\n`, true)
-		.addField("HSV", `Hue: **${body.hsv.h}**\nSaturation: **${body.hsv.s}**\nValue: **${body.hsv.v}**\n`, true)
-		.addField("HSL", `Hue: **${body.hsl.h}**\nSaturation: **${body.hsl.s}**\nLightness: **${body.hsl.l}**\n`, true)
-		.addField("CMYK", `Cyan: **${body.cmyk.c}**\nMagenta: **${body.cmyk.m}**\nYellow: **${body.cmyk.y}**\nBlack: **${body.cmyk.k}**\n`, true)
-		.addField("Util", `${body.rgb.value}\n${body.hsv.value}\n${body.hsl.value}\n${body.cmyk.value}`, true)
+	embed
+		.setColor(color)
+		.setTitle('Цвет ' + body.name.value)
+		.addField('RGB', `Red: **${body.rgb.r}**\nGreen: **${body.rgb.g}**\nBlued: **${body.rgb.b}**\n`, true)
+		.addField('HSV', `Hue: **${body.hsv.h}**\nSaturation: **${body.hsv.s}**\nValue: **${body.hsv.v}**\n`, true)
+		.addField('HSL', `Hue: **${body.hsl.h}**\nSaturation: **${body.hsl.s}**\nLightness: **${body.hsl.l}**\n`, true)
+		.addField(
+			'CMYK',
+			`Cyan: **${body.cmyk.c}**\nMagenta: **${body.cmyk.m}**\nYellow: **${body.cmyk.y}**\nBlack: **${body.cmyk.k}**\n`,
+			true
+		)
+		.addField('Util', `${body.rgb.value}\n${body.hsv.value}\n${body.hsl.value}\n${body.cmyk.value}`, true)
 		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 	msg.channel.send(embed);
 };
