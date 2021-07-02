@@ -28,7 +28,7 @@ exports.run = async (client, msg) => {
 
 	await msg.guild.members.fetch();
 
-	embed.setColor(client.userLib.colors.suc);
+	embed.setColor(client.userLib.colors.suc).setDescription("");
 
 	for (let member of msg.guild.members.cache.array()) {
 		name = member.displayName;
