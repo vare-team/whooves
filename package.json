@@ -24,10 +24,15 @@
     "request-promise-native": "^1.0.8"
   },
   "devDependencies": {
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.2"
   },
   "scripts": {
     "start": "node .",
-    "debug": "nodemon ."
+    "debug": "nodemon .",
+    "lint": "eslint . --fix"
   }
 }

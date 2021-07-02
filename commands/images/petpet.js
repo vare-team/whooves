@@ -8,6 +8,9 @@ exports.help = {
 	cooldown: 10
 };
 
+const GifEncoder = require('gif-encoder');
+const { createWriteStream } = require('fs');
+
 exports.run = async (client, msg, args) => {
 
 	if (msg.attachments.first() && !msg.attachments.first().width) {
@@ -26,21 +29,17 @@ exports.run = async (client, msg, args) => {
 	const ava = await client.userLib.loadImage(use)
 		, canvas = client.userLib.createCanvas(256, 256)
 		, ctx = canvas.getContext('2d')
-		, GifEncoder = require('gif-encoder');
+	;
 
 	const hand = await client.userLib.loadImage('./images/hand.png');
 
-	let gif = new GifEncoder(256, 256, {
-		highWaterMark: 8 * 1024 * 1024
-	});
-
+	const gif = new GifEncoder(256, 256, { highWaterMark: 8 * 1024 * 1024 });
 	gif.setFrameRate(16);
 	gif.setQuality(20);
 	gif.setRepeat(0);
 	gif.setTransparent(0x000000);
 
-	let file = require('fs').createWriteStream('img.gif');
-	gif.pipe(file);
+	gif.pipe(createWriteStream('img.gif'));
 
 	gif.writeHeader();
 
@@ -72,7 +71,7 @@ exports.run = async (client, msg, args) => {
 	gif.finish();
 
 	gif.on('end', () => {
-		let embed = new client.userLib.discord.MessageEmbed()
+		const embed = new client.userLib.discord.MessageEmbed()
 			.attachFiles({
 				attachment: 'img.gif',
 				name: `img.gif`

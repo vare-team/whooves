@@ -8,16 +8,15 @@ exports.help = {
 	cooldown: 10
 };
 
+const GifEncoder = require('gif-encoder');
+const { createWriteStream } = require('fs');
+
 function randomInteger(min, max) {
 	// получить случайное число от (min-0.5) до (max+0.5)
-	let rand = min - 0.5 + Math.random() * (max - min + 1);
-	return Math.round(rand);
+	return Math.round(min - 0.5 + Math.random() * (max - min + 1));
 }
 
 exports.run = async (client, msg, args) => {
-
-	let direction = args[args.length-1] === 'left' ? -10 : 10;
-
 	if (msg.attachments.first() && !msg.attachments.first().width) {
 		client.userLib.retError(msg, 'Файл должен быть изображением.');
 		return;
@@ -34,19 +33,16 @@ exports.run = async (client, msg, args) => {
 	const ava = await client.userLib.loadImage(use)
 		, canvas = client.userLib.createCanvas(256, 256)
 		, ctx = canvas.getContext('2d')
-		, GifEncoder = require('gif-encoder');
+	;
 
-	let gif = new GifEncoder(256, 256, {
-		highWaterMark: 8 * 1024 * 1024
-	});
+	let gif = new GifEncoder(256, 256, { highWaterMark: 8 * 1024 * 1024 });
 
 	gif.setFrameRate(24);
 	gif.setQuality(30);
 	gif.setRepeat(0);
 	gif.setTransparent(0x000000);
 
-	let file = require('fs').createWriteStream('img.gif');
-	gif.pipe(file);
+	gif.pipe(createWriteStream('img.gif'));
 
 	gif.writeHeader();
 
@@ -82,7 +78,7 @@ exports.run = async (client, msg, args) => {
 	gif.finish();
 
 	gif.on('end', () => {
-		let embed = new client.userLib.discord.MessageEmbed()
+		const embed = new client.userLib.discord.MessageEmbed()
 			.attachFiles({
 				attachment: 'img.gif',
 				name: `img.gif`
