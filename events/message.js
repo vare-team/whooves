@@ -51,6 +51,7 @@ module.exports = async (client, msg) => {
 		client.commands.get(command.toLowerCase()) ||
 		client.commands.find(cmd => cmd.help.aliases && cmd.help.aliases.includes(command.toLowerCase()));
 	if (!cmd) return;
+	if (cmd.help.hide) return client.userLib.retError(msg, 'Команда в данный момент отключена!');
 
 	if (msg.channel.type != 'dm' && !msg.channel.permissionsFor(msg.guild.me).has('EMBED_LINKS')) {
 		msg.reply('Хмм... Ошибочка. У бота недостаточно прав!');
