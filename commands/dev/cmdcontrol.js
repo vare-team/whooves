@@ -1,6 +1,6 @@
 exports.help = {
 	name: 'cmdcontrol',
-	description: 'Перезагрузка команды',
+	description: 'Редактирование HELP модуля в команде.',
 	aliases: ['cmdc'],
 	usage: [
 		{ type: 'text', opt: 0, name: 'название команды' },
