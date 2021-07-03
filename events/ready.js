@@ -30,4 +30,5 @@ module.exports = client => {
 	);
 
 	client.userLib.sendLog(`Shard ready!`, 'ShardingManager');
+	client.userLib.sendWebhookLog("Shard ready!");
 };
