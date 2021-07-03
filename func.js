@@ -42,7 +42,9 @@ module.exports = function (Discord, client, con) {
 	this.sendWebhookLog = (content = 'Clap one hand') => {
 		if (!this.webhook) return;
 
-		this.webhook.send(content);
+		const now = new Date();
+
+		this.webhook.send(`<t:${Math.floor(now.getTime() / 1000)}:T> | Shard[${client.shard.ids}] | : ${content}`);
 	};
 
 	this.badWords = require('./badwords.js');
@@ -145,6 +147,17 @@ module.exports = function (Discord, client, con) {
 		root: ['bler', 'ses', 'wis', 'let', 'ger', 'mon', 'lot', 'far'],
 		suffixes: ['er', 'or', 'an', 'ian', 'ist', 'ant', 'ee', 'ess', 'ent', 'ity', 'ance', 'ion', 'dom', 'th'],
 	};
+	this.helpExample = {
+		name: 'name',
+		description: 'description',
+		aliases: ['array'],
+		usage: [{ type: 'text', opt: 0, name: 'object' }],
+		dm: 0,
+		tier: 0,
+		cooldown: 0,
+		hide: 0,
+		interactions: 0,
+	};
 
 	/**
 	 * @function
@@ -180,7 +193,7 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.translate = (str = '') => {
 		return str.replace(/[A-z/,.;?&'`~}{\]\[]/g, x => {
-			return x == x.toLowerCase() ? replacer[x] : replacer[x.toLowerCase()].toUpperCase();
+			return x === x.toLowerCase() ? replacer[x] : replacer[x.toLowerCase()].toUpperCase();
 		});
 	};
 
