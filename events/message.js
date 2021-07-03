@@ -171,8 +171,8 @@ module.exports = async (client, msg) => {
 	}
 
 	try {
-		await cmd.run(client, msg, args);
 		client.userLib.sendLog(client.userLib.generateUseLog(msg.channel.type, cmd.help.name, msg), 'Info');
+		await cmd.run(client, msg, args);
 		client.statistic.executedcmd++;
 	} catch (err) {
 		client.userLib.sendLog(client.userLib.generateErrLog(msg.channel.type, cmd.help.name, msg, err), 'ERROR!');
