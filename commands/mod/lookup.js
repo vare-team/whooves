@@ -10,11 +10,13 @@ exports.help = {
 
 exports.run = async (client, msg, args) => {
 	let object;
+
 	if (/([0-9]){17,18}/.test(args[0])) object = await client.users.fetch(args[0]).catch(() => 0);
-	else object = await client.fetchInvite(args[0]).catch(() => 0);
+	if (!object) object = await client.fetchInvite(args[0]).catch(() => 0);
+	if (!object) object = await client.fetchGuildPreview(args[0]).catch(() => 0);
 
 	if (!object) {
-		client.userLib.retError(msg, 'Пользователя/Приглашения с таким ID не найдено.');
+		client.userLib.retError(msg, 'Пользователя/Приглашения/Гильдии с таким ID не найдено.');
 		return;
 	}
 
@@ -24,55 +26,38 @@ exports.run = async (client, msg, args) => {
 		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
 
 	switch (object.constructor.name) {
+		case 'ClientUser':
 		case 'User':
-			let date = new Date(object.createdAt),
-				member = msg.guild.members.cache.get(object.id);
+			object.member = await msg.guild.members.fetch(object.id);
 			embed
-				.setTitle('Пользователь')
-				.setDescription(
-					`Имя: ${object.tag}\nБот: ${object.bot ? 'да' : 'нет'}\nАккаунт зарегистрирован: ${client.userLib
-						.moment(object.createdAt, 'WWW MMM DD YYYY HH:mm:ss')
-						.fromNow()}\nТочная дата: ${
-						('00' + date.getDate()).slice(-2) +
-						'.' +
-						('00' + (date.getMonth() + 1)).slice(-2) +
-						'.' +
-						date.getFullYear() +
-						' ' +
-						('00' + date.getHours()).slice(-2) +
-						':' +
-						('00' + date.getMinutes()).slice(-2) +
-						':' +
-						('00' + date.getSeconds()).slice(-2)
-					}\n${
-						member
-							? `Дата присоединения к этой гильдии: ${
-									('00' + member.joinedAt.getDate()).slice(-2) +
-									'.' +
-									('00' + (member.joinedAt.getMonth() + 1)).slice(-2) +
-									'.' +
-									member.joinedAt.getFullYear() +
-									' ' +
-									('00' + member.joinedAt.getHours()).slice(-2) +
-									':' +
-									('00' + member.joinedAt.getMinutes()).slice(-2) +
-									':' +
-									('00' + member.joinedAt.getSeconds()).slice(-2)
-							  }`
-							: ''
-					}`
-				)
+				.setTitle(object.bot ? 'Бот' : 'Пользователь')
+				.setAuthor(object.tag, object.displayAvatarURL({ dynamic: true }))
+				.addField('Дата регистрации:', `<t:${Math.floor(object.createdAt / 1000)}:R>`, true)
 				.setThumbnail(object.displayAvatarURL({ dynamic: true }));
+			if (object.member)
+				embed.addField(
+					'Дата присоединения к этой гильдии:',
+					`<t:${Math.floor(object.member.joinedAt / 1000)}:R>`,
+					true
+				);
+			if (object.flags.bitfield) embed.addField('Значки:', '```' + object.flags.toArray() + '```');
 			break;
 		case 'Invite':
 			embed
 				.setTitle('Приглашение')
-				.setDescription(
-					`Название гильдии: ${object.guild.name}\nID гильдии: ${object.guild.id}\nКанал: #${object.channel.name}${
-						object.inviter ? `\nПригласивший: ${object.inviter.tag}(ID: ${object.inviter.id})` : ''
-					}`
-				);
+				.setAuthor(object.guild.name, `https://cdn.discordapp.com/icons/${object.guild.id}/${object.guild.icon}.jpg?size=128`)
+				.addField('ID гильдии:', '``' + object.guild.id + '``', true)
+				.addField('Канал:', '``#' + object.channel.name + '``', true)
+				.addField('Кол-во участников:', '``' + object.memberCount + '``')
+				.addField('Пригласивший:', '``' + `${object.inviter.tag} (ID: ${object.inviter.id})` + '``');
 			break;
+		case 'GuildPreview':
+			embed
+				.setTitle('Публичная гильдия')
+				.setAuthor(object.name, `https://cdn.discordapp.com/icons/${object.id}/${object.icon}.jpg?size=128`)
+				.addField('Кол-во участников:', '``' + object.approximateMemberCount + '``', true)
+				.addField('Кол-во эмоджи:', '``' + object.emojis.size + '``', true)
+				.addField('Опции:', '```' + object.features + '```');
 	}
 
 	msg.channel.send(embed);
