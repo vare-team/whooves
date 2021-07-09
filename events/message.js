@@ -131,6 +131,17 @@ module.exports = async (client, msg) => {
 	if (cmd.help.hasVoice && !msg.member.voice.channel) tempError += 'Вы должны находиться в голосовом канале!\n';
 	if (cmd.help.hasAttach && !msg.attachments.size) tempError += 'Вы должны прикрепить файл!\n';
 
+	for (let arg = 0; args.length > arg; arg++) {
+		let maxLength = cmd.help.usage[arg]
+			? 'maxLength' in cmd.help.usage[arg]
+				? cmd.help.usage[arg].maxLength
+				: 100
+			: 100;
+
+		if (maxLength < args[arg].length)
+			tempError += `Аргумент ${cmd.help.usage[arg].name} не должен превышать **${maxLength}** символов!`;
+	}
+
 	if (tempError) {
 		client.userLib.retError(
 			msg,

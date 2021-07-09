@@ -2,7 +2,7 @@ exports.help = {
 	name: '8ball',
 	description: 'Задайте магическому шару вопрос и он на него ответит!',
 	aliases: ['ball', 'bl', '8'],
-	usage: [{ type: 'text', opt: 0, name: 'вопрос' }],
+	usage: [{ type: 'text', opt: 0, name: 'вопрос', maxLength: 100 }],
 	dm: 1,
 	tier: 0,
 	cooldown: 5,
@@ -39,6 +39,12 @@ const questions = {
 };
 
 exports.run = (client, msg, args) => {
+	if (exports.help.usage[0].maxLength < args.join(' ').length)
+		return client.userLib.retError(
+			msg,
+			`Количество символов в вопросе не должно превышать **${exports.help.usage[0].maxLength}** символов!`
+		);
+
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle('Магический шар')
