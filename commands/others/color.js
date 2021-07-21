@@ -23,10 +23,12 @@ exports.run = async (client, msg, args) => {
 		return;
 	}
 
-	let body = await client.userLib.request('https://www.thecolorapi.com/id?hex=' + args[0].replace('#', ''), { json: true });
+	let body = await client.userLib.request('https://www.thecolorapi.com/id?hex=' + args[0].replace('#', ''), {
+		json: true,
+	});
 
-	if (!body) return client.userLib.retError(msg, 'Ошибка API.');
-	if (body.code === 400) return client.userLib.retError(msg, "Ошибка распознования цвета.")
+	if (!body || !body.name || !body.name.value) return client.userLib.retError(msg, 'Ошибка API.');
+	if (body.code === 400) return client.userLib.retError(msg, 'Ошибка распознования цвета.');
 
 	embed
 		.setColor(color)
