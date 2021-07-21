@@ -16,6 +16,6 @@ exports.run = (client, msg) => {
 		.setColor(client.userLib.colors.inf)
 		.setImage(user.displayAvatarURL({ dynamic: true, size: 2048 }))
 		.setTimestamp();
-	if (user.avatar.startsWith('a_')) embed.setFooter('GIF');
+	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF');
 	msg.channel.send(embed);
 };
