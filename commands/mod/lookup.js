@@ -11,10 +11,13 @@ exports.run = async (client, interaction) => {
 
 	if (interaction.data.options.hasOwnProperty('пользователь'))
 		object = await client.users.fetch(interaction.data.options['пользователь'].options[0].value).catch(() => 0);
-
-	// if (/([0-9]){17,18}/.test(args[0])) object = await client.users.fetch(args[0]).catch(() => 0);
-	// if (!object) object = await client.fetchInvite(args[0]).catch(() => 0);
-	// if (!object) object = await client.fetchGuildPreview(args[0]).catch(() => 0);
+	else if (interaction.data.options.hasOwnProperty('id')) {
+		if (/([0-9]){17,18}/.test(interaction.data.options['id'].options[0].value))
+			object = await client.users.fetch(interaction.data.options['id'].options[0].value).catch(() => 0);
+		if (!object) object = await client.fetchInvite(interaction.data.options['id'].options[0].value).catch(() => 0);
+		if (!object)
+			object = await client.fetchGuildPreview(interaction.data.options['id'].options[0].value).catch(() => 0);
+	}
 
 	if (!object) {
 		client.userLib.retError(interaction, 'Пользователя/Приглашения/Гильдии с таким ID не найдено.');
@@ -26,7 +29,7 @@ exports.run = async (client, interaction) => {
 	switch (object.constructor.name) {
 		case 'ClientUser':
 		case 'User':
-			// object.member = await msg.guild.members.fetch(object.id);
+			object.member = await client.guilds.resolve(interaction.guild_id).members.fetch(object.id).catch(() => 0);
 			embed
 				.setTitle(object.bot ? 'Бот' : 'Пользователь')
 				.setAuthor(object.tag, object.displayAvatarURL({ dynamic: true }))
@@ -35,10 +38,10 @@ exports.run = async (client, interaction) => {
 			if (object.member)
 				embed.addField(
 					'Дата присоединения к этой гильдии:',
-					`<t:${Math.floor(object.member.joinedAt / 1000)}:R>`,
+					`<t:${Math.floor(object.member.joinedTimestamp / 1000)}:R>`,
 					true
 				);
-			// if (object.flags.bitfield) embed.addField('Значки:', '```' + object.flags.toArray() + '```');
+			if (object.flags) embed.addField('Значки:', '```' + object.flags.toArray() + '```');
 			break;
 		case 'Invite':
 			embed
