@@ -161,6 +161,14 @@ module.exports = function (Discord, client, con) {
 
 	/**
 	 * @function
+	 * @param {Object} interaction
+	 * @returns {object}
+	 */
+	this.interactionOpt = interaction => {
+		return interaction.data.options.reduce((pr, cr) => ({ ...pr, [cr.name]: cr }), {});
+	};
+	/**
+	 * @function
 	 * @param {Array} args
 	 * @returns {string}
 	 */
@@ -217,19 +225,21 @@ module.exports = function (Discord, client, con) {
 	 * @param {string} command
 	 * @param msg
 	 */
-	this.generateUseLog = (type, command, msg) => {
-		if (type === 'dm') {
-			return `Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: 'DM'`;
-		}
-		if (type === 'interaction') {
-			return `Interaction: ${command}, By: @${msg.member.user.username}#${msg.member.user.discriminator}(${
-				msg.member.user.id
-			}), ${msg.guild_id != undefined ? `Guild ID: ${msg.guild_id}` : 'DM'} => ${msg.channel_id}, custom_id: "${
-				msg.data.custom_id
-			}"(${this.AESdecrypt(msg.data.custom_id)})`;
-		}
+	this.generateUseLog = (type, command, interaction) => {
+		const user = this.getUser(interaction);
+		switch (interaction.type) {
+			case 2:
+				return `Use: ${command}, By: @${user.username}#${user.discriminator}(${user.id}), ${
+					interaction.guild_id != undefined ? `Guild ID: ${interaction.guild_id}` : 'DM'
+				} => #${interaction.channel_id}`;
 
-		return `Use: ${command}, By: @${msg.author.tag}(${msg.author.id}), In: ${msg.guild.name}(${msg.guild.id}) => #${msg.channel.name}(${msg.channel.id})`;
+			case 3:
+				return `Interaction: ${command}, By: @${user.username}#${user.discriminator}(${
+					user.id
+				}), ${interaction.guild_id != undefined ? `Guild ID: ${interaction.guild_id}` : 'DM'} => ${interaction.channel_id}, custom_id: "${
+					interaction.data.custom_id
+				}"(${this.AESdecrypt(interaction.data.custom_id)})`;
+		}
 	};
 
 	/**
@@ -321,18 +331,53 @@ module.exports = function (Discord, client, con) {
 
 	/**
 	 * @function
-	 * @param msg
+	 * @param interaction
 	 * @param {string} reason
 	 */
-	this.retError = (msg, reason = 'Какая разница вообще?') => {
-		msg.react('674326004872904733');
+	this.retError = (interaction, reason = 'Какая разница вообще?') => {
 		let embed = new Discord.MessageEmbed()
 			.setColor(this.colors.err)
-			.setTitle(this.emoji.err + ' Ошибка!')
-			.setDescription(reason)
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
-			.setTimestamp();
-		msg.channel.send(`<@${msg.author.id}>`, embed);
+			.setAuthor('Ошибка!', 'https://cdn.discordapp.com/emojis/674326004872904733.gif?v=1')
+			.setDescription(reason);
+
+		client.api.interactions(interaction.id, interaction.token).callback.post({
+			data: {
+				type: 4,
+				data: {
+					embeds: [embed],
+					flags: 64,
+				},
+			},
+		});
+	};
+
+	/**
+	 * @function
+	 * @param interaction
+	 * @param embed
+	 * @param {boolean} ephemeral
+	 */
+	this.replyInteraction = (interaction, embed, ephemeral = true) => {
+		client.api.interactions(interaction.id, interaction.token).callback.post({
+			data: {
+				type: 4,
+				data: {
+					embeds: [embed],
+					flags: ephemeral ? 64 : 0,
+				},
+			},
+		});
+	};
+
+	/**
+	 * @function
+	 * @param interaction
+	 * @return {object}
+	 */
+	this.getUser = interaction => {
+		if (interaction.hasOwnProperty('user')) return interaction.user;
+		else if (interaction.hasOwnProperty('member')) return interaction.member;
+		else return { id: '000000000000000000', username: 'Undefined', discriminator: '0000' };
 	};
 
 	/**
@@ -466,7 +511,7 @@ module.exports = function (Discord, client, con) {
 		if (!logchannel) return;
 		let channel = guild.channels.cache.get(logchannel);
 
-		if (!channel) {
+		if (!channel || !channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
 			con.update('guilds', { guildId: guild.id, logchannel: null }, () => {});
 			return;
 		}

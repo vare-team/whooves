@@ -1,7 +1,6 @@
 exports.help = {
 	name: 'help',
 	description: 'Лист команд, позволяет узнать более подробную информацию о каждой команде.',
-	aliases: ['commands', 'h'],
 	usage: [{ type: 'text', opt: 1, name: 'название команды' }],
 	dm: 1,
 	tier: 0,
@@ -28,58 +27,58 @@ const { readdirSync, lstatSync } = require('fs'),
 		images: 'Работа с изображениями',
 	};
 
-exports.run = (client, msg, args) => {
-	if (!args.length) {
+exports.run = (client, interaction) => {
+	if (!interaction.data.hasOwnProperty('options')) {
 		let embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
-			.setDescription(
-				`Вы можете написать \`${msg.flags.prefix}help [название команды]\` чтобы получить подробную информацию!`
-			)
-			.setTitle(':paperclip: Список команд:')
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+			.setDescription(`Вы можете написать \`/help [название команды]\` чтобы получить подробную информацию!`)
+			.setTitle(':paperclip: Список команд:');
 
 		readdirSync('./commands/')
 			.filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
-			.filter(el => el != 'dev' || (el == 'dev' && client.userLib.admins.hasOwnProperty(msg.author.id)))
-			.filter(el => client.commands.filter(cmd => cmd.help.module == el).size)
+			.filter(
+				el =>
+					el !== 'dev' || (el === 'dev' && client.userLib.admins.hasOwnProperty(client.userLib.getUser(interaction).id))
+			)
+			.filter(el => client.commands.filter(cmd => cmd.help.module === el).size)
 			.forEach((el, index) => {
 				embed.addField(
 					`${index + 1}. ${modules[el] ? modules[el] : el}`,
 					client.commands
-						.filter(cmd => cmd.help.module == el)
+						.filter(cmd => cmd.help.module === el)
 						.map(cmd => `\`${cmd.help.name}\``)
 						.join(', ')
 				);
 			});
 
-		msg.channel.send({ embed, split: true });
+		client.userLib.replyInteraction(interaction, embed);
 		return;
 	}
 
-	const name = args[0].toLowerCase();
-	const command =
-		client.commands.get(name) || client.commands.find(c => c.help.aliases && c.help.aliases.includes(name));
+	const name = interaction.data.options['команда'].value;
+	const command = client.commands.get(name);
 
 	if (!command) {
-		client.userLib.retError(msg, 'Возможно, в другой временной линии эта команда и есть, но тут пока ещё не добавили.');
+		client.userLib.retError(
+			interaction,
+			'Возможно, в другой временной линии эта команда и есть, но тут пока ещё не добавили.'
+		);
 		return;
 	}
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
-		.setTitle('🔎 Команда: ' + command.help.name)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+		.setTitle('🔎 Команда: ' + command.help.name);
 
 	if (command.help.description) embed.setDescription(command.help.description);
-	if (command.help.aliases.length) embed.addField('Псевдонимы', command.help.aliases.join(', '), true);
 	if (command.help.usage.length)
 		embed.addField(
 			'Использование',
-			`${msg.flags.prefix}${command.help.name} \`\`${client.userLib.generateUsage(command.help.usage)}\`\``,
+			`/${command.help.name} \`\`${client.userLib.generateUsage(command.help.usage)}\`\``,
 			true
 		);
 	embed.addField('Доступно', tiers[command.help.tier]);
 	embed.addField('Время между использованиями', `Секунд: \`\`${command.help.cooldown || 3}\`\``);
 
-	msg.channel.send(embed);
+	client.userLib.replyInteraction(interaction, embed);
 };
