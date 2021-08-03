@@ -19,16 +19,11 @@ exports.command = {
 };
 
 exports.run = async (client, interaction) => {
-	const user = new client.userLib.discord.User(
-		client,
-		interaction.data.hasOwnProperty('resolved')
-			? Object.values(interaction.data.resolved.users)[0]
-			: client.userLib.getUser(interaction).user
-	);
+	const user = interaction.options.getUser('пользователь') || interaction.user;
 
 	let warns = await client.userLib.db
 		.promise()
-		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, interaction.guild_id]);
+		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, interaction.guildId]);
 	warns = warns[0];
 
 	let embed = new client.userLib.discord.MessageEmbed()
@@ -41,5 +36,5 @@ exports.run = async (client, interaction) => {
 	for (let warn of warns) descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason}\n`;
 	embed.setDescription(descGenerator);
 
-	client.userLib.replyInteraction(interaction, embed);
+	interaction.reply({ embeds: [embed], ephemeral: true });
 };

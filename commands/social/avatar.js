@@ -19,12 +19,7 @@ exports.command = {
 };
 
 exports.run = (client, interaction) => {
-	const user = new client.userLib.discord.User(
-		client,
-		interaction.data.hasOwnProperty('resolved')
-			? Object.values(interaction.data.resolved.users)[0]
-			: client.userLib.getUser(interaction)
-	);
+	const user = interaction.options.getUser('пользователь') || interaction.user;
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setDescription(`Аватар ${user}`)
@@ -34,5 +29,5 @@ exports.run = (client, interaction) => {
 
 	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF');
 
-	client.userLib.replyInteraction(interaction, embed, !interaction.data.hasOwnProperty('resolved'));
+	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') });
 };

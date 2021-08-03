@@ -42,14 +42,13 @@ exports.command = {
 exports.run = async (client, interaction) => {
 	let object;
 
-	if (interaction.data.options.hasOwnProperty('пользователь'))
-		object = await client.users.fetch(interaction.data.options['пользователь'].options[0].value).catch(() => 0);
-	else if (interaction.data.options.hasOwnProperty('id')) {
-		if (/([0-9]){17,18}/.test(interaction.data.options['id'].options[0].value))
-			object = await client.users.fetch(interaction.data.options['id'].options[0].value).catch(() => 0);
-		if (!object) object = await client.fetchInvite(interaction.data.options['id'].options[0].value).catch(() => 0);
-		if (!object)
-			object = await client.fetchGuildPreview(interaction.data.options['id'].options[0].value).catch(() => 0);
+	if (interaction.options.getMember('пользователь'))
+		object = await client.users.fetch(interaction.options.getUser('пользователь').id).catch(() => 0);
+	else if (interaction.options.getString('id')) {
+		if (/([0-9]){17,18}/.test(interaction.options.getString('id')))
+			object = await client.users.fetch(interaction.options.getString('id')).catch(() => 0);
+		if (!object) object = await client.fetchInvite(interaction.options.getString('id')).catch(() => 0);
+		if (!object) object = await client.fetchGuildPreview(interaction.options.getString('id')).catch(() => 0);
 	}
 
 	if (!object) {
@@ -63,7 +62,7 @@ exports.run = async (client, interaction) => {
 		case 'ClientUser':
 		case 'User':
 			object.member = await client.guilds
-				.resolve(interaction.guild_id)
+				.resolve(interaction.guildId)
 				.members.fetch(object.id)
 				.catch(() => 0);
 			embed
@@ -77,7 +76,7 @@ exports.run = async (client, interaction) => {
 					`<t:${Math.floor(object.member.joinedTimestamp / 1000)}:R>`,
 					true
 				);
-			if (object.flags) embed.addField('Значки:', '```' + object.flags.toArray() + '```');
+			if (object.flags.bitfield) embed.addField('Значки:', '```' + object.flags.toArray() + '```');
 			break;
 		case 'Invite':
 			embed
@@ -99,6 +98,5 @@ exports.run = async (client, interaction) => {
 				.addField('Кол-во эмоджи:', '``' + object.emojis.size + '``', true)
 				.addField('Опции:', '```' + object.features + '```');
 	}
-
-	client.userLib.replyInteraction(interaction, embed);
+	interaction.reply({ embeds: [embed], ephemeral: true });
 };

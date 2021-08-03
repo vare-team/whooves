@@ -31,12 +31,12 @@ exports.run = async (client, interaction) => {
 		APILinks.devGuild,
 		{
 			headers: { Authorization: 'Bot ' + client.token },
-			json: client.commands.get(interaction.data.options['команда'].value).command,
+			json: client.commands.get(interaction.options.getString('команда')).command,
 		},
 		function (error, response, body) {
-			console.dir(body);
-			embed.setDescription('```json' + body + '```');
-			client.userLib.replyInteraction(interaction, embed);
+			embed.addField('Body', '```json\n' + JSON.stringify(body, null, ' ') + '```');
+			embed.addField('Error', '```json\n' + JSON.stringify(error, null, ' ') + '```');
+			interaction.reply({ embeds: [embed], ephemeral: true });
 		}
 	);
 };

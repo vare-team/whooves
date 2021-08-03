@@ -225,17 +225,16 @@ module.exports = function (Discord, client, con) {
 	 * @param msg
 	 */
 	this.generateUseLog = (type, command, interaction) => {
-		const user = this.getUser(interaction);
 		switch (interaction.type) {
-			case 2:
-				return `Use: ${command}, By: @${user.username}#${user.discriminator}(${user.id}), ${
-					interaction.guild_id != undefined ? `Guild ID: ${interaction.guild_id}` : 'DM'
-				} => #${interaction.channel_id}`;
+			case 'APPLICATION_COMMAND':
+				return `Use: ${command}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
+					interaction.guildId != undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
+				} => #${interaction.channelId}`;
 
-			case 3:
-				return `Interaction: ${command}, By: @${user.username}#${user.discriminator}(${user.id}), ${
-					interaction.guild_id != undefined ? `Guild ID: ${interaction.guild_id}` : 'DM'
-				} => ${interaction.channel_id}, custom_id: "${interaction.data.custom_id}"(${this.AESdecrypt(
+			case 'MESSAGE_COMPONENT':
+				return `Interaction: ${command}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
+					interaction.guildId != undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
+				} => ${interaction.channelIid}, custom_id: "${interaction.data.custom_id}"(${this.AESdecrypt(
 					interaction.data.custom_id
 				)})`;
 		}
@@ -339,15 +338,7 @@ module.exports = function (Discord, client, con) {
 			.setAuthor('Ошибка!', 'https://cdn.discordapp.com/emojis/674326004872904733.gif?v=1')
 			.setDescription(reason);
 
-		client.api.interactions(interaction.id, interaction.token).callback.post({
-			data: {
-				type: 4,
-				data: {
-					embeds: [embed],
-					flags: 64,
-				},
-			},
-		});
+		interaction.reply({ embeds: [embed], ephemeral: true });
 	};
 
 	/**
@@ -357,7 +348,7 @@ module.exports = function (Discord, client, con) {
 	 * @param {boolean} ephemeral
 	 * @param {array} components
 	 */
-	this.replyInteraction = (interaction, embed, ephemeral, components = []) => {
+	this.replyInteraction = (interaction, embed, ephemeral = true, components = [], file) => {
 		if (!interaction.hasOwnProperty('guild_id')) ephemeral = false;
 		client.api.interactions(interaction.id, interaction.token).callback.post({
 			data: {
@@ -366,6 +357,7 @@ module.exports = function (Discord, client, con) {
 					embeds: [embed],
 					flags: ephemeral ? 64 : 0,
 					components: components,
+					file: "https://cdn.discordapp.com/attachments/581070953703014403/872079039941189652/PngItem_5048237.png",
 				},
 			},
 		});

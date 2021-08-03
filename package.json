@@ -15,7 +15,7 @@
   "dependencies": {
     "canvas": "^2.5.0",
     "crypto-js": "^4.0.0",
-    "discord.js": "^12.5.3",
+    "discord.js": "^13.0.0-dev.t1627949059.35fa3b3",
     "gif-encoder": "^0.7.2",
     "moment": "^2.24.0",
     "mysql-utilities": "^1.1.0-alpha.4",

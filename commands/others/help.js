@@ -40,7 +40,7 @@ const { readdirSync, lstatSync } = require('fs'),
 	};
 
 exports.run = (client, interaction) => {
-	if (!interaction.data.hasOwnProperty('options')) {
+	if (!interaction.options.getString('команда')) {
 		let embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setDescription(`Вы можете написать \`/help [название команды]\` чтобы получить подробную информацию!`)
@@ -63,12 +63,12 @@ exports.run = (client, interaction) => {
 				);
 			});
 
-		client.userLib.replyInteraction(interaction, embed, true);
+		// client.userLib.replyInteraction(interaction, embed, true);
+		interaction.reply({ embeds: [embed], ephemeral: true });
 		return;
 	}
 
-	const name = interaction.data.options['команда'].value;
-	const command = client.commands.get(name);
+	const command = client.commands.get(interaction.options.getString('команда'));
 
 	if (!command) {
 		client.userLib.retError(
@@ -83,14 +83,8 @@ exports.run = (client, interaction) => {
 		.setTitle('🔎 Команда: ' + command.help.name);
 
 	if (command.help.description) embed.setDescription(command.help.description);
-	if (command.help.usage.length)
-		embed.addField(
-			'Использование',
-			`/${command.help.name} \`\`${client.userLib.generateUsage(command.help.usage)}\`\``,
-			true
-		);
 	embed.addField('Доступно', tiers[command.help.tier]);
 	embed.addField('Время между использованиями', `Секунд: \`\`${command.help.cooldown || 3}\`\``);
 
-	client.userLib.replyInteraction(interaction, embed, true);
+	interaction.reply({ embeds: [embed], ephemeral: true });
 };
