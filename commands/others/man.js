@@ -111,7 +111,7 @@ exports.run = (client, interaction) => {
 		disabled: page == 0,
 		custom_id: client.userLib.AEScrypt([
 			exports.help.name,
-			client.userLib.getUser(interaction).user.id,
+			client.userLib.getUser(interaction).id,
 			embed.title.split(' ')[2],
 			page,
 			'back',
@@ -132,7 +132,7 @@ exports.run = (client, interaction) => {
 		disabled: page == text.length - 1,
 		custom_id: client.userLib.AEScrypt([
 			exports.help.name,
-			client.userLib.getUser(interaction).user.id,
+			client.userLib.getUser(interaction).id,
 			embed.title.split(' ')[2],
 			page,
 			'next',
