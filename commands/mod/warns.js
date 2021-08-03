@@ -1,29 +1,45 @@
 exports.help = {
 	name: 'warns',
-	description: 'Количество ваших предупреждений',
-	aliases: [],
-	usage: [{ type: 'user', opt: 1 }],
+	description: 'Количество предупреждений',
 	dm: 0,
 	tier: 0,
 	cooldown: 15,
 };
 
-exports.run = async (client, msg) => {
-	let user = msg.magicMention.user || msg.author;
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'пользователь',
+			description: 'пользователь',
+			type: 6,
+		},
+	],
+};
+
+exports.run = async (client, interaction) => {
+	const user = new client.userLib.discord.User(
+		client,
+		interaction.data.hasOwnProperty('resolved')
+			? Object.values(interaction.data.resolved.users)[0]
+			: client.userLib.getUser(interaction).user
+	);
+
 	let warns = await client.userLib.db
 		.promise()
-		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, msg.guild.id]);
+		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, interaction.guild_id]);
 	warns = warns[0];
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
-		.setTitle('Предупреждения ' + user.username)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+		.setAuthor(user.username + '#' + user.discriminator, user.displayAvatarURL())
+		.setTitle('Предупреждения')
+		.setTimestamp();
 
 	let descGenerator = 'Количество предупреждений: **' + warns.length + '**\n\n';
 	for (let warn of warns) descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason}\n`;
 	embed.setDescription(descGenerator);
 
-	msg.channel.send(embed);
+	client.userLib.replyInteraction(interaction, embed);
 };
