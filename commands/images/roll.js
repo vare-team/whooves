@@ -1,35 +1,45 @@
 exports.help = {
 	name: 'roll',
 	description: 'Кручения изображения на 360.',
-	aliases: [],
-	usage: [
-		{ type: 'user', opt: 1 },
-		{ type: 'attach', opt: 1 },
-		{ type: 'text', opt: 1, name: 'left/right' },
-	],
 	dm: 1,
 	tier: 0,
 	cooldown: 10,
 };
 
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'пользователь',
+			description: 'пользователь',
+			type: 6,
+		},
+		{
+			name: 'направление',
+			description: 'Направление вращение',
+			type: 3,
+			choices: [
+				{
+					name: 'Вправо',
+					value: 'right',
+				},
+				{
+					name: 'Влево',
+					value: 'left',
+				},
+			],
+		},
+	],
+};
+
 const GifEncoder = require('gif-encoder');
 const { createWriteStream } = require('fs');
 
-exports.run = async (client, msg, args) => {
-	if (msg.attachments.first() && !msg.attachments.first().width) {
-		client.userLib.retError(msg, 'Файл должен быть изображением.');
-		return;
-	}
-
-	if (msg.attachments.first() && msg.attachments.first().size > 8 * 1024 * 1024) {
-		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
-		return;
-	}
-
-	let use = msg.magicMention.user || msg.author;
-	use = msg.attachments.first()
-		? msg.attachments.first().url
-		: use.displayAvatarURL({ format: 'jpg', dynamic: false, size: 256 });
+exports.run = async (client, interaction) => {
+	let use = interaction.options.getUser('пользователь') || interaction.user;
+	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
+	await interaction.defer();
 
 	const ava = await client.userLib.loadImage(use),
 		canvas = client.userLib.createCanvas(256, 256),
@@ -48,7 +58,7 @@ exports.run = async (client, msg, args) => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.save();
 		ctx.translate(canvas.width / 2, canvas.height / 2);
-		ctx.rotate((frame * (args[args.length - 1] === 'left' ? -10 : 10) * Math.PI) / 180);
+		ctx.rotate((frame * (interaction.options.getString('направление') === 'left' ? -10 : 10) * Math.PI) / 180);
 		ctx.drawImage(ava, -canvas.width / 2, -canvas.width / 2, 256, 256);
 		ctx.globalCompositeOperation = 'destination-in';
 		ctx.beginPath();
@@ -63,15 +73,10 @@ exports.run = async (client, msg, args) => {
 	gif.finish();
 
 	gif.on('end', () => {
-		const embed = new client.userLib.discord.MessageEmbed()
-			.attachFiles({
-				attachment: 'img.gif',
-				name: `img.gif`,
-			})
+		const file = new client.userLib.discord.MessageAttachment('img.gif');
+		let embed = new client.userLib.discord.MessageEmbed()
 			.setImage('attachment://img.gif')
-			.setColor(client.userLib.colors.inf)
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-
-		msg.channel.send(embed);
+			.setColor(client.userLib.colors.inf);
+		interaction.editReply({ embeds: [embed], files: [file] });
 	});
 };
