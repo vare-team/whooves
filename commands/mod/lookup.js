@@ -1,9 +1,42 @@
 exports.help = {
 	name: 'lookup',
-	description: 'Получить информацию о пользователе или приглашении по ID.',
+	description: 'Информация о пользователе, гильдии или приглашении.',
 	dm: 1,
 	tier: 0,
 	cooldown: 5,
+};
+
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'пользователь',
+			description: 'Получить инофрмацию о пользователе',
+			type: 1,
+			options: [
+				{
+					name: 'пользователь',
+					description: 'Пользователь',
+					type: 6,
+					required: true,
+				},
+			],
+		},
+		{
+			name: 'id',
+			description: 'Получить инофрмацию о ID',
+			type: 1,
+			options: [
+				{
+					name: 'id',
+					description: 'ID публичной гильдии, приглашения или пользователя',
+					type: 3,
+					required: true,
+				},
+			],
+		},
+	],
 };
 
 exports.run = async (client, interaction) => {
@@ -29,7 +62,10 @@ exports.run = async (client, interaction) => {
 	switch (object.constructor.name) {
 		case 'ClientUser':
 		case 'User':
-			object.member = await client.guilds.resolve(interaction.guild_id).members.fetch(object.id).catch(() => 0);
+			object.member = await client.guilds
+				.resolve(interaction.guild_id)
+				.members.fetch(object.id)
+				.catch(() => 0);
 			embed
 				.setTitle(object.bot ? 'Бот' : 'Пользователь')
 				.setAuthor(object.tag, object.displayAvatarURL({ dynamic: true }))
