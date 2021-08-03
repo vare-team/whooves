@@ -7,6 +7,18 @@ exports.help = {
 	cooldown: 2,
 };
 
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'команда',
+			description: 'название команды',
+			type: 3,
+		},
+	],
+};
+
 const { readdirSync, lstatSync } = require('fs'),
 	tiers = {
 		'-3': 'Владельцу сервера',
@@ -51,7 +63,7 @@ exports.run = (client, interaction) => {
 				);
 			});
 
-		client.userLib.replyInteraction(interaction, embed);
+		client.userLib.replyInteraction(interaction, embed, true);
 		return;
 	}
 
@@ -80,5 +92,5 @@ exports.run = (client, interaction) => {
 	embed.addField('Доступно', tiers[command.help.tier]);
 	embed.addField('Время между использованиями', `Секунд: \`\`${command.help.cooldown || 3}\`\``);
 
-	client.userLib.replyInteraction(interaction, embed);
+	client.userLib.replyInteraction(interaction, embed, true);
 };
