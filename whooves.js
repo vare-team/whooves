@@ -49,7 +49,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 		case 2:
 			cmd = client.commands.get(interaction.data.name);
 
-			if (cmd.help.hide) return client.userLib.retError(interaction, 'Команда в данный момент отключена!');
+			// if (cmd.help.hide) return client.userLib.retError(interaction, 'Команда в данный момент отключена!');
 
 			if (!interaction.hasOwnProperty('guild_id') && !cmd.help.dm) {
 				client.userLib.retError(interaction, 'Команда не доступна для использования в ЛС.');
