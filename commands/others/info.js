@@ -1,22 +1,25 @@
 exports.help = {
 	name: 'info',
 	description: 'Информация о боте',
-	aliases: ['i', 'invite'],
-	usage: [],
 	dm: 1,
 	tier: 0,
 	cooldown: 5,
 };
 
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [],
+};
+
 const { uptime } = require('os'),
 	{ version } = require('../../package');
 
-exports.run = async (client, msg) => {
+exports.run = async (client, interaction) => {
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setAuthor(client.user.username + ' - информация о боте', client.user.displayAvatarURL())
 		.setColor(client.userLib.colors.inf)
 		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 		.setTitle('Техническая информация')
 		.setDescription(
 			`\`\`\`asciidoc\n
@@ -51,18 +54,16 @@ exports.run = async (client, msg) => {
 			true
 		);
 
-	if (msg.flags.prefix != 'w.') embed.addField('Префикс сервера', `**${msg.flags.prefix}**`, true);
-
 	embed.addField(
 		'Ссылки',
 		`[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Сервер](https://discord.gg/8KKVhTU)`,
 		true
 	);
 
-	if (msg.channel.type !== 'dm') {
+	if (interaction.hasOwnProperty('guild_id')) {
 		let data = await client.userLib.db
 			.promise()
-			.query('SELECT logchannel, settings FROM guilds WHERE guildId = ?', [msg.guild.id]);
+			.query('SELECT logchannel, settings FROM guilds WHERE guildId = ?', [interaction.guild_id]);
 		data = data[0][0];
 		embed.addField(
 			'Настройки',
@@ -77,5 +78,5 @@ exports.run = async (client, msg) => {
 		);
 	}
 
-	msg.channel.send(embed);
+	client.userLib.replyInteraction(interaction, embed, false);
 };
