@@ -158,7 +158,6 @@ module.exports = function (Discord, client, con) {
 		hide: 0,
 		interactions: 0,
 	};
-
 	/**
 	 * @function
 	 * @param {Object} interaction
@@ -234,11 +233,11 @@ module.exports = function (Discord, client, con) {
 				} => #${interaction.channel_id}`;
 
 			case 3:
-				return `Interaction: ${command}, By: @${user.username}#${user.discriminator}(${
-					user.id
-				}), ${interaction.guild_id != undefined ? `Guild ID: ${interaction.guild_id}` : 'DM'} => ${interaction.channel_id}, custom_id: "${
+				return `Interaction: ${command}, By: @${user.username}#${user.discriminator}(${user.id}), ${
+					interaction.guild_id != undefined ? `Guild ID: ${interaction.guild_id}` : 'DM'
+				} => ${interaction.channel_id}, custom_id: "${interaction.data.custom_id}"(${this.AESdecrypt(
 					interaction.data.custom_id
-				}"(${this.AESdecrypt(interaction.data.custom_id)})`;
+				)})`;
 		}
 	};
 
@@ -356,14 +355,17 @@ module.exports = function (Discord, client, con) {
 	 * @param interaction
 	 * @param embed
 	 * @param {boolean} ephemeral
+	 * @param {array} components
 	 */
-	this.replyInteraction = (interaction, embed, ephemeral = true) => {
+	this.replyInteraction = (interaction, embed, ephemeral, components = []) => {
+		if (!interaction.hasOwnProperty('guild_id')) ephemeral = false;
 		client.api.interactions(interaction.id, interaction.token).callback.post({
 			data: {
 				type: 4,
 				data: {
 					embeds: [embed],
 					flags: ephemeral ? 64 : 0,
+					components: components,
 				},
 			},
 		});
@@ -376,7 +378,7 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.getUser = interaction => {
 		if (interaction.hasOwnProperty('user')) return interaction.user;
-		else if (interaction.hasOwnProperty('member')) return interaction.member;
+		else if (interaction.hasOwnProperty('member')) return interaction.member.user;
 		else return { id: '000000000000000000', username: 'Undefined', discriminator: '0000' };
 	};
 
