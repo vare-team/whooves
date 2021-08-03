@@ -1,15 +1,51 @@
 exports.help = {
 	name: 'man',
 	description: 'Различные важные документы.',
-	aliases: ['m', 'doc'],
-	usage: [
-		{ type: 'text', opt: 0, name: '"ls"/имя документа' },
-		{ type: 'text', opt: 1, name: 'en/ru' },
-	],
 	dm: 1,
 	tier: 0,
 	cooldown: 5,
 	interactions: 1,
+};
+
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'все',
+			description: 'Список всех документов',
+			type: 1,
+		},
+		{
+			name: 'документ',
+			description: 'Вывести документ',
+			type: 1,
+			options: [
+				{
+					name: 'название',
+					description: 'Название документа',
+					type: 3,
+					required: true,
+				},
+				{
+					name: 'язык',
+					description: 'Язык документа',
+					type: 3,
+					required: false,
+					choices: [
+						{
+							name: 'Русский',
+							value: 'ru',
+						},
+						{
+							name: 'Английский',
+							value: 'en',
+						},
+					],
+				},
+			],
+		},
+	],
 };
 
 const { readdir } = require('fs'),
@@ -31,49 +67,41 @@ readdir('./docs/', (err, files) => {
 });
 //PARSE DOCS
 
-exports.run = (client, msg, args) => {
-	if (!['en', 'ru'].includes(args[1])) args[1] = '';
-
-	if (args[0] != 'ls' && !docs[args[0]]) {
-		client.userLib.retError(msg, 'Документ не найден.');
-		return;
-	}
-
-	if (args[0] == 'ls') {
+exports.run = (client, interaction) => {
+	if (interaction.data.options.hasOwnProperty('все')) {
 		let embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setTitle(':paperclip: Список документов:')
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 			.setDescription(
 				Object.keys(docs).reduce((pr, cr, ind) => (pr += `\`\`${ind + 1}.:\`\` ${cr}\n${docs[cr].description}\n\n`), '')
 			);
-		msg.channel.send(embed);
-		return;
+		return client.userLib.replyInteraction(interaction, embed);
 	}
 
-	let doc = docs[args[0]];
+	if (!docs[interaction.data.options['документ'].options[0].value])
+		return client.userLib.retError(interaction, 'Документ не найден.');
+	let docLang = interaction.data.options['документ'].options[1]
+		? interaction.data.options['документ'].options[1].value
+		: 'ru';
+
+	let doc = docs[interaction.data.options['документ'].options[0].value];
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
-		.setTitle(':mag_right: Документ: ' + args[0])
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+		.setTitle(':mag_right: Документ: ' + interaction.data.options['документ'].options[0].value)
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
-	let text = doc.text[args[1]] ? doc.text[args[1]] : Object.values(doc.text)[0],
+	let text = doc.text[docLang] ? doc.text[docLang] : Object.values(doc.text)[0],
 		page = 0,
-		message = new client.userLib.discord.APIMessage(msg.author, {}),
 		components = [];
-
-	if (!msg.author.id || !embed || !msg.channel) return;
 
 	if (typeof text == 'string' && text.length < 2048) {
 		embed.setDescription(text);
-		msg.channel.send(embed);
+		client.userLib.replyInteraction(interaction, embed);
 		return;
 	}
 	if (typeof text == 'string') {
 		text = text.match(/[\s\S]{1,2048}/g);
 	}
-
 	embed.setDescription(text[page]);
 
 	components.push({
@@ -83,11 +111,11 @@ exports.run = (client, msg, args) => {
 		disabled: page == 0,
 		custom_id: client.userLib.AEScrypt([
 			exports.help.name,
-			msg.author.id,
+			client.userLib.getUser(interaction).user.id,
 			embed.title.split(' ')[2],
 			page,
 			'back',
-			args[1],
+			docLang,
 		]),
 	});
 	components.push({
@@ -104,40 +132,29 @@ exports.run = (client, msg, args) => {
 		disabled: page == text.length - 1,
 		custom_id: client.userLib.AEScrypt([
 			exports.help.name,
-			msg.author.id,
+			client.userLib.getUser(interaction).user.id,
 			embed.title.split(' ')[2],
 			page,
 			'next',
-			args[1],
+			docLang,
 		]),
 	});
-
-	message.data = {
-		embed: embed,
-		components: [
-			{
-				type: 1,
-				components: components,
-			},
-		],
-	};
-
-	msg.channel.send(message);
+	client.userLib.replyInteraction(interaction, embed, true, [{ type: 1, components: components }]);
 };
 
 exports.interaction = async (client, interaction, args) => {
-	let oldEmbed = interaction.message.embeds[0],
-		components = [],
+	let components = [],
 		page = +args[3],
 		text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0];
-
-	if (!oldEmbed) return;
+	let embed = new client.userLib.discord.MessageEmbed()
+		.setColor(client.userLib.colors.inf)
+		.setTitle(':mag_right: Документ: ' + args[2]);
 
 	page = args[4] === 'next' ? page + 1 : page - 1;
 
 	text = text.match(/[\s\S]{1,2048}/g);
 
-	oldEmbed.description = text[page];
+	embed.description = text[page];
 
 	components.push({
 		type: 2,
@@ -165,7 +182,7 @@ exports.interaction = async (client, interaction, args) => {
 		data: {
 			type: 7,
 			data: {
-				embeds: [oldEmbed],
+				embeds: [embed],
 				components: [
 					{
 						type: 1,
