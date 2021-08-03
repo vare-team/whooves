@@ -1,19 +1,29 @@
 exports.help = {
 	name: 'avatar',
 	description: 'Ссылка на аватара пользователя',
-	aliases: ['a'],
-	usage: [{ type: 'user', opt: 1 }],
 	dm: 1,
 	tier: 0,
 	cooldown: 1,
 };
 
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'пользователь',
+			description: 'пользователь',
+			type: 6,
+		},
+	],
+};
+
 exports.run = (client, interaction) => {
-	let user = new client.userLib.discord.User(
+	const user = new client.userLib.discord.User(
 		client,
 		interaction.data.hasOwnProperty('resolved')
 			? Object.values(interaction.data.resolved.users)[0]
-			: client.userLib.getUser(interaction).user
+			: client.userLib.getUser(interaction)
 	);
 
 	let embed = new client.userLib.discord.MessageEmbed()
