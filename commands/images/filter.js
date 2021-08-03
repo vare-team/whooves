@@ -1,68 +1,85 @@
 exports.help = {
 	name: 'filter',
-	description:
-		'Применить фильтр\n``1 - Инверсия\n2 - Чёрно-белое\n3 - Сепия\n4 - Контраст\n5 - Искажение\n6 - Глитч Эффект\n7 - Харчок?``',
-	aliases: ['f'],
-	usage: [
-		{ type: 'text', opt: 0, name: '1-7' },
-		{ type: 'user', opt: 1 },
-		{ type: 'attach', opt: 1 },
-	],
+	description: 'Применить фильтр к аватарке',
 	dm: 1,
 	tier: 0,
 	cooldown: 10,
+};
+
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'фильтр',
+			description: 'Фильтр для обработки',
+			type: 3,
+			required: true,
+			choices: [
+				{
+					name: 'Инверсия',
+					value: 'invert',
+				},
+				{
+					name: 'Чёрно-белое',
+					value: 'bw',
+				},
+				{
+					name: 'Сепия',
+					value: 'sepia',
+				},
+				{
+					name: 'Повышенный контраст',
+					value: 'contrast',
+				},
+				{
+					name: 'Искажения',
+					value: 'distortion',
+				},
+				{
+					name: 'Глитч',
+					value: 'glitch',
+				},
+			],
+		},
+		{
+			name: 'пользователь',
+			description: 'Выбрать аватар пользователя',
+			type: 6,
+		},
+	],
 };
 
 String.prototype.replaceAt = function (index, replacement) {
 	return this.substr(0, index) + replacement + this.substr(index + replacement.length);
 };
 
-exports.run = async (client, msg, args) => {
-	if (['1', '2', '3', '4', '5', '6', '7'].indexOf(args[0]) == -1) {
-		client.userLib.retError(
-			msg,
-			'Неправильно указан номер фильтра.\n' + client.userLib.generateUsage(exports.help.usage)
-		);
-		return;
-	}
-
-	if (msg.attachments.first() && !msg.attachments.first().width) {
-		client.userLib.retError(msg, 'Файл должен быть изображением.');
-		return;
-	}
-
-	if (msg.attachments.first() && msg.attachments.first().size > 8 * 1024 * 1024) {
-		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
-		return;
-	}
-
-	let use = msg.magicMention.user || msg.author;
-	use = msg.attachments.first()
-		? msg.attachments.first().url
-		: use.displayAvatarURL({ format: 'png', dynamic: false, size: 512 });
-
+exports.run = async (client, interaction) => {
+	let use = interaction.options.getUser('пользователь') || interaction.user;
+	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 512 });
+	await interaction.defer();
 	const ava = await client.userLib.loadImage(use),
 		canvas = client.userLib.createCanvas(ava.width, ava.height),
 		ctx = canvas.getContext('2d');
 	ctx.drawImage(ava, 0, 0, ava.width, ava.height);
 
-	switch (args[0]) {
-		case '1':
+	switch (interaction.options.getString('фильтр')) {
+		case 'invert':
 			invert(ctx, 0, 0, ava.width, ava.height);
 			break;
-		case '2':
+		case 'bw':
 			greyscale(ctx, 0, 0, ava.width, ava.height);
 			break;
-		case '3':
+		case 'sepia':
 			sepia(ctx, 0, 0, ava.width, ava.height);
 			break;
-		case '4':
+		case 'contrast':
 			contrast(ctx, 0, 0, ava.width, ava.height);
 			break;
-		case '5':
+		case 'distortion':
 			distort(ctx, 0, 0, ava.width, ava.height);
 			break;
-		case '6':
+		case 'glitch':
 			ava.src = canvas.toDataURL('image/jpeg');
 			for (let i = 0; i < 5; i++)
 				ava.src = ava.src.replaceAt(client.userLib.randomIntInc(50, ava.src.length - 50), '0');
@@ -70,29 +87,20 @@ exports.run = async (client, msg, args) => {
 				ctx.drawImage(ava, 0, 0);
 			} catch (e) {
 				client.userLib.retError(
-					msg,
+					interaction,
 					'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.'
 				);
 				return;
 			}
 			break;
-		case '7':
-			greyscale(ctx, 0, 0, ava.width, ava.height);
-			ctx.drawImage(await client.userLib.loadImage('./images/plevok.png'), 0, 0, ava.width, ava.height);
-			break;
 	}
 
+	const file = new client.userLib.discord.MessageAttachment(canvas.toBuffer(), 'filter.jpeg');
 	let embed = new client.userLib.discord.MessageEmbed()
-		.attachFiles({
-			attachment: canvas.toBuffer(),
-			name: `filter.jpeg`,
-		})
 		.setImage('attachment://filter.jpeg')
 		.setColor(client.userLib.colors.inf)
-		.setTitle('Фильтр: ' + args[0])
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-
-	msg.channel.send(embed);
+		.setDescription('Фильтр: ' + interaction.options.getString('фильтр'));
+	interaction.editReply({ embeds: [embed], files: [file] });
 };
 
 function greyscale(ctx, x, y, width, height) {
