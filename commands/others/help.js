@@ -37,6 +37,7 @@ const { readdirSync, lstatSync } = require('fs'),
 		social: 'Социальные',
 		others: 'Остальные',
 		images: 'Работа с изображениями',
+		context: 'Контекстные команды',
 	};
 
 exports.run = (client, interaction) => {
@@ -53,22 +54,24 @@ exports.run = (client, interaction) => {
 					el !== 'dev' || (el === 'dev' && client.userLib.admins.hasOwnProperty(client.userLib.getUser(interaction).id))
 			)
 			.filter(el => client.commands.filter(cmd => cmd.help.module === el).size)
-			.forEach((el, index) => {
+			.forEach((el) => {
 				embed.addField(
-					`${index + 1}. ${modules[el] ? modules[el] : el}`,
+					`${modules[el] ? modules[el] : el}`,
 					client.commands
 						.filter(cmd => cmd.help.module === el)
-						.map(cmd => `\`${cmd.help.name}\``)
-						.join(', ')
+						.map(
+							cmd =>
+								`\`${cmd.help.module !== 'context' ? '/' : ''}${cmd.help.name}\` — ${
+									cmd.help.description.split('\n')[0]
+								}`
+						)
+						.join('\n')
 				);
 			});
-
-		// client.userLib.replyInteraction(interaction, embed, true);
-		interaction.reply({ embeds: [embed], ephemeral: true });
-		return;
+		return interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 
-	const command = client.commands.get(interaction.options.getString('команда'));
+	const command = client.commands.get(interaction.options.getString('команда').toLowerCase());
 
 	if (!command) {
 		client.userLib.retError(
@@ -80,11 +83,14 @@ exports.run = (client, interaction) => {
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
-		.setTitle('🔎 Команда: ' + command.help.name);
+		.setTitle(
+			command.help.module === 'context' ? '🖱️ Опция: ' + command.help.name : '🔎 Команда: ' + command.help.name
+		);
 
 	if (command.help.description) embed.setDescription(command.help.description);
-	embed.addField('Доступно', tiers[command.help.tier]);
-	embed.addField('Время между использованиями', `Секунд: \`\`${command.help.cooldown || 3}\`\``);
+	if (command.help.tier) embed.addField('Доступно', tiers[command.help.tier]);
+	if (command.help.cooldown)
+		embed.addField('Время между использованиями', `Секунд: \`\`${command.help.cooldown || 3}\`\``);
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
 };
