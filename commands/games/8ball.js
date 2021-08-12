@@ -1,11 +1,21 @@
 exports.help = {
 	name: '8ball',
 	description: 'Задайте магическому шару вопрос и он на него ответит!',
-	aliases: ['ball', 'bl', '8'],
-	usage: [{ type: 'text', opt: 0, name: 'вопрос', maxLength: 100 }],
-	dm: 1,
 	tier: 0,
 	cooldown: 5,
+};
+
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'вопрос',
+			description: 'Вопрос, на который вы хотите получить ответ.',
+			type: 3,
+			required: true,
+		},
+	],
 };
 
 const answers = [
@@ -33,27 +43,26 @@ const answers = [
 
 //TODO добавить больше вопрос/ответ
 const questions = {
-	доктор: 'Доктор Кто',
-	'имя доктора': 'Whooves',
-	'': '',
+	'доктор?': 'Доктор Кто',
+	'имя доктора?': 'Whooves',
+	'когда в3?': 'Завтра',
+	'когда v3?': 'Завтра',
 };
 
-exports.run = (client, msg, args) => {
-	if (exports.help.usage[0].maxLength < args.join(' ').length)
-		return client.userLib.retError(
-			msg,
-			`Количество символов в вопросе не должно превышать **${exports.help.usage[0].maxLength}** символов!`
-		);
+exports.run = (client, interaction) => {
+	if (100 < interaction.options.getString('вопрос').length)
+		return client.userLib.retError(interaction, `Количество символов в вопросе не должно превышать **50** символов!`);
+	if (interaction.options.getString('вопрос').trim()[interaction.options.getString('вопрос').length - 1] !== '?')
+		return client.userLib.retError(interaction, `Вопрос должен оканчиваться знаком вопроса.`);
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle('Магический шар')
-		.addField('Твой вопрос', `\`\`${args.join(' ')}\`\``)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+		.addField('Твой вопрос', `\`\`${interaction.options.getString('вопрос')}\`\``);
 
-	if (questions.hasOwnProperty(args.join(' ').toLowerCase()))
-		embed.addField('Ответ шара', `\`\`${questions[args.join(' ').toLowerCase()]}\`\``);
+	if (questions.hasOwnProperty(interaction.options.getString('вопрос').toLowerCase()))
+		embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``);
 	else embed.addField('Ответ шара', `\`\`${answers[client.userLib.randomIntInc(0, answers.length - 1)]}\`\``);
 
-	msg.channel.send(embed);
+	interaction.reply({ embeds: [embed], ephemeral: false });
 };
