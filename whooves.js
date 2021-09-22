@@ -54,10 +54,8 @@ readdir('./commands/', (error, directories) => {
 					.forEach(file => {
 						try {
 							const props = require(`./commands/${module}/${file}`);
-							if (!props.help.hide) {
-								props.help.module = module;
-								client.commands.set(file.split('.')[0], props);
-							}
+							props.help.module = module;
+							client.commands.set(props.help.name, props);
 							client.userLib.sendLog(`[COMMAND] "${module}/${file}" loaded.`, 'START');
 						} catch (e) {
 							console.warn(e);
