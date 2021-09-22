@@ -57,7 +57,7 @@ String.prototype.replaceAt = function (index, replacement) {
 exports.run = async (client, interaction) => {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 512 });
-	await interaction.defer();
+	await interaction.deferReply();
 	const ava = await client.userLib.loadImage(use),
 		canvas = client.userLib.createCanvas(ava.width, ava.height),
 		ctx = canvas.getContext('2d');
@@ -100,6 +100,7 @@ exports.run = async (client, interaction) => {
 		.setImage('attachment://filter.jpeg')
 		.setColor(client.userLib.colors.inf)
 		.setDescription('Фильтр: ' + interaction.options.getString('фильтр'));
+
 	interaction.editReply({ embeds: [embed], files: [file] });
 };
 

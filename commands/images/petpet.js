@@ -24,12 +24,13 @@ const { createWriteStream } = require('fs');
 exports.run = async (client, interaction) => {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
-	await interaction.defer();
+
+	await interaction.deferReply();
 
 	const ava = await client.userLib.loadImage(use),
 		canvas = client.userLib.createCanvas(256, 256),
-		ctx = canvas.getContext('2d');
-	const hand = await client.userLib.loadImage('./images/hand.png');
+		ctx = canvas.getContext('2d'),
+		hand = await client.userLib.loadImage('./assets/hand.png');
 
 	const gif = new GifEncoder(256, 256, { highWaterMark: 8 * 1024 * 1024 });
 	gif.setFrameRate(16);

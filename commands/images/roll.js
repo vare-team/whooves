@@ -39,7 +39,7 @@ const { createWriteStream } = require('fs');
 exports.run = async (client, interaction) => {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
-	await interaction.defer();
+	await interaction.deferReply();
 
 	const ava = await client.userLib.loadImage(use),
 		canvas = client.userLib.createCanvas(256, 256),

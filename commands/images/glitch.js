@@ -53,7 +53,7 @@ exports.run = async (client, interaction) => {
 	let size = interaction.options.getInteger('качество') ? interaction.options.getInteger('качество') : 128;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: size });
 
-	await interaction.defer();
+	await interaction.deferReply();
 
 	const ava = await client.userLib.loadImage(use),
 		canvas = client.userLib.createCanvas(size, size),
