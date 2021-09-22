@@ -11,46 +11,64 @@ exports.help = {
 	cooldown: 5,
 };
 
-exports.run = (client, msg, args) => {
-	if (args.slice(1).join(' ').length > 300) {
-		client.userLib.retError(msg, 'Причина не может содержать в себе более 300 символов!');
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'участник',
+			description: 'Участник сервера',
+			type: 6,
+			required: true,
+		},
+		{
+			name: 'причина',
+			description: 'Причина выдачи предупреждения',
+			type: 3,
+		},
+	],
+	default_permission: false
+};
+
+exports.run = async (client, interaction) => {
+	if (interaction.options.getString("причина") && interaction.options.getString("причина").length > 300) {
+		client.userLib.retError(interaction, 'Причина не может содержать в себе более 300 символов!');
 		return;
 	}
 
-	client.userLib.db.insert(
-		'warns',
-		{
-			userId: msg.magicMention.id,
-			guildId: msg.guild.id,
-			who: msg.author.id,
-			reason: args.slice(1).join(' '),
-		},
-		(err, id) => {
-			client.userLib.db.query(
-				'SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?',
-				[msg.magicMention.id, msg.guild.id],
-				(err, count) => {
-					let embed = new client.userLib.discord.MessageEmbed()
-						.setColor(client.userLib.colors.war)
-						.setTitle(`${msg.magicMention.user.tag} выдано предупреждение!`)
-						.setDescription(
-							`Причина: **${
-								args.slice(1).join(' ') ? args.slice(1).join(' ') : 'Не указана'
-							}**\nВсего предупреждений: **${count[0]['COUNT(*)']}**\nID предупреждения: **${id}**`
-						)
-						.setTimestamp()
-						.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+	const wUser = interaction.options.getUser("участник"),
+				warn = await client.userLib.promise(client.userLib.db, client.userLib.db.insert,
+					'warns',
+						{
+							userId: wUser.id,
+							guildId: interaction.guildId,
+							who: interaction.user.id,
+							reason: interaction.options.getString("причина"),
+						}
+					),
+				warnInfo = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue,
+						'SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?',
+						[
+							wUser.id,
+							interaction.guildId
+						]
+					);
 
-					msg.channel.send(embed);
-					client.userLib.sendLogChannel('commandUse', msg.guild, {
-						user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() },
-						channel: { id: msg.channel.id },
-						content: `выдача предупреждения (ID: ${id}) ${msg.magicMention.user} по причине: ${args
-							.slice(1)
-							.join(' ')}`,
-					});
-				}
-			);
-		}
-	);
+	let embed = new client.userLib.discord.MessageEmbed()
+		.setColor(client.userLib.colors.war)
+		.setTitle(`${wUser.tag} выдано предупреждение!`)
+		.setDescription(
+			`Причина: **${
+				interaction.options.getString("причина") ?? 'Не указана'
+			}**\nВсего предупреждений: **${warnInfo.res}**\nID предупреждения: **${warn.res}**`
+		)
+		.setTimestamp();
+
+	interaction.reply({ embeds: [embed] });
+
+	await client.userLib.sendLogChannel('commandUse', interaction.guild, {
+		user: { tag: interaction.user.tag, id: interaction.user.id},
+		channel: { id: interaction.channelId },
+		content: `выдача предупреждения (ID: ${warn.res}) ${wUser.id} по причине: ${interaction.options.getString("причина") ?? 'Не указана'}`,
+	});
 };
