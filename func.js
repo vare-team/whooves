@@ -1,4 +1,4 @@
-const schedule = require('../SDCBotsModules/schedule');
+const schedule = require('./utils/schedule');
 
 /**
  * Generate userLib.
@@ -83,7 +83,7 @@ module.exports = function (Discord, client, con) {
 
 	this.cooldown = new Map();
 
-	this.promise = require('../SDCBotsModules/promise');
+	this.promise = require('./utils/promise');
 	this.sc = new schedule(this.sendLog);
 
 	const { registerFont, createCanvas, loadImage } = require('canvas');
