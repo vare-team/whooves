@@ -19,7 +19,6 @@ exports.command = {
 };
 
 const GifEncoder = require('gif-encoder');
-const { createWriteStream } = require('fs');
 
 exports.run = async (client, interaction) => {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
@@ -37,8 +36,6 @@ exports.run = async (client, interaction) => {
 	gif.setQuality(20);
 	gif.setRepeat(0);
 	gif.setTransparent(0x000000);
-
-	gif.pipe(createWriteStream('img.gif'));
 
 	gif.writeHeader();
 
@@ -69,11 +66,9 @@ exports.run = async (client, interaction) => {
 
 	gif.finish();
 
-	gif.on('end', () => {
-		const file = new client.userLib.discord.MessageAttachment('img.gif');
-		let embed = new client.userLib.discord.MessageEmbed()
-			.setImage('attachment://img.gif')
-			.setColor(client.userLib.colors.inf);
-		interaction.editReply({ embeds: [embed], files: [file] });
-	});
+	const file = new client.userLib.discord.MessageAttachment(gif.read(), 'img.gif');
+	let embed = new client.userLib.discord.MessageEmbed()
+		.setImage('attachment://img.gif')
+		.setColor(client.userLib.colors.inf);
+	interaction.editReply({ embeds: [embed], files: [file] });
 };
