@@ -1,10 +1,6 @@
 exports.help = {
 	name: 'color',
-	description: 'Ифнормация о цвете',
-	usage: [{ type: 'text', opt: 0, name: '#HEX' }],
-	dm: 1,
-	tier: 0,
-	cooldown: 5,
+	description: 'Конвертор 16-ричного цвета',
 };
 
 exports.command = {
@@ -21,42 +17,92 @@ exports.command = {
 };
 
 exports.run = async (client, interaction) => {
-	let embed = new client.userLib.discord.MessageEmbed();
-
-	if (!/(#|)[0-9A-Fa-f]{6}/g.test(interaction.data.options['цвет'].value)) {
+	if (!/(#|)[0-9A-Fa-f]{6}/g.test(interaction.options.getString('цвет'))) {
 		client.userLib.retError(interaction, 'Вы указали некорректный цвет!');
 		return;
 	}
 
-	let color = parseInt(interaction.data.options['цвет'].value.replace('#', ''), 16);
+	let color = interaction.options.getString('цвет').replace('#', '');
 
-	if (!color || 16777215 < color || 0 > color) {
-		client.userLib.retError(interaction, 'Вы указали некорректный цвет!');
-		return;
-	}
+	const rgb = hexToRgb(color),
+		cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b),
+		hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
-	let body = await client.userLib.request(
-		'https://www.thecolorapi.com/id?hex=' + interaction.data.options['цвет'].value.replace('#', ''),
-		{
-			json: true,
-		}
-	);
-
-	if (!body || !body.name || !body.name.value) return client.userLib.retError(interaction, 'Ошибка API.');
-	if (body.code === 400) return client.userLib.retError(interaction, 'Ошибка распознования цвета.');
-
-	embed
+	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(color)
-		.setTitle('Цвет ' + body.name.value)
-		.addField('RGB', `Red: **${body.rgb.r}**\nGreen: **${body.rgb.g}**\nBlued: **${body.rgb.b}**\n`, true)
-		.addField('HSV', `Hue: **${body.hsv.h}**\nSaturation: **${body.hsv.s}**\nValue: **${body.hsv.v}**\n`, true)
-		.addField('HSL', `Hue: **${body.hsl.h}**\nSaturation: **${body.hsl.s}**\nLightness: **${body.hsl.l}**\n`, true)
-		.addField(
-			'CMYK',
-			`Cyan: **${body.cmyk.c}**\nMagenta: **${body.cmyk.m}**\nYellow: **${body.cmyk.y}**\nBlack: **${body.cmyk.k}**\n`,
-			true
-		)
-		.addField('Util', `${body.rgb.value}\n${body.hsv.value}\n${body.hsl.value}\n${body.cmyk.value}`, true);
+		.setTitle(`Цвет #${color.toUpperCase()}`)
+		.setDescription(`Контрастный цвет: \`\`${contrastYiq(rgb.r, rgb.g, rgb.b) ? 'Белый' : 'Чёрный'}\`\``)
+		.addField('RGB:', `\`\`\`Red:   ${rgb.r}\nGreen: ${rgb.g}\nBlue:  ${rgb.b}\n\`\`\`\`\`\`\nrgb(${rgb.r}, ${rgb.g}, ${rgb.b})\`\`\``, true)
+		.addField('HSL:', `\`\`\`Hue:        ${hsl.h}\nSaturation: ${hsl.s}%\nLightness:  ${hsl.l}%\n\`\`\`\`\`\`\nhsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)\`\`\``, true)
+		.addField('CMYK:', `\`\`\`Cyan:    ${cmyk.c}%\nMagenta: ${cmyk.m}%\nYellow:  ${cmyk.y}%\nBlack:   ${cmyk.k}%\n\`\`\``, false)
+		.setImage(`https://singlecolorimage.com/get/${color}/280x80`)
 
 	client.userLib.replyInteraction(interaction, embed);
 };
+
+function hexToRgb(hex) {
+	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	return result ? {
+		r: parseInt(result[1], 16),
+		g: parseInt(result[2], 16),
+		b: parseInt(result[3], 16)
+	} : null;
+}
+
+function rgbToCmyk (r, g, b) {
+	let computedC = 0,
+		computedM = 0,
+		computedY = 0,
+		computedK = 0;
+
+	if (!r && !g && !b) {
+		return {c: 0,m: 0,y: 0,k: 100};
+	}
+
+	computedC = 1 - (r/255);
+	computedM = 1 - (g/255);
+	computedY = 1 - (b/255);
+
+	let minCMY = Math.min(computedC, Math.min(computedM,computedY));
+	computedC = Math.round((computedC - minCMY) / (1 - minCMY) * 100) ;
+	computedM = Math.round((computedM - minCMY) / (1 - minCMY) * 100) ;
+	computedY = Math.round((computedY - minCMY) / (1 - minCMY) * 100 );
+	computedK = Math.round(minCMY * 100);
+
+	return {c: computedC,m: computedM,y: computedY,k: computedK};
+}
+
+function contrastYiq(r, g, b) {
+	const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+	return yiq >= 128 ? 0 : 1;
+}
+
+function rgbToHsl(r, g, b) {
+	r /= 255;
+	g /= 255;
+	b /= 255;
+
+	let cmin = Math.min(r,g,b),
+		cmax = Math.max(r,g,b),
+		delta = cmax - cmin,
+		h = 0,
+		s = 0,
+		l = 0;
+
+	if (!delta) h = 0;
+	else if (cmax === r) h = ((g - b) / delta) % 6;
+	else if (cmax === g) h = (b - r) / delta + 2;
+	else h = (r - g) / delta + 4;
+
+	h = Math.round(h * 60);
+
+	if (h < 0) h += 360;
+	l = (cmax + cmin) / 2;
+
+	s = !delta ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+	s = +(s * 100).toFixed(1);
+	l = +(l * 100).toFixed(1);
+
+	return { h: Math.round(h), s: Math.round(s), l: Math.round(l) };
+}
