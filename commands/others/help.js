@@ -1,10 +1,6 @@
 exports.help = {
 	name: 'help',
 	description: 'Лист команд, позволяет узнать более подробную информацию о каждой команде.',
-	usage: [{ type: 'text', opt: 1, name: 'название команды' }],
-	dm: 1,
-	tier: 0,
-	cooldown: 2,
 };
 
 exports.command = {
@@ -88,9 +84,7 @@ exports.run = (client, interaction) => {
 		);
 
 	if (command.help.description) embed.setDescription(command.help.description);
-	if (command.help.tier) embed.addField('Доступно', tiers[command.help.tier]);
-	if (command.help.cooldown)
-		embed.addField('Время между использованиями', `Секунд: \`\`${command.help.cooldown || 3}\`\``);
+	embed.addField('Использование', command.help.onlyGuild ? 'Только для гильдий' : 'ЛС И Гильдия')
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
 };

@@ -55,7 +55,8 @@ readdir('./commands/', (error, directories) => {
 						try {
 							const props = require(`./commands/${module}/${file}`);
 							props.help.module = module;
-							client.commands.set(props.help.name, props);
+							if (module === 'mod') props.help.onlyGuild = props.help.onlyGuild ?? true;
+							client.commands.set(props.help.name.toLowerCase(), props);
 							client.userLib.sendLog(`[COMMAND] "${module}/${file}" loaded.`, 'START');
 						} catch (e) {
 							console.warn(e);
