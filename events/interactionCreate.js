@@ -9,9 +9,7 @@ module.exports = async (client, interaction) => {
 			if (!interaction.isCommand()) return;
 			cmd = client.commands.get(interaction.commandName);
 
-			// if (cmd.help.hide) return client.userLib.retError(interaction, 'Команда в данный момент отключена!');
-
-			if (!interaction.guildId && !cmd.help.dm) {
+			if (cmd.help.onlyGuild && !interaction.inGuild()) {
 				client.userLib.retError(interaction, 'Команда не доступна для использования в ЛС.');
 				return;
 			}
