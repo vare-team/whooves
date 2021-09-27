@@ -1,9 +1,6 @@
 exports.help = {
 	name: 'warns',
 	description: 'Количество предупреждений',
-	dm: 0,
-	tier: 0,
-	cooldown: 15,
 };
 
 exports.command = {
