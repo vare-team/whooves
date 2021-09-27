@@ -14,15 +14,15 @@ exports.command = {
 			name: 'команда',
 			description: 'название команды',
 			type: 3,
-			required: true,
+			required: true
 		},
 	],
 };
 
 exports.run = async (client, interaction) => {
 	const APILinks = {
-		devGuild: 'https://discord.com/api/v8/applications/662302431282987009/guilds/581070953703014401/commands',
-		release: `https://discord.com/api/v8/applications/${client.user.id}/commands/`,
+		devGuild: 'https://discord.com/api/v9/applications/662302431282987009/guilds/581070953703014401/commands',
+		release: `https://discord.com/api/v9/applications/${client.user.id}/commands/`,
 	};
 
 	let embed = new client.userLib.discord.MessageEmbed().setTimestamp();
