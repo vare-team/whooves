@@ -30,7 +30,7 @@ exports.run = async (client, interaction) => {
 		.setTimestamp();
 
 	let descGenerator = 'Количество предупреждений: **' + warns.length + '**\n\n';
-	for (let warn of warns) descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason}\n`;
+	for (let warn of warns) descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason ?? 'Не указана'}\n`;
 	embed.setDescription(descGenerator);
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
