@@ -5,13 +5,13 @@
   "main": "shard.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MegaVasiliy007/whooves.git"
+    "url": "git+https://github.com/vare-team/whooves.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MegaVasiliy007/whooves/issues"
+    "url": "https://github.com/vare-team/whooves/issues"
   },
-  "homepage": "https://github.com/MegaVasiliy007/whooves#readme",
+  "homepage": "https://github.com/vare-team/whooves#readme",
   "dependencies": {
     "canvas": "^2.5.0",
     "crypto-js": "^4.0.0",
