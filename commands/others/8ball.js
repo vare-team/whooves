@@ -1,8 +1,6 @@
 exports.help = {
 	name: '8ball',
 	description: 'Задайте магическому шару вопрос и он на него ответит!',
-	tier: 0,
-	cooldown: 5,
 };
 
 exports.command = {
@@ -51,17 +49,17 @@ const questions = {
 
 exports.run = (client, interaction) => {
 	if (100 < interaction.options.getString('вопрос').length)
-		return client.userLib.retError(interaction, `Количество символов в вопросе не должно превышать **50** символов!`);
+		return client.userLib.retError(interaction, `Количество символов в вопросе не должно превышать **100** символов!`);
+
 	if (interaction.options.getString('вопрос').trim()[interaction.options.getString('вопрос').length - 1] !== '?')
-		return client.userLib.retError(interaction, `Вопрос должен оканчиваться знаком вопроса.`);
+		return client.userLib.retError(interaction, `Вопрос должен оканчиваться знаком вопроса!`);
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle('Магический шар')
 		.addField('Твой вопрос', `\`\`${interaction.options.getString('вопрос')}\`\``);
 
-	if (questions.hasOwnProperty(interaction.options.getString('вопрос').toLowerCase()))
-		embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``);
+	if (questions.hasOwnProperty(interaction.options.getString('вопрос').toLowerCase())) embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``);
 	else embed.addField('Ответ шара', `\`\`${answers[client.userLib.randomIntInc(0, answers.length - 1)]}\`\``);
 
 	interaction.reply({ embeds: [embed], ephemeral: false });
