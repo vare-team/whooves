@@ -1,33 +1,42 @@
 exports.help = {
 	name: 'unmute',
 	description: 'Снять мут с участника',
-	aliases: ['unm', 'um'],
-	usage: [{ type: 'user', opt: 0 }],
-	dm: 0,
-	tier: -1,
-	cooldown: 5,
 };
 
-exports.run = async (client, msg) => {
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'участник',
+			description: 'Участник сервера',
+			type: 6,
+			required: true,
+		}
+	]
+};
+
+exports.run = async (client, interaction) => {
 	let mutedRole = (
 		await client.userLib.promise(
 			client.userLib.db,
 			client.userLib.db.queryValue,
 			'SELECT mutedRole FROM guilds WHERE guildId = ?',
-			[msg.guild.id]
+			[interaction.guildId]
 		)
 	).res;
-	if (!msg.guild.roles.cache.has(mutedRole)) {
-		client.userLib.retError(msg, 'Роли мута не существует.');
-		return;
-	}
-	msg.magicMention.roles.remove(mutedRole, 'Снятие мута!');
-	client.userLib.db.delete('mutes', { userId: msg.magicMention.id, guildId: msg.guild.id }, () => {});
 
-	msg.reply('мут снят!');
-	client.userLib.sendLogChannel('commandUse', msg.guild, {
-		user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() },
-		channel: { id: msg.channel.id },
-		content: `снятие мута с ${msg.magicMention.user}`,
+	if (!interaction.guild.roles.cache.has(mutedRole)) return client.userLib.retError(interaction, 'Роли мута не существует.');
+
+	await interaction.options.getMember('участник').roles.remove(mutedRole, 'Снятие мута!');
+	client.userLib.db.delete('mutes', { userId: interaction.options.getUser('участник').id, guildId: interaction.guildId }, () => {});
+	//TODO: Фиксануть отложенные таски, сейчас они не удаляются при unmute
+
+	client.userLib.retSuccess(interaction, `${interaction.options.getUser('участник')} **был размьючен**!`)
+
+	await client.userLib.sendLogChannel('commandUse', interaction.guild, {
+		user: { tag: interaction.user.tag, id: interaction.user.id, avatar: interaction.user.displayAvatarURL() },
+		channel: { id: interaction.channel.id },
+		content: `снятие мута с ${interaction.options.getUser('участник')}`,
 	});
 };
