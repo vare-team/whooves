@@ -241,18 +241,18 @@ module.exports = function (Discord, client, con) {
 
 	/**
 	 * @function
-	 * @param {string} type
+	 * @param {boolean} inGuild
 	 * @param {string} command
-	 * @param msg
+	 * @param {object} interaction
 	 * @param {string} err
 	 * @returns {string}
 	 */
-	this.generateErrLog = (type, command, msg, err) => {
-		if (type === 'dm') {
-			return `! Ошибка!\n! Команда - ${command}\n! Пользователь: ${msg.author.tag} (ID: ${msg.author.id})\n! Текст ошибки: ${err}`;
+	this.generateErrLog = (inGuild, command, interaction, err) => {
+		if (inGuild) {
+			return `Ошибка!\n! Команда - ${command}\n! Сервер: ${interaction.guild.name} (ID: ${interaction.guild.id})\n! Канал: ${interaction.channel.name} (ID: ${interaction.channel.id})\n! Пользователь: ${interaction.user.tag} (ID: ${interaction.user.id})\n! Текст ошибки: ${err}`;
+		} else {
+			return `Ошибка!\n! Команда - ${command}\n! Пользователь: ${interaction.user.tag} (ID: ${interaction.user.id})\n! Текст ошибки: ${err}`;
 		}
-
-		return `! Ошибка!\n! Команда - ${command}\n! Сервер: ${msg.guild.name} (ID: ${msg.guild.id})\n! Канал: ${msg.channel.name} (ID: ${msg.channel.id})\n! Пользователь: ${msg.author.tag} (ID: ${msg.author.id})\n! Текст ошибки: ${err}`;
 	};
 
 	/**
@@ -334,10 +334,24 @@ module.exports = function (Discord, client, con) {
 	this.retError = (interaction, reason = 'Какая разница вообще?') => {
 		let embed = new Discord.MessageEmbed()
 			.setColor(this.colors.err)
-			.setAuthor('Ошибка!', 'https://cdn.discordapp.com/emojis/674326004872904733.gif?v=1')
-			.setDescription(reason);
+			.setDescription( this.emoji.err + ' **Ошибка:** ' + reason);
 
-		interaction.reply({ embeds: [embed], ephemeral: true });
+		if (interaction.deferred) interaction.editReply({ embeds: [embed], ephemeral: true });
+		else interaction.reply({ embeds: [embed], ephemeral: true });
+	};
+
+	/**
+	 * @function
+	 * @param interaction
+	 * @param {string} reason
+	 */
+	this.retSuccess = (interaction, reason = 'Какая разница вообще?') => {
+		let embed = new Discord.MessageEmbed()
+			.setColor(this.colors.suc)
+			.setDescription( this.emoji.ready + ' ' + reason);
+
+		if (interaction.deferred) interaction.editReply({ embeds: [embed] });
+		else interaction.reply({ embeds: [embed] });
 	};
 
 	/**
