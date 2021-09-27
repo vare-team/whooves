@@ -87,7 +87,6 @@ module.exports = function (Discord, client, con) {
 	this.sc = new schedule(this.sendLog);
 
 	const { registerFont, createCanvas, loadImage } = require('canvas');
-	// registerFont('./ds_moster.ttf', { family: 'Comic Sans' });
 	this.createCanvas = createCanvas;
 	this.loadImage = loadImage;
 
