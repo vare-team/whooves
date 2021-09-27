@@ -1,121 +1,139 @@
 exports.help = {
 	name: 'mute',
-	description: 'Замьютить участника',
-	aliases: ['mt'],
-	usage: [
-		{ type: 'user', opt: 0 },
-		{ type: 'text', opt: 0, name: 'кол-во минут' },
-	],
-	dm: 0,
-	tier: -1,
-	cooldown: 5,
+	description: 'Выдать мут участнику',
 };
 
-exports.run = async (client, msg, args) => {
-	if (
-		!msg.guild.me.hasPermission('MANAGE_ROLES') ||
-		msg.guild.channels.cache.filter(el => !(el.manageable && el.permissionsFor(client.user).has('MANAGE_ROLES'))).size
-	) {
-		client.userLib.retError(msg, 'Мне не доступна такая власть.');
-		return;
-	}
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'участник',
+			description: 'Участник сервера',
+			type: 6,
+			required: true,
+		},
+		{
+			name: 'длительность',
+			description: 'Длительность мута в минутах',
+			type: 4,
+		},
+	]
+};
 
-	if (isNaN(+args[1])) {
-		client.userLib.retError(msg, 'Многа букав. Нихачу букавы читать.');
-		return;
-	}
-	if (+args[1] > 43200) {
-		client.userLib.retError(msg, 'Максимальное время мута - **43200 минут***(30 дней)*!');
-		return;
-	}
-	if (+args[1] < 1) {
-		client.userLib.retError(msg, 'Я не знаю где сейчас Тардис, так что назад во времени вернутся не получится.');
-		return;
+exports.run = async (client, interaction) => {
+	if (
+		!interaction.guild.me.permissions.has('MANAGE_ROLES') ||
+		interaction.guild.channels.cache.filter(el => !(el.manageable && el.permissionsFor(client.user).has('MANAGE_ROLES'))).size
+	)
+		return client.userLib.retError(interaction, 'У бота отсутсвуют необходимые права!');
+
+	if (interaction.options.getInteger('длительность')) {
+		if (interaction.options.getInteger('длительность') > 43200) return client.userLib.retError(interaction, 'Максимальное время мута - **43200 минут***(30 дней)*!');
+		if (interaction.options.getInteger('длительность') < 1) return client.userLib.retError(interaction, 'Я не знаю где сейчас Тардис, так что назад во времени вернутся не получится.');
 	}
 
 	let mutedRole = await client.userLib.promise(
 		client.userLib.db,
 		client.userLib.db.queryValue,
 		'SELECT mutedRole FROM guilds WHERE guildId = ?',
-		[msg.guild.id]
+		[interaction.guildId]
 	);
 	mutedRole = mutedRole.res;
-	let role = msg.guild.roles.cache.get(mutedRole);
+	let role = interaction.guild.roles.cache.get(mutedRole);
 
 	if (!role) {
+		await interaction.deferReply();
+
 		let editEmbed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setTitle(`Создание роли...`)
 			.setTimestamp()
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 			.setDescription(
 				`${client.userLib.emoji.load} Создание роли\n${client.userLib.emoji.load} Установка прав для категорий\n${client.userLib.emoji.load} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`
 			);
 
-		let msgs = await msg.channel.send(editEmbed);
+		const roleMsg = await interaction.channel.send({embeds: [editEmbed]});
 
-		role = await msg.guild.roles.create({
-			data: { name: 'MutedWhooves', color: 'GREY', permissions: 0 },
-			reason: 'Создание мут роли для Хувза.',
+		role = await interaction.guild.roles.create({
+			name: 'MutedWhooves',
+			color: 'GREY',
+			permissions: [],
+			reason: 'Создание мут роли для Хувза.'
 		});
+
 		editEmbed.setDescription(
 			`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.load} Установка прав для категорий\n${client.userLib.emoji.load} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`
 		);
-		msgs.edit(editEmbed);
+		await roleMsg.edit({embeds: [editEmbed]});
 
-		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'category').array())
-			await ch.createOverwrite(role, { SEND_MESSAGES: false, CONNECT: false });
+		await interaction.guild.channels.fetch();
+
+		for (let ch of interaction.guild.channels.cache.filter(ch => ch.type === 'GUILD_CATEGORY')) {
+			await ch[1].permissionOverwrites.create(role, {SEND_MESSAGES: false, CONNECT: false});
+		}
+
 		editEmbed.setDescription(
 			`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.load} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`
 		);
-		msgs.edit(editEmbed);
 
-		for (const ch of msg.member.guild.channels.cache
-			.filter(ch => ch.type == 'text' && ch.parent && !ch.permissionOverwrites.has(role.id))
-			.array())
-			await ch.createOverwrite(role, { SEND_MESSAGES: false });
-		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'text' && !ch.parent).array())
-			await ch.createOverwrite(role, { SEND_MESSAGES: false });
+		await roleMsg.edit({embeds: [editEmbed]});
+
+		for (const ch of interaction.guild.channels.cache.filter(ch => ch.type === 'GUILD_TEXT' && ch.parent && !ch.permissionOverwrites.cache.has(role.id))) {
+			await ch[1].permissionOverwrites.create(role, {SEND_MESSAGES: false});
+		}
+
+		for (const ch of interaction.guild.channels.cache.filter(ch => ch.type === 'GUILD_TEXT' && !ch.parent)) {
+			await ch[1].permissionOverwrites.create(role, {SEND_MESSAGES: false});
+		}
+
 		editEmbed.setDescription(
 			`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.ready} Установка прав для чатов\n${client.userLib.emoji.load} Установка прав для голосовых каналов`
 		);
-		msgs.edit(editEmbed);
 
-		for (const ch of msg.member.guild.channels.cache
-			.filter(ch => ch.type == 'voice' && ch.parent && !ch.permissionOverwrites.has(role.id))
-			.array())
-			await ch.createOverwrite(role, { CONNECT: false });
-		for (const ch of msg.member.guild.channels.cache.filter(ch => ch.type == 'voice' && !ch.parent).array())
-			await ch.createOverwrite(role, { CONNECT: false });
+		await roleMsg.edit({ embeds: [editEmbed] });
+
+		for (const ch of interaction.guild.channels.cache
+			.filter(ch => ch.type === 'voice' && ch.parent && !ch.permissionOverwrites.cache.has(role.id)))
+			await ch[1].permissionOverwrites.create(role, { CONNECT: false });
+
+		for (const ch of interaction.guild.channels.cache.filter(ch => ch.type === 'GUILD_VOICE' && !ch.parent))
+			await ch[1].permissionOverwrites.create(role.id, { CONNECT: false });
+
 		editEmbed.setDescription(
 			`${client.userLib.emoji.ready} Создание роли\n${client.userLib.emoji.ready} Установка прав для категорий\n${client.userLib.emoji.ready} Установка прав для чатов\n${client.userLib.emoji.ready} Установка прав для голосовых каналов`
 		);
-		msgs.edit(editEmbed);
 
-		client.userLib.db.update('guilds', { guildId: msg.guild.id, mutedRole: role.id }, () => {});
+		await roleMsg.edit({ embeds: [editEmbed] });
+
+		await client.userLib.db.update('guilds', { guildId: interaction.guildId, mutedRole: role.id }, () => {});
+
 		editEmbed.setColor(client.userLib.colors.suc).setTitle(`Настройка завершена, выдаю мут!`);
-		msgs.edit(editEmbed);
+		await roleMsg.edit({ embeds: [editEmbed] });
 	}
 
-	msg.magicMention.roles.add(role, 'Выдача мута!');
-	let now = new Date();
-	now.setMinutes(now.getMinutes() + +args[1]);
-	client.userLib.db.upsert('mutes', { userId: msg.magicMention.id, guildId: msg.guild.id, time: now }, () => {});
-	client.userLib.sc.pushTask({ code: 'unMute', params: [role.id, msg.magicMention], time: now, timeAbsolute: true });
+	if (interaction.options.getMember('участник').roles.cache.has(role.id)) return client.userLib.retError(interaction, 'Участник уже замьючен!');
 
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
-		.setDescription(`Мут ${msg.magicMention} выдан!\nКоличество минут до снятия: ${args[1]}`)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-	msg.channel.send(embed);
-	client.userLib.sendLogChannel('commandUse', msg.guild, {
+	await interaction.options.getMember('участник').roles.add(role, 'Выдача мута.');
+
+	if (interaction.options.getInteger('длительность')) {
+		let now = new Date();
+		now.setMinutes(now.getMinutes() + interaction.options.getInteger('длительность'));
+
+		client.userLib.db.upsert('mutes', { userId: interaction.options.getUser('участник').id, guildId: interaction.guildId, time: now }, () => {});
+		client.userLib.sc.pushTask({ code: 'unMute', params: [role.id, interaction.options.getMember('участник')], time: now, timeAbsolute: true });
+
+		client.userLib.retSuccess(interaction, `${interaction.options.getUser('участник')} **был замьючен!** ***||***  Чат будет доступен вновь <t:${Math.floor(now / 1000)}:R>`);
+	} else {
+		client.userLib.retSuccess(interaction, `${interaction.options.getUser('участник')} **был замьючен**!`);
+	}
+
+	await client.userLib.sendLogChannel('commandUse', interaction.guild, {
 		user: {
-			tag: msg.author.tag,
-			id: msg.author.id,
-			avatar: msg.author.displayAvatarURL(),
+			tag: interaction.user.tag,
+			id: interaction.user.id,
 		},
-		channel: { id: msg.channel.id },
-		content: `выдача мута ${msg.magicMention}`,
+		channel: { id: interaction.channel.id },
+		content: `выдача мута ${interaction.options.getUser('участник')}`,
 	});
 };
