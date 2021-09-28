@@ -17,12 +17,14 @@ exports.command = {
 };
 
 exports.run = async (client, interaction) => {
-	if (!/(#|)[0-9A-Fa-f]{6}/g.test(interaction.options.getString('цвет'))) {
+	let color = interaction.options.getString('цвет').match(/(#|)[0-9A-Fa-f]{6}/g);
+
+	if (color === null) {
 		client.userLib.retError(interaction, 'Вы указали некорректный цвет!');
 		return;
 	}
 
-	let color = interaction.options.getString('цвет').replace('#', '');
+	color = color[0].replace('#', '');
 
 	const rgb = hexToRgb(color),
 		cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b),
