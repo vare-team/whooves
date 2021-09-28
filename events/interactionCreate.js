@@ -8,6 +8,8 @@ module.exports = async (client, interaction) => {
 		case 'APPLICATION_COMMAND':
 			cmd = client.commands.get(interaction.commandName);
 
+			if (cmd.help.onlyGuild && !interaction.inGuild()) return client.userLib.retError(interaction, 'Команда не доступна для использования в ЛС.');
+
 			if (cmd.help.hasOwnProperty('extraPermissions')) {
 				if (!interaction.channel.permissionsFor(interaction.guild.me).has(cmd.help.extraPermissions)){
 					return client.userLib.retError(
@@ -16,9 +18,6 @@ module.exports = async (client, interaction) => {
 					)
 				}
 			}
-
-			if (cmd.help.onlyGuild && !interaction.inGuild()) return client.userLib.retError(interaction, 'Команда не доступна для использования в ЛС.');
-
 			try {
 				client.userLib.sendLog(client.userLib.generateUseLog(interaction.guildId, cmd.command.name, interaction), 'Info');
 				await cmd.run(client, interaction);
