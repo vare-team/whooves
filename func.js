@@ -141,6 +141,46 @@ module.exports = function (Discord, client, con) {
 		'`': 'ё',
 	};
 
+	this.permissionsArrayTranslator = {
+		'CREATE_INSTANT_INVITE': 'Создание приглашения',
+		'KICK_MEMBERS': 'Выгонять участников',
+		'BAN_MEMBERS': 'Банить участников',
+		'ADMINISTRATOR': 'Администратор',
+		'MANAGE_CHANNELS': 'Управлять каналами',
+		'MANAGE_GUILD': 'Управлять сервером',
+		'ADD_REACTIONS': 'Добавлять реакции',
+		'VIEW_AUDIT_LOG': 'Просматривать журнал аудита',
+		'PRIORITY_SPEAKER': 'Приоритетный режим',
+		'STREAM': 'Видео',
+		'VIEW_CHANNEL': 'Просмотр канала',
+		'SEND_MESSAGES': 'Отправление сообщений',
+		'SEND_TTS_MESSAGES': 'Отправка сообщений text-to-speach',
+		'MANAGE_MESSAGES': 'Управлять сообщениями',
+		'EMBED_LINKS': 'Встраивать ссылки',
+		'ATTACH_FILES': 'Прикреплять файлы',
+		'READ_MESSAGE_HISTORY': 'Читать историю сообщений',
+		'MENTION_EVERYONE': 'Упоминать @everyone',
+		'USE_EXTERNAL_EMOJIS': 'Успользовать внешний эмодзи',
+		'VIEW_GUILD_INSIGHTS': '',
+		'CONNECT': 'Подключиться',
+		'SPEAK': 'Говорить',
+		'MUTE_MEMBERS': 'Отключать участникам микрофон',
+		'DEAFEN_MEMBERS': 'Выключать участникам звук',
+		'MOVE_MEMBERS': 'Перемещать участников',
+		'USE_VAD': 'Режим рации',
+		'CHANGE_NICKNAME': '',
+		'MANAGE_NICKNAMES': '',
+		'MANAGE_ROLES': 'Управлять ролями',
+		'MANAGE_WEBHOOKS': '',
+		'MANAGE_EMOJIS_AND_STICKERS': '',
+		'USE_APPLICATION_COMMANDS': '',
+		'REQUEST_TO_SPEAK': '',
+		'MANAGE_THREADS': '',
+		'USE_PUBLIC_THREADS': '',
+		'USE_PRIVATE_THREADS': '',
+		'USE_EXTERNAL_STICKERS': '',
+	}
+
 	const nicknameParts = {
 		prefixes: ['A', 'Ex', 'Im', 'Il', 'In', 'Ret', 'Un', 'De', 'Int'],
 		root: ['bler', 'ses', 'wis', 'let', 'ger', 'mon', 'lot', 'far'],
@@ -215,6 +255,15 @@ module.exports = function (Discord, client, con) {
 		if (tier == -3 && data.ownerID == data.member.id) return true;
 		if (tier == -2 && data.member.hasPermission('ADMINISTRATOR')) return true;
 		return tier == -1 && data.member.hasPermission('MANAGE_MESSAGES');
+	};
+
+	/**
+	 * @function
+	 * @param {Array} array
+	 * @returns {Array}
+	 */
+	this.permissionsArrayToString = (array) => {
+		return array.map((el) => this.permissionsArrayTranslator[el]);
 	};
 
 	/**

@@ -1,6 +1,7 @@
 exports.help = {
 	name: 'mute',
 	description: 'Выдать мут участнику',
+	extraPermissions: ['MANAGE_ROLES', 'MANAGE_CHANNELS']
 };
 
 exports.command = {
@@ -22,12 +23,6 @@ exports.command = {
 };
 
 exports.run = async (client, interaction) => {
-	if (
-		!interaction.guild.me.permissions.has('MANAGE_ROLES') ||
-		interaction.guild.channels.cache.filter(el => !(el.manageable && el.permissionsFor(client.user).has('MANAGE_ROLES'))).size
-	)
-		return client.userLib.retError(interaction, 'У бота отсутсвуют необходимые права!');
-
 	if (interaction.options.getInteger('длительность')) {
 		if (interaction.options.getInteger('длительность') > 43200) return client.userLib.retError(interaction, 'Максимальное время мута - **43200 минут***(30 дней)*!');
 		if (interaction.options.getInteger('длительность') < 1) return client.userLib.retError(interaction, 'Я не знаю где сейчас Тардис, так что назад во времени вернутся не получится.');

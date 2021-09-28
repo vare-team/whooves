@@ -1,6 +1,7 @@
 exports.help = {
 	name: 'unmute',
 	description: 'Снять мут с участника',
+	extraPermissions: ['MANAGE_ROLES']
 };
 
 exports.command = {

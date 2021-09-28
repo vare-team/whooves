@@ -6,24 +6,30 @@ module.exports = async (client, interaction) => {
 			console.log('Ping?');
 			break;
 		case 'APPLICATION_COMMAND':
-			if (!interaction.isCommand()) return;
 			cmd = client.commands.get(interaction.commandName);
 
-			if (cmd.help.onlyGuild && !interaction.inGuild()) {
-				client.userLib.retError(interaction, 'Команда не доступна для использования в ЛС.');
-				return;
+			if (cmd.help.hasOwnProperty('extraPermissions')) {
+				if (!interaction.channel.permissionsFor(interaction.guild.me).has(cmd.help.extraPermissions)){
+					return client.userLib.retError(
+						interaction,
+						'У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ' + client.userLib.permissionsArrayToString(cmd.help.extraPermissions)
+					)
+				}
 			}
 
-			// try {
-			client.userLib.sendLog(client.userLib.generateUseLog(interaction.guildId, cmd.help.name, interaction), 'Info');
-			await cmd.run(client, interaction);
-			client.statistic.executedcmd++;
-			// } catch (err) {
-			// 	client.userLib.sendLog(client.userLib.generateErrLog(msg.channel.type, cmd.help.name, msg, err), 'ERROR!');
-			// 	client.userLib.sendWebhookLog(client.userLib.generateErrLog(msg.channel.type, cmd.help.name, msg, err));
-			// 	client.userLib.retError(msg, 'Произошло исключение в работе команды!');
-			// 	client.statistic.erroredcmd++;
-			// }
+			if (cmd.help.onlyGuild && !interaction.inGuild()) return client.userLib.retError(interaction, 'Команда не доступна для использования в ЛС.');
+
+			try {
+				client.userLib.sendLog(client.userLib.generateUseLog(interaction.guildId, cmd.command.name, interaction), 'Info');
+				await cmd.run(client, interaction);
+				client.statistic.executedcmd++;
+			// client.localHistory.set(`${interaction.guild_id}_${interaction.user.id}`, interaction);
+			} catch (err) {
+				client.userLib.sendLog(client.userLib.generateErrLog(interaction.inGuild(), cmd.help.name, interaction, err), 'ERROR!');
+				client.userLib.sendWebhookLog(client.userLib.generateErrLog(interaction.inGuild(), cmd.help.name, interaction, err));
+				client.userLib.retError(interaction, 'Произошло исключение в работе команды!');
+				client.statistic.erroredcmd++;
+			}
 			break;
 
 		case 'MESSAGE_COMPONENT':
