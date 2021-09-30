@@ -1,5 +1,5 @@
 const Discord = require('discord.js'),
-	client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] }),
+	client = new Discord.Client({ intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MEMBERS', 'GUILD_VOICE_STATES'] }),
 	{ readdir, lstatSync } = require('fs'),
 	func = require('./func');
 let con = require('mysql2').createConnection({

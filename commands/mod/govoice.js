@@ -1,36 +1,48 @@
 exports.help = {
 	name: 'govoice',
 	description: 'Переместить всех в вашем голосовом канале в указанный канал.',
-	aliases: ['gv', 'merge'],
-	usage: [{ type: 'text', opt: 0, name: 'ID Канала' }, { type: 'voice' }],
-	dm: 0,
-	tier: -1,
-	cooldown: 15,
+	extraPermissions: ['MOVE_MEMBERS']
 };
 
-exports.run = async (client, msg, args) => {
-	let govoice = msg.guild.channels.cache.get(args[0]);
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'куда',
+			description: 'Голосовой канал, в который будут перемещены участники',
+			type: 7,
+			required: true,
+			channel_types: [2]
+		},
+		{
+			name: 'откуда',
+			description: 'Голосовой канал, из которого будут перемещены участники',
+			type: 7,
+			channel_types: [2]
+		}
+	]
+};
 
-	if (!govoice || govoice.type != 'voice') {
-		client.userLib.retError(msg, 'Вы указали не корректный ID голосового канала!');
-		return;
+exports.run = async (client, interaction) => {
+	const newChannel = interaction.options.getChannel('куда'),
+		  oldChannel = interaction.options.getChannel('откуда') || interaction.member.voice.channel || null;
+
+	if (!oldChannel) return client.userLib.retError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
+	if (oldChannel.id === newChannel.id) return client.userLib.retError(interaction, 'Новый канал совпадает со старым!');
+	if (!oldChannel.viewable || !newChannel.viewable) return client.userLib.retError(interaction, 'У меня не хватает прав для взаимодействия с этими каналами!');
+	if (oldChannel.members.size === 0) return client.userLib.retError(interaction, 'В указанном канале пусто!');
+
+	await oldChannel.fetch();
+	await newChannel.fetch();
+
+	if (!oldChannel.manageable || !newChannel.manageable) return client.userLib.retError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
+
+	await interaction.deferReply();
+
+	for (let member of oldChannel.members) {
+		await member[1].voice.setChannel(newChannel);
 	}
 
-	let count = msg.member.voice.channel.members.size,
-		error = '';
-
-	for (let m of msg.member.voice.channel.members.array())
-		await m.voice.setChannel(govoice).catch(() => {
-			count--;
-			error += m.user.tag + ', ';
-		});
-
-	client.userLib.retError(msg, 'Недостаточно прав для перемещения пользователя(ей): ' + error.slice(0, -2));
-
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setDescription(`Было перемещено участников: **${count}**, в канал "**${govoice.name}**"`)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
-		.setColor(client.userLib.colors.suc);
-
-	msg.channel.send(embed);
+	client.userLib.retSuccess(interaction, `${oldChannel} **был перемещён в** ${newChannel}`);
 };
