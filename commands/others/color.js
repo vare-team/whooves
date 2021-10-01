@@ -34,8 +34,8 @@ exports.run = async (client, interaction) => {
 		.setColor(color)
 		.setTitle(`Цвет #${color.toUpperCase()}`)
 		.setDescription(`Контрастный цвет: \`\`${contrastYiq(rgb.r, rgb.g, rgb.b) ? 'Белый' : 'Чёрный'}\`\``)
-		.addField('RGB:', `\`\`\`Red:   ${rgb.r}\nGreen: ${rgb.g}\nBlue:  ${rgb.b}\n\`\`\`\`\`\`\nrgb(${rgb.r}, ${rgb.g}, ${rgb.b})\`\`\``, true)
-		.addField('HSL:', `\`\`\`Hue:        ${hsl.h}\nSaturation: ${hsl.s}%\nLightness:  ${hsl.l}%\n\`\`\`\`\`\`\nhsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)\`\`\``, true)
+		.addField('RGB:', `\`\`\`Red:   ${rgb.r}\nGreen: ${rgb.g}\nBlue:  ${rgb.b}\n\`\`\`\`\`\`css\nrgb(${rgb.r}, ${rgb.g}, ${rgb.b})\`\`\``, true)
+		.addField('HSL:', `\`\`\`Hue:        ${hsl.h}\nSaturation: ${hsl.s}%\nLightness:  ${hsl.l}%\n\`\`\`\`\`\`css\nhsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)\`\`\``, true)
 		.addField('CMYK:', `\`\`\`Cyan:    ${cmyk.c}%\nMagenta: ${cmyk.m}%\nYellow:  ${cmyk.y}%\nBlack:   ${cmyk.k}%\n\`\`\``, false)
 		.setImage(`https://singlecolorimage.com/get/${color}/280x80`)
 
