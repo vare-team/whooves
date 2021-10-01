@@ -1,25 +1,30 @@
 exports.help = {
 	name: 'unban',
-	description: 'Разбанить учасника.',
-	aliases: ['ubn'],
-	usage: [
-		{ type: 'text', opt: 0, name: 'ID кто' },
-		{ type: 'text', opt: 1, name: 'причина' },
-	],
-	dm: 0,
-	tier: -1,
-	cooldown: 5,
+	description: 'Разбанить участника',
+	extraPermissions: ['BAN_MEMBERS'],
 };
 
-exports.run = async (client, msg, args) => {
-	let reason = args.slice(1).join(' ') || 'Причина не указана';
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'id',
+			description: 'ID пользователя',
+			type: 3,
+			required: true
+		}
+	]
+};
 
-	msg.guild.members.unban(args[0], msg.author.tag + ': ' + reason).catch(() => {});
+exports.run = async (client, interaction) => {
+	const user = await client.users.fetch(interaction.options.getString('id')).catch(() => {}) || undefined;
+	const ban = await interaction.guild.bans.fetch({ user, force: true }).catch(() => {}) || undefined;
 
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
-		.setDescription(`Бан ${args[0]} снят!\nПричина: ${reason}`)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-	msg.channel.send(embed);
+	if (user === undefined) return client.userLib.retError(interaction, 'Пользователь не найден!');
+	if (ban === undefined) return client.userLib.retError(interaction, 'Пользователь не забанен!');
+
+	await interaction.guild.members.unban(user).catch(() => {});
+
+	client.userLib.retSuccess(interaction, `\`${user.tag}\` **был разбанен!**`);
 };
