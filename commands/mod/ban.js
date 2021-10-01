@@ -1,65 +1,56 @@
 exports.help = {
 	name: 'ban',
 	description: 'Выдать бан участнику.',
-	aliases: ['bn'],
-	usage: [
-		{ type: 'user', opt: 1 },
-		{ type: 'text', opt: 1, name: 'причина' },
-		{ type: 'text', opt: 1, name: '-force' },
-		{ type: 'text', opt: 1, name: '-clearmsg' },
-	],
-	dm: 0,
-	tier: -1,
-	cooldown: 5,
+	extraPermissions: ['BAN_MEMBERS']
 };
 
-exports.run = async (client, msg, args) => {
-	if (!msg.magicMention) {
-		if (!/^[0-9]{18}/.test(args[0]))
-			return client.userLib.retError(msg, 'При отсутствии упоминания должен быть указан ID пользователя!');
-		msg.magicMention = await client.users.fetch(args[0]).catch(() => 0);
-		if (!msg.magicMention) return client.userLib.retError(msg, 'Пользователя с таким ID не найдено.');
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'участник',
+			description: 'Участник сервера',
+			type: 6,
+			required: true,
+		},
+		{
+			name: 'причина',
+			description: 'Причина бана',
+			type: 3,
+		},
+		{
+			name: 'force',
+			description: 'Игнорировать количество варнов',
+			type: 5,
+		},
+		{
+			name: 'clearmsg',
+			description: 'Очистить сообщения участника',
+			type: 5,
+		}
+	]
+};
+
+exports.run = async (client, interaction) => {
+	if (!interaction.options.getMember('участник').bannable) return client.userLib.retError(interaction, 'Я не могу забанить этого участника!\nЕго защитная магия превосходит мои умения!');
+
+	if (!interaction.options.getBoolean('force')) {
+		const warns = await client.userLib.promise(client.userLib.db, client.userLib.db.count, 'warns', {
+			userId: interaction.options.getUser('участник').id,
+			guildId: interaction.guildId,
+		});
+
+		if (warns.res < 5) return client.userLib.retError(interaction, 'Для выдачи бана необходимо **5** варнов!\nИспользуй аргумент `force` для бана.');
 	}
 
-	if (!msg.magicMention.bannable && typeof msg.magicMention.bannable !== 'undefined') {
-		client.userLib.retError(msg, 'Я не могу забанить этого участника!\nЕго защитная магия превосходит мои умения!');
-		return;
-	}
+	const reason = interaction.options.getString('причина') || 'Причина не указана';
 
-	let force = args.indexOf('-force');
-	if (force != -1) args.splice(force, 1);
+	await interaction.options.getUser('участник').send(
+		`Вам был выдан бан на сервере \`\`${interaction.guild.name}\`\`, модератором \`\`${interaction.user.tag}\`\`, по причине: ${reason}`
+	).catch(() => client.userLib.sendLog(`${exports.help.name} : DM Send catch! Guild ${interaction.guild.name} (ID:${interaction.guildId}), @${interaction.options.getUser('участник').tag} (ID:${interaction.options.getUser('участник').id})`, 'DM_SEND_ERROR'));
 
-	if (force != -1 && !client.userLib.checkPerm(-2, { ownerID: msg.guild.ownerID, member: msg.member })) {
-		client.userLib.retError(msg, 'Аргумент ``-force`` доступен только администраторам!');
-		return;
-	}
+	await interaction.guild.members.ban(interaction.options.getMember('участник'), { reason: interaction.user.tag + ': ' + reason, days: interaction.options.getBoolean('clearmsg') ? 7 : 0 });
 
-	let warns = await client.userLib.promise(client.userLib.db, client.userLib.db.count, 'warns', {
-		userId: msg.magicMention.id,
-		guildId: msg.guild.id,
-	});
-	warns = warns.res;
-
-	if (warns < 5 && force == -1) {
-		client.userLib.retError(msg, 'Для выдачи бана необходимо 5 варнов!\nИспользуй аргумент ``-force`` для бана.');
-		return;
-	}
-
-	let clearmsg = args.indexOf('-clearmsg');
-	if (clearmsg != -1) {
-		args.splice(clearmsg, 1);
-		clearmsg = 7;
-	} else clearmsg = 0;
-
-	let reason = args.slice(1).join(' ') || 'Причина не указана';
-
-	// await msg.magicMention.user.send(`Вам был выдан бан на сервере \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`);
-	msg.guild.members.ban(msg.magicMention, { reason: msg.author.tag + ': ' + reason, days: clearmsg });
-
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
-		.setDescription(`Бан ${msg.magicMention} выдан!\nПричина: ${reason}`)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-	msg.channel.send(embed);
+	client.userLib.retSuccess(interaction, `${interaction.options.getMember('участник')} **был забанен!** ***||*** ${reason}`);
 };
