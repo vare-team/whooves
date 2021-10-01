@@ -1,11 +1,6 @@
 exports.help = {
 	name: 'clearmsgid',
 	description: 'Очистить канал до определённого сообщения',
-	aliases: ['cmi'],
-	usage: [{ type: 'text', opt: 0, name: 'ID Сообщения' }],
-	dm: 0,
-	tier: 2,
-	cooldown: 5,
 };
 
 exports.run = async (client, msg, args) => {

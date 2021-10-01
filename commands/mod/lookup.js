@@ -1,9 +1,6 @@
 exports.help = {
 	name: 'lookup',
 	description: 'Информация о пользователе, гильдии или приглашении.',
-	dm: 1,
-	tier: 0,
-	cooldown: 5,
 };
 
 exports.command = {

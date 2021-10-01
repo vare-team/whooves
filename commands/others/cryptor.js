@@ -1,13 +1,6 @@
 exports.help = {
 	name: 'cryptor',
 	description: 'Простенький шифратор сообщений.',
-	usage: [
-		{ type: 'text', opt: 0, name: 'режим' },
-		{ type: 'text', opt: 0, name: 'текст' },
-	],
-	dm: 1,
-	tier: 0,
-	cooldown: 1,
 };
 
 exports.command = {

@@ -1,11 +1,6 @@
 exports.help = {
 	name: 'rc',
 	description: 'Перезагрузка команды',
-	aliases: [],
-	usage: [{ type: 'text', opt: 0, name: 'название команды' }],
-	dm: 1,
-	tier: 1,
-	cooldown: 0,
 };
 
 exports.run = (client, msg, args) => {
