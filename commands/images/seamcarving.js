@@ -12,7 +12,7 @@ exports.help = {
 	hide: 1,
 };
 
-let SeamCarver = require('../../SeamCarver');
+let SeamCarver = require('../../utils/seamcarver');
 
 exports.run = async (client, msg) => {
 	if (msg.attachments.first() && !msg.attachments.first().width) {

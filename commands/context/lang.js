@@ -1,7 +1,6 @@
 exports.help = {
 	name: 'Сменить раскладку',
 	description: 'Изменяет раскалдку текста сообщения на противоположную.',
-	tier: 0,
 };
 
 exports.command = {
@@ -26,6 +25,6 @@ exports.run = (client, interaction) => {
 	}
 
 	interaction.reply({
-		content: client.userLib.translate(interaction.options.getMessage('message').content, eng >= rus ? 'eng' : 'rus'),
+		content: client.userLib.translate(interaction.options.getMessage('message').content, eng >= rus ? 'en2ru' : 'ru2en'),
 	});
 };

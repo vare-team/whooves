@@ -47,7 +47,7 @@ exports.run = (client, interaction) => {
 			.filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
 			.filter(
 				el =>
-					el !== 'dev' || (el === 'dev' && client.userLib.admins.hasOwnProperty(client.userLib.getUser(interaction).id))
+					el !== 'dev' || (el === 'dev' && client.userLib.admins.hasOwnProperty(interaction.user.id))
 			)
 			.filter(el => client.commands.filter(cmd => cmd.help.module === el).size)
 			.forEach((el) => {

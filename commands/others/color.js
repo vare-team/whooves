@@ -39,7 +39,7 @@ exports.run = async (client, interaction) => {
 		.addField('CMYK:', `\`\`\`Cyan:    ${cmyk.c}%\nMagenta: ${cmyk.m}%\nYellow:  ${cmyk.y}%\nBlack:   ${cmyk.k}%\n\`\`\``, false)
 		.setImage(`https://singlecolorimage.com/get/${color}/280x80`)
 
-	client.userLib.replyInteraction(interaction, embed);
+	interaction.reply({ embeds: [embed] });
 };
 
 function hexToRgb(hex) {

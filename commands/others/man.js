@@ -105,7 +105,7 @@ exports.run = (client, interaction) => {
 			.setCustomId(
 				client.userLib.AEScrypt([
 					exports.help.name,
-					client.userLib.getUser(interaction).id,
+					interaction.user.id,
 					embed.title.split(' ')[2],
 					page,
 					'back',
@@ -124,7 +124,7 @@ exports.run = (client, interaction) => {
 			.setCustomId(
 				client.userLib.AEScrypt([
 					exports.help.name,
-					client.userLib.getUser(interaction).id,
+					interaction.user.id,
 					embed.title.split(' ')[2],
 					page,
 					'next',

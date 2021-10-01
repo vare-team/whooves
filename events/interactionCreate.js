@@ -6,7 +6,9 @@ module.exports = async (client, interaction) => {
 			console.log('Ping?');
 			break;
 		case 'APPLICATION_COMMAND':
-			cmd = client.commands.get(interaction.commandName);
+			cmd = client.commands.get(interaction.commandName.toLowerCase());
+
+			if (!cmd) return console.log(interaction.commandName);
 
 			if (cmd.help.onlyGuild && !interaction.inGuild()) return client.userLib.retError(interaction, 'Команда не доступна для использования в ЛС.');
 

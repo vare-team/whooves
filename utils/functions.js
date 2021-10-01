@@ -1,4 +1,6 @@
-const schedule = require('./utils/schedule');
+const schedule = require('./schedule');
+const { ru2en, en2ru } = require('../models/keyTranslator');
+const permissionsArrayTranslator = require('../models/permissionsArrayTranslator');
 
 /**
  * Generate userLib.
@@ -8,6 +10,29 @@ const schedule = require('./utils/schedule');
  * @param con - mysql connection
  */
 module.exports = function (Discord, client, con) {
+	if (process.env.webhookId && process.env.webhookToken)
+		this.webhook = new Discord.WebhookClient(process.env.webhookId, process.env.webhookToken);
+
+	this.presenceCount = 0;
+	this.presenceFunc = () => {
+		switch (this.presenceCount) {
+			case 0:
+				client.user.setPresence({ activity: { name: `w.help`, type: 'WATCHING' } });
+				break;
+			case 1:
+				client.user.setPresence({ activity: { name: `серверов: ${client.guilds.cache.size}`, type: 'WATCHING' } });
+				break;
+			case 2:
+				client.user.setPresence({ activity: { name: 'время', type: 'WATCHING' } });
+				break;
+			case 3:
+				client.user.setPresence({ activity: { name: 'хуффингтон', type: 'STREAMING' } });
+				this.presenceCount = 0;
+		}
+		this.presenceCount++;
+		this.sc.pushTask({ code: 'presence', time: 30000 });
+	};
+
 	/**
 	 * @function
 	 * @param {string} log
@@ -30,11 +55,6 @@ module.exports = function (Discord, client, con) {
 		);
 	};
 
-	// con.queryKeyValue('SELECT id, tier FROM admins WHERE 1', (err, result) => client.userLib.admins = result);
-
-	if (process.env.webhookId && process.env.webhookToken)
-		this.webhook = new Discord.WebhookClient(process.env.webhookId, process.env.webhookToken);
-
 	/**
 	 * @function
 	 * @param {string} content
@@ -47,9 +67,9 @@ module.exports = function (Discord, client, con) {
 		this.webhook.send(`<t:${Math.floor(now.getTime() / 1000)}:T> | Shard[${client.shard.ids}] | : ${content}`);
 	};
 
-	this.badWords = require('./badwords.js');
+	this.badWords = require('../models/badwords.js');
 
-	this.correctorList = require('./corrector.js');
+	this.correctorList = require('../models/corrector.js');
 
 	this.admins = {
 		'321705723216134154': 0,
@@ -83,10 +103,10 @@ module.exports = function (Discord, client, con) {
 
 	this.cooldown = new Map();
 
-	this.promise = require('./utils/promise');
+	this.promise = require('./promise');
 	this.sc = new schedule(this.sendLog);
 
-	const { registerFont, createCanvas, loadImage } = require('canvas');
+	const { createCanvas, loadImage } = require('canvas');
 	this.createCanvas = createCanvas;
 	this.loadImage = loadImage;
 
@@ -99,112 +119,12 @@ module.exports = function (Discord, client, con) {
 	this.nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё .|-]/g;
 	this.mentionDetect = /@everyone|@here/gm;
 
-	let replacer = {
-		q: 'й',
-		w: 'ц',
-		e: 'у',
-		r: 'к',
-		t: 'е',
-		y: 'н',
-		u: 'г',
-		i: 'ш',
-		o: 'щ',
-		p: 'з',
-		'[': 'х',
-		']': 'ъ',
-		'{': 'Х',
-		'}': 'Ъ',
-		a: 'ф',
-		s: 'ы',
-		d: 'в',
-		f: 'а',
-		g: 'п',
-		h: 'р',
-		j: 'о',
-		k: 'л',
-		l: 'д',
-		';': 'ж',
-		"'": 'э',
-		z: 'я',
-		x: 'ч',
-		c: 'с',
-		v: 'м',
-		b: 'и',
-		n: 'т',
-		m: 'ь',
-		',': 'б',
-		'.': 'ю',
-		'/': '.',
-		'&': '?',
-		'?': ',',
-		'~': 'Ё',
-		'`': 'ё',
-	};
-
-	this.permissionsArrayTranslator = {
-		'CREATE_INSTANT_INVITE': 'Создание приглашения',
-		'KICK_MEMBERS': 'Выгонять участников',
-		'BAN_MEMBERS': 'Банить участников',
-		'ADMINISTRATOR': 'Администратор',
-		'MANAGE_CHANNELS': 'Управлять каналами',
-		'MANAGE_GUILD': 'Управлять сервером',
-		'ADD_REACTIONS': 'Добавлять реакции',
-		'VIEW_AUDIT_LOG': 'Просматривать журнал аудита',
-		'PRIORITY_SPEAKER': 'Приоритетный режим',
-		'STREAM': 'Видео',
-		'VIEW_CHANNEL': 'Просмотр канала',
-		'SEND_MESSAGES': 'Отправление сообщений',
-		'SEND_TTS_MESSAGES': 'Отправка сообщений text-to-speach',
-		'MANAGE_MESSAGES': 'Управлять сообщениями',
-		'EMBED_LINKS': 'Встраивать ссылки',
-		'ATTACH_FILES': 'Прикреплять файлы',
-		'READ_MESSAGE_HISTORY': 'Читать историю сообщений',
-		'MENTION_EVERYONE': 'Упоминать @everyone',
-		'USE_EXTERNAL_EMOJIS': 'Успользовать внешний эмодзи',
-		'VIEW_GUILD_INSIGHTS': '',
-		'CONNECT': 'Подключиться',
-		'SPEAK': 'Говорить',
-		'MUTE_MEMBERS': 'Отключать участникам микрофон',
-		'DEAFEN_MEMBERS': 'Выключать участникам звук',
-		'MOVE_MEMBERS': 'Перемещать участников',
-		'USE_VAD': 'Режим рации',
-		'CHANGE_NICKNAME': '',
-		'MANAGE_NICKNAMES': '',
-		'MANAGE_ROLES': 'Управлять ролями',
-		'MANAGE_WEBHOOKS': '',
-		'MANAGE_EMOJIS_AND_STICKERS': '',
-		'USE_APPLICATION_COMMANDS': '',
-		'REQUEST_TO_SPEAK': '',
-		'MANAGE_THREADS': '',
-		'USE_PUBLIC_THREADS': '',
-		'USE_PRIVATE_THREADS': '',
-		'USE_EXTERNAL_STICKERS': '',
-	}
-
-	const nicknameParts = {
+	this.nicknameParts = {
 		prefixes: ['A', 'Ex', 'Im', 'Il', 'In', 'Ret', 'Un', 'De', 'Int'],
 		root: ['bler', 'ses', 'wis', 'let', 'ger', 'mon', 'lot', 'far'],
 		suffixes: ['er', 'or', 'an', 'ian', 'ist', 'ant', 'ee', 'ess', 'ent', 'ity', 'ance', 'ion', 'dom', 'th'],
 	};
-	this.helpExample = {
-		name: 'name',
-		description: 'description',
-		aliases: ['array'],
-		usage: [{ type: 'text', opt: 0, name: 'object' }],
-		dm: 0,
-		tier: 0,
-		cooldown: 0,
-		hide: 0,
-		interactions: 0,
-	};
-	/**
-	 * @function
-	 * @param {Object} interaction
-	 * @returns {object}
-	 */
-	this.interactionOpt = interaction => {
-		return interaction.data.options.reduce((pr, cr) => ({ ...pr, [cr.name]: cr }), {});
-	};
+
 	/**
 	 * @function
 	 * @param {Array} args
@@ -235,12 +155,19 @@ module.exports = function (Discord, client, con) {
 	/**
 	 * @function
 	 * @param {string} str
+	 * @param {string} mode
 	 * @returns {string}
 	 */
-	this.translate = (str = '') => {
-		return str.replace(/[A-z/,.;?&'`~}{\]\[]/g, x => {
-			return x === x.toLowerCase() ? replacer[x] : replacer[x.toLowerCase()].toUpperCase();
-		});
+	this.translate = (str = '', mode) => {
+		if (mode === 'en2ru') {
+			return str.replace(/[A-z/,.;?&'`~}{\]\[]/g, x => {
+				return x === x.toLowerCase() ? en2ru[x] : en2ru[x.toLowerCase()].toUpperCase();
+			});
+		} else if (mode === 'ru2en') {
+			return str.replace(/[А-я.?,]/g, x => {
+				return x === x.toLowerCase() ? ru2en[x] : ru2en[x.toLowerCase()].toUpperCase();
+			});
+		}
 	};
 
 	/**
@@ -263,26 +190,27 @@ module.exports = function (Discord, client, con) {
 	 * @returns {Array}
 	 */
 	this.permissionsArrayToString = (array) => {
-		return array.map((el) => this.permissionsArrayTranslator[el]);
+		return array.map((el) => permissionsArrayTranslator[el]);
 	};
 
 	/**
 	 * @function
 	 * @param {string} type
 	 * @param {string} command
-	 * @param msg
+	 * @param {object} interaction
+	 * @return {string}
 	 */
 	this.generateUseLog = (type, command, interaction) => {
 		switch (interaction.type) {
 			case 'APPLICATION_COMMAND':
 				return `Use: ${command}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
-					interaction.guildId != undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
+					interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
 				} => #${interaction.channelId}`;
 
 			case 'MESSAGE_COMPONENT':
 				return `Interaction: ${command}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
-					interaction.guildId != undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
-				} => ${interaction.channelIid}, custom_id: "${interaction.data.custom_id}"(${this.AESdecrypt(
+					interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
+				} => ${interaction.channelId}, custom_id: "${interaction.data.custom_id}"(${this.AESdecrypt(
 					interaction.data.custom_id
 				)})`;
 		}
@@ -302,30 +230,6 @@ module.exports = function (Discord, client, con) {
 		} else {
 			return `Ошибка!\n! Команда - ${command}\n! Пользователь: ${interaction.user.tag} (ID: ${interaction.user.id})\n! Текст ошибки: ${err}`;
 		}
-	};
-
-	/**
-	 * @function
-	 * @param {Array} usage
-	 * @returns {string}
-	 */
-	this.generateUsage = usage => {
-		let generate = '';
-		for (let us of usage) {
-			generate += generate ? ' ' : '';
-			if (us.type === 'voice' || us.type === 'attach') {
-				generate += us.opt ? '{' : '<';
-				generate += us.type === 'voice' ? 'подключение' : 'вложение';
-				generate += us.opt ? '}' : '>';
-			} else {
-				if (us.type === 'user') us.name = '@кто';
-				if (us.type === 'channel') us.name = '#текстовый-канал';
-				generate += us.opt ? '(' : '[';
-				generate += us.name;
-				generate += us.opt ? ')' : ']';
-			}
-		}
-		return generate;
 	};
 
 	/**
@@ -355,26 +259,6 @@ module.exports = function (Discord, client, con) {
 		return Math.floor(Math.random() * (high - low + 1) + low);
 	};
 
-	this.presenceCount = 0;
-	this.presenceFunc = () => {
-		switch (this.presenceCount) {
-			case 0:
-				client.user.setPresence({ activity: { name: `w.help`, type: 'WATCHING' } });
-				break;
-			case 1:
-				client.user.setPresence({ activity: { name: `серверов: ${client.guilds.cache.size}`, type: 'WATCHING' } });
-				break;
-			case 2:
-				client.user.setPresence({ activity: { name: 'время', type: 'WATCHING' } });
-				break;
-			case 3:
-				client.user.setPresence({ activity: { name: 'хуффингтон', type: 'STREAMING' } });
-				this.presenceCount = 0;
-		}
-		this.presenceCount++;
-		this.sc.pushTask({ code: 'presence', time: 30000 });
-	};
-
 	/**
 	 * @function
 	 * @param interaction
@@ -401,39 +285,6 @@ module.exports = function (Discord, client, con) {
 
 		if (interaction.deferred) interaction.editReply({ embeds: [embed] });
 		else interaction.reply({ embeds: [embed] });
-	};
-
-	/**
-	 * @function
-	 * @param interaction
-	 * @param embed
-	 * @param {boolean} ephemeral
-	 * @param {array} components
-	 */
-	this.replyInteraction = (interaction, embed, ephemeral = true, components = [], file) => {
-		if (!interaction.hasOwnProperty('guild_id')) ephemeral = false;
-		client.api.interactions(interaction.id, interaction.token).callback.post({
-			data: {
-				type: 4,
-				data: {
-					embeds: [embed],
-					flags: ephemeral ? 64 : 0,
-					components: components,
-					file: "https://cdn.discordapp.com/attachments/581070953703014403/872079039941189652/PngItem_5048237.png",
-				},
-			},
-		});
-	};
-
-	/**
-	 * @function
-	 * @param interaction
-	 * @return {object}
-	 */
-	this.getUser = interaction => {
-		if (interaction.hasOwnProperty('user')) return interaction.user;
-		else if (interaction.hasOwnProperty('member')) return interaction.member.user;
-		else return { id: '000000000000000000', username: 'Undefined', discriminator: '0000' };
 	};
 
 	/**
@@ -492,7 +343,7 @@ module.exports = function (Discord, client, con) {
 	 * @returns {boolean}
 	 */
 	this.setSettings = async (guildId, setNumber, state) => {
-		if ((await this.checkSettings(guildId, setNumber)) == state) return false;
+		if ((await this.checkSettings(guildId, setNumber)) === state) return false;
 
 		con.query(`UPDATE guilds SET settings = settings ${state ? '+' : '-'} ? WHERE guildId = ?`, [
 			this.settings[setNumber],
@@ -535,9 +386,9 @@ module.exports = function (Discord, client, con) {
 	 */
 	this.getRandomNickname = () => {
 		return (
-			nicknameParts.prefixes[this.randomIntInc(0, nicknameParts.prefixes.length - 1)] +
-			nicknameParts.root[this.randomIntInc(0, nicknameParts.root.length - 1)] +
-			nicknameParts.suffixes[this.randomIntInc(0, nicknameParts.suffixes.length - 1)]
+			this.nicknameParts.prefixes[this.randomIntInc(0, this.nicknameParts.prefixes.length - 1)] +
+			this.nicknameParts.root[this.randomIntInc(0, this.nicknameParts.root.length - 1)] +
+			this.nicknameParts.suffixes[this.randomIntInc(0, this.nicknameParts.suffixes.length - 1)]
 		);
 	};
 
