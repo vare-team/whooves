@@ -11,6 +11,8 @@ exports.command = {
 const GifEncoder = require('gif-encoder');
 
 exports.run = async (client, interaction) => {
+	if (interaction.options.getMessage('message').content.length < 1) return client.userLib.retError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
+
 	await interaction.deferReply();
 
 	const canvas = client.userLib.createCanvas(856, 128),

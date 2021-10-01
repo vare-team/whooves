@@ -13,6 +13,8 @@ const urlFinder = new RegExp(
 );
 
 exports.run = async (client, interaction) => {
+	if (interaction.options.getMessage('message').content.length < 1) return client.userLib.retError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
+
 	await interaction.deferReply({ ephemeral: true });
 	const url = interaction.options.getMessage('message').content.match(urlFinder);
 	if (url === null) return client.userLib.retError(interaction, 'Ссылка не найдена!');

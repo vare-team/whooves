@@ -9,6 +9,8 @@ exports.command = {
 };
 
 exports.run = (client, interaction) => {
+	if (interaction.options.getMessage('message').content.length < 1) return client.userLib.retError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
+
 	let rus = 0,
 		eng = 0;
 	for (let i = 0; i < interaction.options.getMessage('message').content.length; i++) {
