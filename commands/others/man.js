@@ -51,14 +51,14 @@ exports.command = {
 const { readdir } = require('fs'),
 	docs = {};
 //PARSE DOCS
-readdir('./docs/', (err, files) => {
+readdir('./assets/docs/', (err, files) => {
 	if (err) throw err;
 	files
 		.filter(e => e.endsWith('.js'))
 		.forEach(el => {
 			try {
-				docs[el.slice(0, -3)] = require(`../../docs/${el}`);
-				delete require.cache[require.resolve(`../../docs/${el}`)];
+				docs[el.slice(0, -3)] = require(`../../assets/docs/${el}`);
+				delete require.cache[require.resolve(`../../assets/docs/${el}`)];
 			} catch (e) {
 				console.warn(e);
 			}

@@ -210,8 +210,8 @@ module.exports = function (Discord, client, con) {
 			case 'MESSAGE_COMPONENT':
 				return `Interaction: ${command}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
 					interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
-				} => ${interaction.channelId}, custom_id: "${interaction.data.custom_id}"(${this.AESdecrypt(
-					interaction.data.custom_id
+				} => ${interaction.channelId}, custom_id: "${interaction['customId']}"(${this.AESdecrypt(
+					interaction['customId']
 				)})`;
 		}
 	};
