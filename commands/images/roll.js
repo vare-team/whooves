@@ -1,6 +1,6 @@
 exports.help = {
 	name: 'roll',
-	description: 'Кручения изображения на 360.',
+	description: 'Поворот изображения',
 	dm: 1,
 	tier: 0,
 	cooldown: 10,
