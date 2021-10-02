@@ -1,86 +1,79 @@
 exports.help = {
 	name: 'settings',
-	description:
-		'Настройки бота.\n``prefix [prefix] - префикс бота\nlog [#channel/off] - лог канал\nbadwords [on/off] - фильтр мата\nusernamechecker [on/off] - антиюникод в никах``',
-	aliases: ['set'],
-	usage: [
-		{ type: 'text', opt: 0, name: 'параметр' },
-		{ type: 'text', opt: 0, name: 'состояние' },
-	],
-	dm: 0,
-	tier: -2,
-	cooldown: 5,
+	description: 'Настройки бота',
 };
 
-const parametrs = ['prefix', 'log', 'badwords', 'usernamechecker'],
-	status = ['on', 'off'],
-	normalizeParametrs = {
-		badwords: 'Фильтр плохих слов',
-		usernamechecker: 'Исправление никнеймов',
-	};
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'badwords',
+			description: 'Фильтр плохих слов в чате',
+			type: 1,
+			options: [
+				{
+					name: 'состояние',
+					description: 'Состояние параметра',
+					type: 5,
+					required: true
+				}
+			]
+		},
+		{
+			name: 'autocorrector',
+			description: 'Проверка никнейма участнкиа при его заходе',
+			type: 1,
+			options: [
+				{
+					name: 'состояние',
+					description: 'Состояние параметра',
+					type: 5,
+					required: true
+				}
+			]
+		},
+		{
+			name: 'logchannel',
+			description: 'Лог-канал',
+			type: 1,
+			options: [
+				{
+					name: 'канал',
+					description: 'Канал для логов',
+					type: 7,
+					channel_types: [0]
+				}
+			]
+		},
+	]
+};
 
-exports.run = async (client, msg, args) => {
-	if (parametrs.indexOf(args[0]) == -1) {
-		client.userLib.retError(msg, 'Такого параметра не существует. Доступные параметры: ' + parametrs.join(', '));
-		return;
-	}
+const normalizeParametrs = {
+	badwords: 'Фильтр плохих слов',
+	autocorrector: 'Исправление никнеймов',
+};
 
-	if (args[0] === 'prefix' && args[1].length > 5) {
-		client.userLib.retError(msg, 'Префикс бота должен быть не более 5 символов!');
-		return;
-	}
-
-	if (args[0] === 'log' && args[1] !== 'off' && !msg.mentions.channels.first()) {
-		client.userLib.retError(msg, 'Вы должны упомянуть канал или написать ``off``!');
-		return;
-	}
-
-	if (parametrs.slice(2).indexOf(args[0]) != -1 && status.indexOf(args[1]) == -1) {
-		client.userLib.retError(msg, 'Статус параметра введён не верно. Доступные статусы: ' + status.join(', '));
-		return;
-	}
-
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
-		.setAuthor('🔧 Настройки')
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-
-	switch (args[0]) {
-		case 'prefix':
-			client.userLib.db.update(`guilds`, { guildId: msg.guild.id, prefix: args[1] == 'w.' ? null : args[1] }, () => {});
-			embed.setDescription(`Теперь префикс для вашего сервера это **${args[1]}**`).setTitle('Префикс бота');
-			break;
-		case 'log':
-			if (args[1] === 'off')
-				client.userLib.sendLogChannel('commandUse', msg.guild, {
-					user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() },
-					channel: { id: msg.channel.id },
-					content: 'отключение лог канала',
+exports.run = async (client, interaction) => {
+	switch (interaction.options.getSubcommand()) {
+		case 'logchannel':
+			if (!interaction.options.getChannel('канал'))
+				client.userLib.sendLogChannel('commandUse', interaction.guild, {
+					user: { tag: interaction.user.tag, id: interaction.user.id },
+					channel: { id: interaction.channel.id },
+					content: 'отключение лог-канала',
 				});
 
 			client.userLib.db.update(
 				`guilds`,
-				{ guildId: msg.guild.id, logchannel: args[1] === 'off' ? null : msg.mentions.channels.first().id },
+				{ guildId: interaction.guildId, logchannel: interaction.options.getChannel('канал') ? interaction.options.getChannel('канал').id : null },
 				() => {}
 			);
-			embed
-				.setTitle('Лог канал')
-				.setDescription(
-					args[1] === 'off' ? `Лог канал отключён.` : `Лог канал теперь ${msg.mentions.channels.first()}`
-				);
-			break;
+
+			return client.userLib.retSuccess(interaction, !interaction.options.getChannel('канал') ? `**Лог канал отключен**!` : `${interaction.options.getChannel('канал')} **установлен как канал для логов!**`)
 		default:
-			if (!(await client.userLib.setSettings(msg.guild.id, args[0], args[1] === 'on'))) {
-				client.userLib.retError(msg, 'Параметр уже находится в текущем значении!');
-				return;
-			}
+			if (!(await client.userLib.setSettings(interaction.guildId, interaction.options.getSubcommand(), interaction.options.getBoolean('состояние')))) return client.userLib.retError(interaction, 'Параметр уже находится в этом значении!');
 
-			embed
-				.setDescription(`${normalizeParametrs[args[0]]} **${args[1] === 'on' ? 'включен' : 'выключен'}**!`)
-				.setTitle(normalizeParametrs[args[0]]);
-			break;
+			return client.userLib.retSuccess(interaction, `«\`${normalizeParametrs[interaction.options.getSubcommand()]}\`» - **${interaction.options.getBoolean('состояние') ? 'включен' : 'выключен'}**!`)
 	}
-
-	msg.channel.send(embed);
 };

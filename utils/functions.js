@@ -112,7 +112,7 @@ module.exports = function (Discord, client, con) {
 
 	this.settings = {
 		badwords: 0x1,
-		usernamechecker: 0x2,
+		autocorrector: 0x2,
 	};
 
 	this.nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
@@ -424,36 +424,20 @@ module.exports = function (Discord, client, con) {
 		}
 
 		let now = new Date();
-		let text = `[\`\`${
-			('00' + now.getDate()).slice(-2) +
-			'.' +
-			('00' + (now.getMonth() + 1)).slice(-2) +
-			' ' +
-			('00' + now.getHours()).slice(-2) +
-			':' +
-			('00' + now.getMinutes()).slice(-2) +
-			':' +
-			('00' + now.getSeconds()).slice(-2)
-		}\`\`] `;
+		let text = `[<t:${Math.floor(now / 1000)}:R>] `;
 
 		if (!type) return console.warn('Error! Тип не указан');
 		switch (type) {
 			case 'memberAdd':
 				text += `📈 **Заход участника** ${data.user.tag} (ID: ${
 					data.user.id
-				});\nАккаунт зарегистрирован __${this.moment(
-					data.user.createdAt,
-					'WWW MMM DD YYYY HH:mm:ss'
-				).fromNow()}__ ||\`\`${data.user.createdAt}\`\`||;`;
+				});\nАккаунт зарегистрирован <t:${data.user.createdAt}:R>;`;
 				break;
 
 			case 'memberRemove':
 				text += `📉 **Выход участника** ${data.user.tag}  (ID: ${
 					data.user.id
-				});\nАккаунт зашёл на сервер __${this.moment(
-					data.user.joinedAt,
-					'WWW MMM DD YYYY HH:mm:ss'
-				).fromNow()}__ ||\`\`${data.user.joinedAt}\`\`||;`;
+				});\nАккаунт зашёл на сервер <t:${data.user.joinedAt}:R>`;
 				break;
 
 			case 'messageDelete':
