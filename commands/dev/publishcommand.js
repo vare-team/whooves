@@ -14,7 +14,8 @@ exports.command = {
 			name: 'команда',
 			description: 'название команды',
 			type: 3,
-			required: true
+			required: true,
+			autocomplete: true,
 		},
 	],
 };
@@ -39,4 +40,19 @@ exports.run = async (client, interaction) => {
 			interaction.reply({ embeds: [embed], ephemeral: true });
 		}
 	);
+};
+
+exports.autocomplete = async (client, interaction) => {
+	const commands = client.commands;
+	const respond = [];
+
+	for (let element of commands) {
+		if (element[0].startsWith(interaction.options.getString('команда')) && respond.length < 25)
+		respond.push({
+			name: element[0],
+			value: element[0]
+		})
+	}
+
+	interaction.respond(respond)
 };
