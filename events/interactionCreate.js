@@ -32,7 +32,13 @@ module.exports = async (client, interaction) => {
 				client.statistic.erroredcmd++;
 			}
 			break;
+		case 'APPLICATION_COMMAND_AUTOCOMPLETE':
+			cmd = client.commands.get(interaction.commandName.toLowerCase());
 
+			if (!cmd) return console.log(interaction.commandName);
+
+			await cmd.autocomplete(client, interaction);
+			break;
 		case 'MESSAGE_COMPONENT':
 			args = client.userLib.AESdecrypt(interaction['customId']).split(':');
 
