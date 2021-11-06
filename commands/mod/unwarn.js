@@ -1,6 +1,6 @@
 exports.help = {
 	name: 'unwarn',
-	description: 'Снять предупреждение с учасика',
+	description: 'Снять предупреждение с участника',
 };
 
 exports.command = {
