@@ -18,6 +18,7 @@ exports.command = {
 			description: 'ID Предупреждения',
 			type: 4,
 			required: true,
+			autocomplete: true,
 		},
 	],
 };
@@ -45,4 +46,8 @@ exports.run = async (client, interaction) => {
 		channel: { id: interaction.channelId },
 		content: `снятие предупреждения (ID:${interaction.options.getInteger('id')}) с ${interaction.options.getUser('участник').id}`,
 	});
+};
+
+exports.autocomplete = async (client, interaction) => {
+
 };

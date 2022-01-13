@@ -1,18 +1,21 @@
-exports.help = {
-	name: 'Сменить раскладку',
-	description: 'Изменяет раскалдку текста сообщения на противоположную.',
+import keyTranslator from '../../utils/modules/keyTranslator';
+import { respondError } from '../../utils/modules/respondMessages';
+
+export const help = {
+	name: 'сменить раскладку',
+	description: 'Изменяет раскладку текста сообщения на противоположную',
 };
 
-exports.command = {
-	name: exports.help.name,
+export const command = {
+	name: help.name,
 	type: 3,
 };
 
-exports.run = (client, interaction) => {
-	if (interaction.options.getMessage('message').content.length < 1) return client.userLib.retError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
+export function run(interaction) {
+	if (interaction.options.getMessage('message').content.length < 1) return respondError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
 
-	let rus = 0,
-		eng = 0;
+	let rus = 0, eng = 0;
+
 	for (let i = 0; i < interaction.options.getMessage('message').content.length; i++) {
 		if (
 			interaction.options.getMessage('message').content.codePointAt(i) > 64 &&
@@ -26,7 +29,11 @@ exports.run = (client, interaction) => {
 			rus++;
 	}
 
-	interaction.reply({
-		content: client.userLib.translate(interaction.options.getMessage('message').content, eng >= rus ? 'en2ru' : 'ru2en'),
-	});
-};
+	interaction.reply({ content: keyTranslator(interaction.options.getMessage('message').content, eng >= rus ? 'en2ru' : 'ru2en') })
+}
+
+export default {
+	help,
+	command,
+	run
+}

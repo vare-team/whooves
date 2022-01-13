@@ -1,3 +1,5 @@
+//TODO: Seamcarver
+
 exports.help = {
 	name: 'seamcarving',
 	description: 'Сжатие изображения без потери полезных данных',

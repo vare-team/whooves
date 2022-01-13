@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	'CREATE_INSTANT_INVITE': 'Создание приглашения',
 	'KICK_MEMBERS': 'Выгонять участников',
 	'BAN_MEMBERS': 'Банить участников',
@@ -11,7 +11,7 @@ module.exports = {
 	'STREAM': 'Видео',
 	'VIEW_CHANNEL': 'Просмотр канала',
 	'SEND_MESSAGES': 'Отправление сообщений',
-	'SEND_TTS_MESSAGES': 'Отправка сообщений text-to-speach',
+	'SEND_TTS_MESSAGES': 'Отправка сообщений text-to-speech',
 	'MANAGE_MESSAGES': 'Управлять сообщениями',
 	'EMBED_LINKS': 'Встраивать ссылки',
 	'ATTACH_FILES': 'Прикреплять файлы',

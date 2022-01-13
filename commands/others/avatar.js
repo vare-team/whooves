@@ -1,14 +1,14 @@
-exports.help = {
+import { MessageEmbed } from "discord.js";
+import colors from "../../models/colors";
+
+export const help = {
 	name: 'avatar',
 	description: 'Ссылка на аватара пользователя',
-	dm: 1,
-	tier: 0,
-	cooldown: 1,
-};
+}
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'пользователь',
@@ -16,18 +16,24 @@ exports.command = {
 			type: 6,
 		},
 	],
-};
+}
 
-exports.run = (client, interaction) => {
-	const user = interaction.options.getUser('пользователь') || interaction.user;
+export function run(interaction) {
+	const user = interaction.options.getUser('пользователь') || interaction.user
 
-	let embed = new client.userLib.discord.MessageEmbed()
+	let embed = new MessageEmbed()
 		.setDescription(`Аватар ${user}`)
-		.setColor(client.userLib.colors.inf)
+		.setColor(colors.information)
 		.setImage(user.displayAvatarURL({ dynamic: true, size: 2048 }))
-		.setTimestamp();
+		.setTimestamp()
 
-	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF');
+	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF')
 
-	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') });
-};
+	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') })
+}
+
+export default {
+	help,
+	command,
+	run
+}
