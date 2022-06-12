@@ -1,11 +1,16 @@
-exports.help = {
-	name: '8ball',
-	description: 'Задайте магическому шару вопрос и он на него ответит!',
-};
+import { respondError } from "../../utils/modules/respondMessages";
+import { MessageEmbed } from "discord.js";
+import colors from "../../models/colors";
+import { randomIntInc } from "../../utils/functions";
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const help = {
+	name: '8ball',
+	description: 'Задайте магическому шару вопрос и он на него ответит',
+}
+
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'вопрос',
@@ -14,7 +19,7 @@ exports.command = {
 			required: true,
 		},
 	],
-};
+}
 
 const answers = [
 	'Бесспорно',
@@ -37,7 +42,7 @@ const answers = [
 	'По моим данным — «нет»',
 	'Перспективы не очень хорошие',
 	'Весьма сомнительно',
-];
+]
 
 //TODO добавить больше вопрос/ответ
 const questions = {
@@ -47,20 +52,28 @@ const questions = {
 	'когда v3?': 'Завтра',
 };
 
-exports.run = (client, interaction) => {
+export function run(interaction) {
 	if (100 < interaction.options.getString('вопрос').length)
-		return client.userLib.retError(interaction, `Количество символов в вопросе не должно превышать **100** символов!`);
+		return respondError(interaction, `Количество символов в вопросе не должно превышать **100** символов!`)
 
 	if (interaction.options.getString('вопрос').trim()[interaction.options.getString('вопрос').length - 1] !== '?')
-		return client.userLib.retError(interaction, `Вопрос должен оканчиваться знаком вопроса!`);
+		return respondError(interaction, `Вопрос должен оканчиваться знаком вопроса!`)
 
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.inf)
+	const embed = new MessageEmbed()
+		.setColor(colors.information)
 		.setTitle('Магический шар')
-		.addField('Твой вопрос', `\`\`${interaction.options.getString('вопрос')}\`\``);
+		.addField('Твой вопрос', `\`\`${interaction.options.getString('вопрос')}\`\``)
 
-	if (questions.hasOwnProperty(interaction.options.getString('вопрос').toLowerCase())) embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``);
-	else embed.addField('Ответ шара', `\`\`${answers[client.userLib.randomIntInc(0, answers.length - 1)]}\`\``);
+	if (questions.hasOwnProperty(interaction.options.getString('вопрос').toLowerCase()))
+		embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``)
+	else
+		embed.addField('Ответ шара', `\`\`${answers[randomIntInc(0, answers.length - 1)]}\`\``)
 
 	interaction.reply({ embeds: [embed], ephemeral: false });
-};
+}
+
+export default {
+	help,
+	command,
+	run
+}

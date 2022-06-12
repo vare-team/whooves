@@ -26,6 +26,7 @@ exports.command = {
 					description: 'Название документа',
 					type: 3,
 					required: true,
+					autocomplete: true,
 				},
 				{
 					name: 'язык',
@@ -78,8 +79,6 @@ exports.run = (client, interaction) => {
 		return interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 
-	if (!docs[interaction.options.getString('название')])
-		return client.userLib.retError(interaction, 'Документ не найден.');
 	let docLang = interaction.options.getString('язык') ? interaction.options.getString('язык') : 'ru';
 
 	let doc = docs[interaction.options.getString('название')];
@@ -167,4 +166,19 @@ exports.interaction = async (client, interaction, args) => {
 	);
 
 	interaction.update({ embeds: [embed], ephemeral: true, components: [row] });
+};
+
+exports.autocomplete = async (client, interaction) => {
+	const documents = Object.keys(docs);
+	const respond = [];
+
+	for (let element of documents) {
+		if (element.startsWith(interaction.options.getString('название')) && respond.length < 25)
+			respond.push({
+				name: element,
+				value: element
+			})
+	}
+
+	interaction.respond(respond)
 };

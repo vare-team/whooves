@@ -11,6 +11,7 @@ exports.command = {
 			name: 'команда',
 			description: 'название команды',
 			type: 3,
+			autocomplete: true,
 		},
 	],
 };
@@ -87,4 +88,19 @@ exports.run = (client, interaction) => {
 	embed.addField('Использование', command.help.onlyGuild ? 'Только для гильдий' : 'ЛС И Гильдия')
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
+};
+
+exports.autocomplete = async (client, interaction) => {
+	const commands = client.commands;
+	const respond = [];
+
+	for (let element of commands) {
+		if (element[0].startsWith(interaction.options.getString('команда')) && respond.length < 5)
+			respond.push({
+				name: element[0],
+				value: element[0]
+			})
+	}
+
+	interaction.respond(respond)
 };

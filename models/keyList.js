@@ -1,4 +1,6 @@
-module.exports = {
+// noinspection NonAsciiCharacters
+
+export default {
 	en2ru: {
 		'q': 'й',
 		'w': 'ц',

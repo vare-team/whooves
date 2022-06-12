@@ -3,13 +3,28 @@ exports.help = {
 	description: 'Очистить сообщения',
 };
 
-exports.run = async (client, msg, args) => {
-	if (isNaN(+args[0])) {
-		client.userLib.retError(msg, 'Аргумент должен быть числом.');
-		return;
-	}
+exports.command = {
+	name: exports.help.name,
+	description: exports.help.description,
+	options: [
+		{
+			name: 'количество',
+			description: 'Количество сообщений (не более 100 за раз)',
+			type: 4,
+			required: true
+		},
+		{
+			name: 'участник',
+			description: 'Удалить только сообщения от участника',
+			type: 6,
+		}
+	]
+};
 
-	let dmsg = await msg.channel.bulkDelete(+args[0] > 100 ? 100 : +args[0], true);
+exports.run = async (client, interaction) => {
+	if (interaction.options.getInteger('количество') > 99 || interaction.options.getInteger('количество') < 1) return client.userLib.retError(interaction, 'Число должно быть не более 100 и не менее 1!');
+
+	let dmsg = await interaction.channel.bulkDelete(interaction.options.getInteger('количество'), true);
 
 	let embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.suc)

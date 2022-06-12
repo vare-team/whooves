@@ -1,39 +1,29 @@
+//TODO: Seamcarver
+
 exports.help = {
 	name: 'seamcarving',
-	description: 'Seam carving.',
-	aliases: ['sc'],
-	usage: [
-		{ type: 'user', opt: 1 },
-		{ type: 'attach', opt: 1 },
+	description: 'Сжатие изображения без потери полезных данных',
+};
+
+exports.command = {
+	name: help.name,
+	description: help.description,
+	options: [
+		{
+			name: 'пользователь',
+			description: 'пользователь',
+			type: 6,
+		},
 	],
-	dm: 1,
-	tier: 0,
-	cooldown: 10,
-	hide: 1,
 };
 
 let SeamCarver = require('../../utils/seamcarver');
 
-exports.run = async (client, msg) => {
-	if (msg.attachments.first() && !msg.attachments.first().width) {
-		client.userLib.retError(msg, 'Файл должен быть изображением.');
-		return;
-	}
+exports.run = async (client, interaction) => {
+	let use = interaction.options.getUser('пользователь') || interaction.user;
+	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
 
-	if (msg.attachments.first() && (msg.attachments.first().width > 512 || msg.attachments.first().height > 512)) {
-		client.userLib.retError(msg, 'Максиальныо допустимые размеры изображения 512x512!');
-		return;
-	}
-
-	if (msg.attachments.first() && msg.attachments.first().size > 8 * 1024 * 1024) {
-		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
-		return;
-	}
-
-	let use = msg.magicMention.user || msg.author;
-	use = msg.attachments.first()
-		? msg.attachments.first().url
-		: use.displayAvatarURL({ format: 'png', dynamic: false, size: 512 });
+	await interaction.deferReply();
 
 	let currentSeam = [],
 		ava = await client.userLib.loadImage(use);
@@ -78,7 +68,7 @@ exports.run = async (client, msg) => {
 	}
 
 	for (let i = 0; i < ava.width / 3; i++) {
-		doIterate();
+		await doIterate();
 	}
 
 	drawRotated(90);
@@ -86,19 +76,15 @@ exports.run = async (client, msg) => {
 	seamCarver = new SeamCarver(canvas);
 
 	for (let i = 0; i < ava.height / 3; i++) {
-		doIterate();
+		await doIterate();
 	}
 
 	await drawRotated(-90);
 
+	const file = new client.userLib.discord.MessageAttachment(canvas.toBuffer(), 'img.jpg');
 	let embed = new client.userLib.discord.MessageEmbed()
-		.attachFiles({
-			attachment: canvas.toBuffer(),
-			name: `img.jpg`,
-		})
 		.setImage('attachment://img.jpg')
-		.setColor(client.userLib.colors.inf)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+		.setColor(client.userLib.colors.inf);
 
-	msg.channel.send(embed);
+	interaction.editReply({ embeds: [embed], files: [file] });
 };
