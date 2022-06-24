@@ -1,5 +1,6 @@
 import { Client } from 'discord.js'
 import logger from './utils/logger.js'
+import interactionCreate from './events/interactionCreate.js'
 
 const client = new Client({
 	intents: [
@@ -13,3 +14,5 @@ const client = new Client({
 global.discordClient = client
 
 client.login().then(() => logger('Bot authorized', 'core'))
+
+client.on('interactionCreate', (interaction) => interactionCreate(interaction))
