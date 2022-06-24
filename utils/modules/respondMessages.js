@@ -1,5 +1,5 @@
-import { MessageEmbed } from "discord.js";
-import colors from "../../models/colors";
+import { MessageEmbed } from 'discord.js'
+import colors from '../../models/colors.js'
 
 export const emoji = {
 	load: '<a:load:793027778554888202>',

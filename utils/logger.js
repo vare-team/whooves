@@ -1,4 +1,4 @@
-import { decrypt } from "./modules/AESCryptor";
+import { decrypt } from './modules/AESCryptor.js'
 
 /**
  * @function
@@ -8,7 +8,7 @@ import { decrypt } from "./modules/AESCryptor";
  */
 export default function(log = 'Clap one hand', emitter = 'unknown', type = 'Log') {
 	const time = new Date(),
-		text = `${('00' + time.getDate()).slice(-2) + '.' + ('00' + (time.getMonth() + 1)).slice(-2) + ' ' + ('00' + time.getHours()).slice(-2) + ':' + ('00' + time.getMinutes()).slice(-2) + ':' + ('00' + time.getSeconds()).slice(-2)} | Shard[${discordClient.shard.ids}] | {${emitter}} : ${log}`
+		text = `${('00' + time.getDate()).slice(-2) + '.' + ('00' + (time.getMonth() + 1)).slice(-2) + ' ' + ('00' + time.getHours()).slice(-2) + ':' + ('00' + time.getMinutes()).slice(-2) + ':' + ('00' + time.getSeconds()).slice(-2)} | Shard[${0}] | {${emitter}} : ${log}`
 
 	if (type === 'Error') return console.error(text)
 	if (type === 'Warning') return console.warn(text)
@@ -21,14 +21,15 @@ export default function(log = 'Clap one hand', emitter = 'unknown', type = 'Log'
  * @return {string}
  */
 export function generateUseLog(interaction) {
+	console.log(interaction)
 	switch (interaction.type) {
 		case 'APPLICATION_COMMAND':
-			return `Use: ${interaction.command.name}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
+			return `Use: ${interaction.commandName}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
 				interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
 			} => #${interaction.channelId}`;
 
 		case 'MESSAGE_COMPONENT':
-			return `Interaction: ${interaction.command.name}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
+			return `Interaction: ${interaction.commandName}, By: @${interaction.user.username}#${interaction.user.discriminator}(${interaction.user.id}), ${
 				interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'
 			} => ${interaction.channelId}, custom_id: "${interaction['customId']}"(${decrypt(
 				interaction['customId']

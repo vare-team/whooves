@@ -1,5 +1,5 @@
 import { ShardingManager } from 'discord.js'
-import logger from './utils/logger'
+import logger from './utils/logger.js'
 
 const manager = new ShardingManager(
   './whooves.js',

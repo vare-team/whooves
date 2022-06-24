@@ -1,9 +1,9 @@
-import keyTranslator from '../../utils/modules/keyTranslator'
-import { respondError } from '../../utils/modules/respondMessages'
+import keyTranslator from '../../utils/modules/keyTranslator.js'
+import { respondError } from '../../utils/modules/respondMessages.js'
 
 export const help = {
 	name: 'сменить раскладку',
-	description: 'Изменяет раскладку текста сообщения на противоположную',
+	description: 'Изменяет раскладку текста сообщения на противоположную. (QWERTY <=> ЙЦУКЕН)',
 }
 
 export const command = {

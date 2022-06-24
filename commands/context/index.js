@@ -1,15 +1,15 @@
-import about from './about'
-import lang from './lang'
-import ticker from './ticker'
-import unshorten from './unshorten'
+import about from './about.js'
+import lang from './lang.js'
+// import ticker from './ticker.js'
+import unshorten from './unshorten.js'
 
 export default {
 	__category__: {
 		name: 'Контекстные команды',
 		onlyGuild: true,
 	},
-	about,
+	'информация': about,
 	lang,
-	ticker,
+	// ticker,
 	unshorten
 }

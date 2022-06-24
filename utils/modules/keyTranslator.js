@@ -1,4 +1,4 @@
-import keyList from "../../models/keyList";
+import keyList from '../../models/keyList.js'
 
 /**
  * @function

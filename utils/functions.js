@@ -1,31 +1,31 @@
-import permissionsArrayTranslator from "../models/permissionsArrayTranslator";
-import { MessageEmbed } from "discord.js";
+import permissionsArrayTranslator from '../models/permissionsArrayTranslator.js'
+import { MessageEmbed } from 'discord.js'
 
-export const mentionDetect = /@everyone|@here/gm;
+export const mentionDetect = /@everyone|@here/gm
 
 /**
  * @function
  * @param {Array} array
  * @returns {Array}
  */
-export const permissionsArrayToString = array => array.map((el) => permissionsArrayTranslator[el]);
+export const permissionsArrayToString = array => array.map((el) => permissionsArrayTranslator[el])
 
 /**
  * @function
  * @param {number} servers
  * @param {number} shards
  */
-export const sendSDC = (servers = discordClient.guilds.cache.size, shards = discordClient.shard.count) => {
-	this.sendLog(`{SDC} Guilds: ${servers}, Shards: ${shards}`);
-	this.request({
-		method: 'POST',
-		url: 'https://api.server-discord.com/v2/bots/' + discordClient.user.id + '/stats',
-		form: { servers, shards },
-		headers: { Authorization: 'SDC ' + process.env.sdc },
-	});
-	this.sendLog('{SDC} Send stats data');
-	this.sc.pushTask({ code: 'sendSDC', time: 12 * 60 * 60 * 1000 });
-};
+// export const sendSDC = (servers = discordClient.guilds.cache.size, shards = discordClient.shard.count) => {
+// 	this.sendLog(`{SDC} Guilds: ${servers}, Shards: ${shards}`);
+// 	this.request({
+// 		method: 'POST',
+// 		url: 'https://api.server-discord.com/v2/bots/' + discordClient.user.id + '/stats',
+// 		form: { servers, shards },
+// 		headers: { Authorization: 'SDC ' + process.env.sdc },
+// 	});
+// 	this.sendLog('{SDC} Send stats data');
+// 	this.sc.pushTask({ code: 'sendSDC', time: 12 * 60 * 60 * 1000 });
+// };
 
 /**
  * @function
@@ -44,29 +44,29 @@ export function randomIntInc(low, high) {
  * @param {object} channel
  * @param {string} reason
  */
-export const autowarn = (user, guild, channel, reason) => {
-	_dataBase.insert(
-		'warns',
-		{ userId: user.id, guildId: guild.id, who: discordClient.user.id, reason: '[AUTO] ' + reason },
-		(err, id) => {
-			con.query('SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?', [user.id, guild.id], (err, count) => {
-				let embed = new MessageEmbed()
-					.setColor(this.colors.war)
-					.setTitle(`${user.tag} выдано предупреждение!`)
-					.setDescription(
-						`Причина: **${reason ? reason : 'Не указана'}**\nВсего предупреждений: **${
-							count[0]['COUNT(*)']
-						}**\nID предупреждения: **${id}**`
-					)
-					.setTimestamp()
-				channel.send(embed);
-
-				sendLogChannel('commandUse', guild, {
-					user: { tag: discordClient.user.tag, id: discordClient.user.id, avatar: discordClient.user.displayAvatarURL() },
-					channel: { id: channel.id },
-					content: `выдача предупреждения (ID: ${id}) ${user} по причине: ${reason}`,
-				});
-			});
-		}
-	);
-};
+// export const autowarn = (user, guild, channel, reason) => {
+// 	_dataBase.insert(
+// 		'warns',
+// 		{ userId: user.id, guildId: guild.id, who: discordClient.user.id, reason: '[AUTO] ' + reason },
+// 		(err, id) => {
+// 			con.query('SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?', [user.id, guild.id], (err, count) => {
+// 				let embed = new MessageEmbed()
+// 					.setColor(this.colors.war)
+// 					.setTitle(`${user.tag} выдано предупреждение!`)
+// 					.setDescription(
+// 						`Причина: **${reason ? reason : 'Не указана'}**\nВсего предупреждений: **${
+// 							count[0]['COUNT(*)']
+// 						}**\nID предупреждения: **${id}**`
+// 					)
+// 					.setTimestamp()
+// 				channel.send(embed);
+//
+// 				sendLogChannel('commandUse', guild, {
+// 					user: { tag: discordClient.user.tag, id: discordClient.user.id, avatar: discordClient.user.displayAvatarURL() },
+// 					channel: { id: channel.id },
+// 					content: `выдача предупреждения (ID: ${id}) ${user} по причине: ${reason}`,
+// 				});
+// 			});
+// 		}
+// 	);
+// };

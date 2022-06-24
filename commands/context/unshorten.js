@@ -1,4 +1,4 @@
-import { respondError } from '../../utils/modules/respondMessages'
+import { respondError } from '../../utils/modules/respondMessages.js'
 
 export const help = {
 	name: 'unshorten',
