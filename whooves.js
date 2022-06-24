@@ -12,4 +12,4 @@ const client = new Client({
 
 global.discordClient = client
 
-client.login().then(() => logger('Bot authorized'))
+client.login().then(() => logger('Bot authorized', 'core'))
