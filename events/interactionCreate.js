@@ -1,4 +1,6 @@
-module.exports = async (client, interaction) => {
+import { commands } from '../commands';
+
+export default async (client, interaction) => {
 	let args, cmd, command;
 
 	switch (interaction.type) {
@@ -6,7 +8,7 @@ module.exports = async (client, interaction) => {
 			console.log('Ping?');
 			break;
 		case 'APPLICATION_COMMAND':
-			cmd = client.commands.get(interaction.commandName.toLowerCase());
+			cmd = commands[interaction.commandName.toLowerCase()];
 
 			if (!cmd) return console.log(interaction.commandName);
 
@@ -57,4 +59,4 @@ module.exports = async (client, interaction) => {
 			client.userLib.sendLog(client.userLib.generateUseLog('interaction', cmd.help.name, interaction), 'Info');
 			break;
 	}
-};
+}
