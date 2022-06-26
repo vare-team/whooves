@@ -2,7 +2,7 @@ import keyTranslator from '../../utils/modules/keyTranslator.js'
 import { respondError } from '../../utils/modules/respondMessages.js'
 
 export const help = {
-	name: 'сменить раскладку',
+	name: 'Switch text layout',
 	description: 'Изменяет раскладку текста сообщения на противоположную. (QWERTY <=> ЙЦУКЕН)',
 }
 

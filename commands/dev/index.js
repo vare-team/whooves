@@ -1,4 +1,4 @@
-import publishcommand from './publishcommand'
+import publishcommand from './publishcommand.js'
 
 export default {
 	publishcommand

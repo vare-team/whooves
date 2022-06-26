@@ -19,22 +19,22 @@ export default async function (interaction) {
 					)
 				}
 			}
-			try {
+			// try {
 				logger(generateUseLog(interaction), 'InteractionCreate', 'Log')
 				await cmd.run(interaction)
-			} catch (err) {
-				logger(generateErrLog(interaction.inGuild(), cmd.help.name, interaction, err), 'InteractionCreate', 'Error')
-				// client.userLib.sendWebhookLog(client.userLib.generateErrLog(interaction.inGuild(), cmd.help.name, interaction, err));
-				respondError(interaction, 'Произошло исключение в работе команды!')
-			}
+			// } catch (err) {
+			// 	logger(generateErrLog(interaction.inGuild(), cmd.help.name, interaction, err), 'InteractionCreate', 'Error')
+			// 	// client.userLib.sendWebhookLog(client.userLib.generateErrLog(interaction.inGuild(), cmd.help.name, interaction, err));
+			// 	respondError(interaction, 'Произошло исключение в работе команды!')
+			// }
 			break
-		// case 'APPLICATION_COMMAND_AUTOCOMPLETE':
-		// 	cmd = client.commands.get(interaction.commandName.toLowerCase());
-		//
-		// 	if (!cmd) return console.log(interaction.commandName);
-		//
-		// 	await cmd.autocomplete(client, interaction);
-		// 	break;
+		case 'APPLICATION_COMMAND_AUTOCOMPLETE':
+			cmd = commands[interaction.commandName.toLowerCase()]
+
+			if (!cmd) return console.log(interaction.commandName)
+
+			await cmd.autocomplete(interaction)
+			break
 		// case 'MESSAGE_COMPONENT':
 		// 	args = client.userLib.AESdecrypt(interaction['customId']).split(':');
 		//

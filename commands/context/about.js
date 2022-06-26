@@ -2,12 +2,15 @@ import { MessageEmbed } from 'discord.js'
 import colors from '../../models/colors.js'
 
 export const help = {
-	name: 'информация',
+	name: 'About',
 	description: 'Общая информация о авторе сообщения',
 }
 
 export const command = {
 	name: help.name,
+	name_localizations: {
+		'ru': 'Информация'
+	},
 	type: 2,
 }
 

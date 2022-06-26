@@ -15,4 +15,4 @@ global.discordClient = client
 
 client.login().then(() => logger('Bot authorized', 'core'))
 
-client.on('interactionCreate', (interaction) => interactionCreate(interaction))
+client.on('interactionCreate', interaction => interactionCreate(interaction))
