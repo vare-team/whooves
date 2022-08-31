@@ -1,11 +1,13 @@
+import SeamCarver from '../../utils/seamcarver.js'
+
 //TODO: Seamcarver
 
-exports.help = {
+export const help = {
 	name: 'seamcarving',
 	description: 'Сжатие изображения без потери полезных данных',
 };
 
-exports.command = {
+export const command = {
 	name: help.name,
 	description: help.description,
 	options: [
@@ -17,9 +19,7 @@ exports.command = {
 	],
 };
 
-const SeamCarver = require('../../utils/seamcarver');
-
-exports.run = async (client, interaction) => {
+export async function run (interaction) {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
 
@@ -87,4 +87,4 @@ exports.run = async (client, interaction) => {
 		.setColor(client.userLib.colors.inf);
 
 	interaction.editReply({ embeds: [embed], files: [file] });
-};
+}
