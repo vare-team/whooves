@@ -1,6 +1,7 @@
-import { respondError } from '../../utils/modules/respondMessages';
-import { MessageEmbed } from 'discord.js';
-import { contrastYiq, hexToRgb, rgbToCmyk, rgbToHsl } from '../../utils/modules/colorConverters';
+import { respondError } from '../../utils/modules/respondMessages.js'
+import { MessageEmbed } from 'discord.js'
+import { contrastYiq, hexToRgb, rgbToCmyk, rgbToHsl } from "../../utils/modules/colorConverters.js";
+import {codeBlock, cssBlock} from "../../utils/functions.js";
 
 export const help = {
 	name: 'color',
@@ -16,6 +17,8 @@ export const command = {
 			description: 'Цвет в шестнадцатиричном формате (#FFFFFF)',
 			type: 3,
 			required: true,
+			min_length: 6,
+			max_length: 7
 		},
 	],
 };
@@ -35,22 +38,44 @@ export function run(interaction) {
 		.setColor(color)
 		.setTitle(`Цвет #${color.toUpperCase()}`)
 		.setDescription(`Контрастный цвет: \`\`${contrastYiq(rgb.r, rgb.g, rgb.b) ? 'Белый' : 'Чёрный'}\`\``)
-		.addField(
-			'RGB:',
-			`\`\`\`Red:   ${rgb.r}\nGreen: ${rgb.g}\nBlue:  ${rgb.b}\n\`\`\`\`\`\`css\nrgb(${rgb.r}, ${rgb.g}, ${rgb.b})\`\`\``,
-			true
-		)
-		.addField(
-			'HSL:',
-			`\`\`\`Hue:        ${hsl.h}\nSaturation: ${hsl.s}%\nLightness:  ${hsl.l}%\n\`\`\`\`\`\`css\nhsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)\`\`\``,
-			true
-		)
-		.addField(
-			'CMYK:',
-			`\`\`\`Cyan:    ${cmyk.c}%\nMagenta: ${cmyk.m}%\nYellow:  ${cmyk.y}%\nBlack:   ${cmyk.k}%\n\`\`\``,
-			false
-		)
-		.setImage(`https://singlecolorimage.com/get/${color}/280x80`);
+		.setImage(`https://singlecolorimage.com/get/${color}/280x80`)
+		.addFields([
+			{
+				name: 'RGB:',
+				value: codeBlock((
+					codeBlock((
+						`Red:   ${rgb.r}\n` +
+						`Green: ${rgb.g}\n` +
+						`Blue:  ${rgb.b}\n`
+					)) +
+					cssBlock(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)
+				)),
+				inline: true
+			},
+			{
+				name: 'HSL:',
+				value: codeBlock((
+					codeBlock((
+						`Hue:        ${hsl.h}\n` +
+						`Saturation: ${hsl.s}%\n` +
+						`Lightness:  ${hsl.l}%\n`
+					)) +
+					cssBlock(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)
+				)),
+				inline: true
+			},
+			{
+				name: 'CMYK:',
+				value: codeBlock((
+					`Cyan:    ${cmyk.c}%\n` +
+					`Magenta: ${cmyk.m}%\n` +
+					`Yellow:  ${cmyk.y}%\n` +
+					`Black:   ${cmyk.k}%\n`
+				)),
+				inline: true
+			}
+		])
+
 
 	interaction.reply({ embeds: [embed] });
 }

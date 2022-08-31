@@ -15,27 +15,40 @@ export const command = {
 };
 
 export async function run(interaction) {
-	const embed = new MessageEmbed().setColor(colors.information).setTimestamp();
+	const embed = new MessageEmbed().setColor(colors.information).setTimestamp()
+	let targetUserAvatar = interaction.targetUser.displayAvatarURL({dynamic: true});
+	let fields = [
+		{
+			name: 'Дата регистрации:',
+			value: `<t:${Math.floor(interaction.targetUser.createdAt / 1000)}:R>`,
+			inline: true
+		},
+		{
+			name: 'Дата присоединения к этой гильдии:',
+			value: `<t:${Math.floor(interaction.targetMember.joinedTimestamp / 1000)}:R>`,
+			inline: true
+		}
+	]
+
+	if (interaction.targetUser.flags.bitfield)
+		fields.push({
+				name: 'Значки',
+				value: '```' + interaction.targetUser.flags.toArray() + '```'
+			}
+		)
 
 	embed
 		.setTitle(interaction.targetUser.bot ? 'Бот' : 'Пользователь')
+		.setAuthor(
+			{
+				name: interaction.targetUser.tag,
+				iconURL: targetUserAvatar
+			}
+		)
+		.addFields(fields)
+		.setThumbnail(targetUserAvatar)
 
-		.setAuthor({
-			name: interaction.targetUser.tag,
-			iconURL: interaction.targetUser.displayAvatarURL({ dynamic: true }),
-		})
-		.addField('Дата регистрации:', `<t:${Math.floor(interaction.targetUser.createdAt / 1000)}:R>`, true)
-		.setThumbnail(interaction.targetUser.displayAvatarURL({ dynamic: true }))
-		.addField(
-			'Дата присоединения к этой гильдии:',
-			`<t:${Math.floor(interaction.targetMember.joinedTimestamp / 1000)}:R>`,
-			true
-		);
-
-	if (interaction.targetUser.flags.bitfield)
-		embed.addField('Значки:', `\`\`\`${interaction.targetUser.flags.toArray()}\`\`\``);
-
-	interaction.reply({ embeds: [embed], ephemeral: true });
+	interaction.reply({embeds: [embed], ephemeral: true})
 }
 
 export default {

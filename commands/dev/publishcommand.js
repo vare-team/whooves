@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import axios from 'axios';
-import { commands } from '../index.js';
+import {commands} from '../index.js';
 import colors from '../../models/colors.js';
 
 export const APILinks = {

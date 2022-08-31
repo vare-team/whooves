@@ -1,9 +1,8 @@
-import { createCanvas, loadImage } from 'canvas';
-import { randomIntInc } from '../../utils/functions';
-import { respondError } from '../../utils/modules/respondMessages';
-import { MessageAttachment, MessageEmbed } from 'discord.js';
-import colors from '../../models/colors';
-import { contrast, distort, greyscale, invert, sepia } from '../../utils/modules/canvasFilters';
+import {createCanvas, loadImage} from "canvas";
+
+import { MessageAttachment, MessageEmbed } from 'discord.js'
+import colors from '../../models/colors.js'
+import { contrast, distort, greyscale, invert, sepia, glitch } from '../../utils/modules/canvasFilters.js'
 
 export const help = {
 	name: 'filter',
@@ -87,17 +86,8 @@ export async function run(interaction) {
 			distort(ctx, 0, 0, ava.width, ava.height);
 			break;
 		case 'glitch':
-			ava.src = canvas.toDataURL('image/jpeg');
-			for (let i = 0; i < 5; i++) ava.src = ava.src.replaceAt(randomIntInc(50, ava.src.length - 50), '0');
-			try {
-				ctx.drawImage(ava, 0, 0);
-			} catch (e) {
-				return respondError(
-					interaction,
-					'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.'
-				);
-			}
-			break;
+			glitch(ava, canvas,ctx, interaction);
+			break
 	}
 
 	const file = new MessageAttachment(canvas.toBuffer(), 'filter.jpeg');

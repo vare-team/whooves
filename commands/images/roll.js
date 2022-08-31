@@ -1,7 +1,9 @@
-import { MessageAttachment, MessageEmbed } from 'discord.js';
-import colors from '../../models/colors';
-import { createCanvas, loadImage } from 'canvas';
-import GifEncoder from 'gif-encoder';
+import { MessageAttachment, MessageEmbed } from 'discord.js'
+import colors from '../../models/colors.js'
+
+import {createCanvas, loadImage} from 'canvas';
+
+import GifEncoder from 'gif-encoder'
 
 export const help = {
 	name: 'roll',
@@ -35,7 +37,7 @@ export const command = {
 	],
 };
 
-export async function run(client, interaction) {
+export async function run(interaction) {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
 	await interaction.deferReply();

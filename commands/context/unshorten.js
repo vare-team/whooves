@@ -1,4 +1,5 @@
-import { respondError } from '../../utils/modules/respondMessages.js';
+import { respondError } from '../../utils/modules/respondMessages.js'
+import axios from "axios";
 
 export const help = {
 	name: 'unshorten',
@@ -22,12 +23,11 @@ export async function run(interaction) {
 	const url = interaction.options.getMessage('message').content.match(urlFinder);
 	if (url === null) return respondError(interaction, 'Ссылка не найдена!');
 
-	const body = await client.userLib.request(`https://unshorten.me/s/${url}`, {
-		//TODO: Axios
-		json: true,
-	});
+	const body = await axios.get(`https://unshorten.me/s/${url}`, {
+		transformResponse: (data) => JSON.parse(data),
+	})
 
-	await interaction.editReply({ content: body, ephemeral: true });
+	await interaction.editReply({ content: body.data, ephemeral: true })
 }
 
 export default {

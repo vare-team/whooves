@@ -12,27 +12,25 @@ export const command = {
 };
 
 export function run(interaction) {
-	if (interaction.options.getMessage('message').content.length < 1)
+	let message = interaction.options.getMessage('message');
+	if (message.content.length < 1)
 		return respondError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
 
 	let rus = 0,
 		eng = 0;
 
-	for (let i = 0; i < interaction.options.getMessage('message').content.length; i++) {
-		if (
-			interaction.options.getMessage('message').content.codePointAt(i) > 64 &&
-			interaction.options.getMessage('message').content.codePointAt(i) < 123
-		)
+	for (let i = 0; i < message.content.length; i++) {
+		let point = message.content.codePointAt(i)
+
+		if (point > 64 && point < 123)
 			eng++;
-		if (
-			interaction.options.getMessage('message').content.codePointAt(i) > 1039 &&
-			interaction.options.getMessage('message').content.codePointAt(i) < 1104
-		)
+
+		if (point > 1039 && point < 1104)
 			rus++;
 	}
 
 	interaction.reply({
-		content: keyTranslator(interaction.options.getMessage('message').content, eng >= rus ? 'en2ru' : 'ru2en'),
+		content: keyTranslator(message.content, eng >= rus ? 'en2ru' : 'ru2en'),
 	});
 }
 
