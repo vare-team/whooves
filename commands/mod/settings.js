@@ -1,4 +1,4 @@
-import {respondError, respondSuccess} from "../../utils/modules/respondMessages.js";
+import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
 
 export const help = {
 	name: 'settings',

@@ -16,7 +16,7 @@ export const command = {
 
 export async function run(interaction) {
 	const embed = new MessageEmbed().setColor(colors.information).setTimestamp()
-	let targetUserAvatar = interaction.targetUser.displayAvatarURL({dynamic: true});
+	let targetUserAvatar = interaction.targetUser.displayAvatarURL({ dynamic: true });
 	let fields = [
 		{
 			name: 'Дата регистрации:',
@@ -48,7 +48,7 @@ export async function run(interaction) {
 		.addFields(fields)
 		.setThumbnail(targetUserAvatar)
 
-	interaction.reply({embeds: [embed], ephemeral: true})
+	interaction.reply({ embeds: [embed], ephemeral: true })
 }
 
 export default {

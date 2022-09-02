@@ -1,7 +1,7 @@
-import {MessageEmbed} from "discord.js";
-import colors from "../../models/colors.js";
-import {respondError} from "../../utils/modules/respondMessages.js";
-import {boldText} from "../../utils/functions.js";
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+import { respondError } from '../../utils/modules/respondMessages.js';
+import { boldText } from '../../utils/functions.js';
 
 export const help = {
 	name: 'warn',
@@ -31,11 +31,11 @@ export const command = {
 };
 
 export async function run (interaction) {
-	const reason = interaction.options.getString("причина") || 'Не указана'
+	const reason = interaction.options.getString('причина') || 'Не указана'
 	if (reason && reason.length > 300)
 		return respondError(interaction, 'Причина не может содержать в себе более 300 символов!');
 
-	const wUser = interaction.options.getUser("участник"),
+	const wUser = interaction.options.getUser('участник'),
 		warn = await client.userLib.promise(client.userLib.db, client.userLib.db.insert,
 			'warns',
 				{

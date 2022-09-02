@@ -1,4 +1,4 @@
-import {mapCommand} from "../../utils/functions.js";
+import { mapCommand } from "../../utils/functions.js";
 import ban from "./ban.js";
 import clearmsg from "./clearmsg.js";
 import correctall from "./correctall.js";

@@ -1,8 +1,8 @@
 import context from './context/index.js';
 import dev from './dev/index.js';
 import images from './images/index.js';
-import mod from "./mod/index.js";
-import others from "./others/index.js";
+import mod from './mod/index.js';
+import others from './others/index.js';
 
 export default {
 	context,

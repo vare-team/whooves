@@ -1,7 +1,7 @@
-import { respondError } from "../../utils/modules/respondMessages.js";
-import { MessageEmbed } from "discord.js";
-import colors from "../../models/colors.js";
-import { randomIntInc } from "../../utils/functions.js";
+import { respondError } from '../../utils/modules/respondMessages.js';
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+import { randomIntInc } from '../../utils/functions.js';
 
 export const help = {
 	name: '8ball',
@@ -45,7 +45,7 @@ export function run(interaction) {
 			}
 		])
 
-	interaction.reply({embeds: [embed], ephemeral: false});
+	interaction.reply({ embeds: [embed], ephemeral: false });
 }
 
 export default {

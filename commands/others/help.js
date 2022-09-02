@@ -1,9 +1,7 @@
-import { readdirSync, lstatSync } from 'fs'
-import colors from "../../models/colors.js";
-import {MessageEmbed} from "discord.js";
-import {respondError} from "../../utils/modules/respondMessages.js";
-import admins from "../../models/admins.js";
-import {commands} from "../index.js";
+import colors from '../../models/colors.js';
+import { MessageEmbed } from 'discord.js';
+import { respondError } from '../../utils/modules/respondMessages.js';
+import { commands } from '../index.js';
 
 export const help = {
 	name: 'help',
@@ -96,7 +94,7 @@ export function run (interaction) {
 
 export async function autocomplete (commands, interaction) {
 	const respond = [];
-	let cmd = interaction.options.getString('команда') || "";
+	let cmd = interaction.options.getString('команда') || '';
 
 	for (let element of commands) {
 		if (element.help.name.toLowerCase().startsWith(cmd.toLowerCase()) && respond.length < 25)

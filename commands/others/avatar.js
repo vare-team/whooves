@@ -1,5 +1,5 @@
-import { MessageEmbed } from "discord.js";
-import colors from "../../models/colors.js";
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
 
 export const help = {
 	name: 'avatar',

@@ -1,7 +1,7 @@
 import { respondError } from '../../utils/modules/respondMessages.js'
 import { MessageEmbed } from 'discord.js'
-import { contrastYiq, hexToRgb, rgbToCmyk, rgbToHsl } from "../../utils/modules/colorConverters.js";
-import {codeBlock, cssBlock} from "../../utils/functions.js";
+import { contrastYiq, hexToRgb, rgbToCmyk, rgbToHsl } from '../../utils/modules/colorConverters.js';
+import { codeBlock, cssBlock } from '../../utils/functions.js';
 
 export const help = {
 	name: 'color',

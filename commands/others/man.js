@@ -1,7 +1,7 @@
-import {MessageActionRow, MessageButton, MessageEmbed} from "discord.js";
-import colors from "../../models/colors.js";
+import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
 
-exports.help = {
+export const help = {
 	name: 'man',
 	description: 'Различные важные документы.',
 	dm: 1,
@@ -10,9 +10,9 @@ exports.help = {
 	interactions: 1,
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'все',
@@ -140,7 +140,7 @@ export function run (interaction) {
 	interaction.reply({ embeds: [embed], ephemeral: true, components: [row] });
 }
 
-exports.interaction = async (client, interaction, args) => {
+export async function interaction (client, interaction, args) {
 	let page = +args[3],
 		text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0],
 		embed = new client.userLib.discord.MessageEmbed()
@@ -171,7 +171,7 @@ exports.interaction = async (client, interaction, args) => {
 	interaction.update({ embeds: [embed], ephemeral: true, components: [row] });
 };
 
-exports.autocomplete = async (client, interaction) => {
+export async function autocomplete (client, interaction) {
 	const documents = Object.keys(docs);
 	const respond = [];
 
@@ -184,4 +184,4 @@ exports.autocomplete = async (client, interaction) => {
 	}
 
 	interaction.respond(respond);
-};
+}

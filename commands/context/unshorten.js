@@ -1,5 +1,5 @@
 import { respondError } from '../../utils/modules/respondMessages.js'
-import axios from "axios";
+import axios from 'axios';
 
 export const help = {
 	name: 'unshorten',
@@ -19,9 +19,10 @@ export async function run(interaction) {
 	if (interaction.options.getMessage('message').content.length < 1)
 		return respondError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
 
-	await interaction.deferReply({ ephemeral: true });
-	const url = interaction.options.getMessage('message').content.match(urlFinder);
-	if (url === null) return respondError(interaction, 'Ссылка не найдена!');
+	await interaction.deferReply({ ephemeral: true })
+	const url = interaction.options.getMessage('message').content.match(urlFinder)
+	if (url === null)
+		return respondError(interaction, 'Ссылка не найдена!')
 
 	const body = await axios.get(`https://unshorten.me/s/${url}`, {
 		transformResponse: (data) => JSON.parse(data),

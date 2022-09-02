@@ -1,6 +1,6 @@
-import {MessageEmbed} from "discord.js";
-import colors from "../../models/colors.js";
-import {codeBlock} from "../../utils/functions.js";
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+import { codeBlock } from '../../utils/functions.js';
 
 export const help = {
 	name: 'cryptor',
@@ -43,11 +43,11 @@ export function run (interaction) {
 
 	switch (interaction.options.getString('режим')) {
 		case 'crypt':
-			embed.setDescription('Режим: **шифровка**\n' + codeBlock(crypt(interaction.options.getString("текст"))));
+			embed.setDescription('Режим: **шифровка**\n' + codeBlock(crypt(interaction.options.getString('текст'))));
 			break;
 
 		case 'decrypt':
-			embed.setDescription('Режим: **дешифровка**\n' + codeBlock(decrypt(interaction.options.getString("текст"))));
+			embed.setDescription('Режим: **дешифровка**\n' + codeBlock(decrypt(interaction.options.getString('текст'))));
 			break;
 
 		default:

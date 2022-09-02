@@ -1,4 +1,4 @@
-import {MessageEmbed} from "discord.js";
+import { MessageEmbed } from 'discord.js';
 import colors from "../../models/colors.js";
 
 export const help = {
@@ -35,7 +35,7 @@ export async function run (interaction) {
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
 		.setTimestamp();
 
-	msg.channel.send(embed).then(msgs => msgs.delete({ timeout: 10000 }));
+	interaction.editReply({ embeds: [embed] });
 }
 
 export default {

@@ -1,5 +1,5 @@
-import {respondError, respondSuccess} from "../../utils/modules/respondMessages.js";
-import promise from "../../utils/promise.js";
+import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import promise from '../../utils/promise.js';
 
 export const help = {
 	name: 'ban',

@@ -1,6 +1,6 @@
-const {respondError} = require("../../utils/modules/respondMessages.js");
-const {MessageEmbed} = require("discord.js");
-const colors = require("../../models/colors.js");
+const { respondError } = require('../../utils/modules/respondMessages.js');
+const { MessageEmbed } = require('discord.js');
+const colors = require('../../models/colors.js');
 
 export const help = {
 	name: 'lookup',

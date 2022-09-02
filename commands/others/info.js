@@ -1,11 +1,11 @@
-import {boldText, cBlock} from "../../utils/functions.js";
-import {MessageActionRow, MessageButton, MessageEmbed} from "discord.js";
-import colors from "../../models/colors.js";
-import admins from "../../models/admins.js";
-import pkg from '../../package.json' assert {type: "json"};
-import dataBase from "../../services/dataBase.js";
-import emojis from "../../models/emojis.js";
-import settings from "../../models/settings.js";
+import { boldText, cBlock } from '../../utils/functions.js';
+import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+import admins from '../../models/admins.js';
+import pkg from '../../package.json' assert {type: 'json'};
+import dataBase from '../../services/dataBase.js';
+import emojis from '../../models/emojis.js';
+import settings from '../../models/settings.js';
 
 export const help = {
 	name: 'info',
@@ -49,7 +49,7 @@ export async function run (interaction) {
 			name: 'Зависимости:',
 			value: cBlock((
 				`Версия бота:    ${pkg.version}\n` +
-				`Discord.js:     ${pkg.dependencies["discord.js"]}\n` +
+				`Discord.js:     ${pkg.dependencies['discord.js']}\n` +
 				`Версия Node:    ${process.version.replace("\'v\'", " \'\'")}`
 			)),
 			inline: true
@@ -87,7 +87,7 @@ export async function run (interaction) {
 		);
 	}
 
-	interaction.reply({embeds: [embed], components: [row]})
+	interaction.reply({ embeds: [embed], components: [row] })
 }
 
 /**
