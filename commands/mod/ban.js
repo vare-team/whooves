@@ -1,12 +1,15 @@
-exports.help = {
+import {respondError, respondSuccess} from "../../utils/modules/respondMessages.js";
+import promise from "../../utils/promise.js";
+
+export const help = {
 	name: 'ban',
 	description: 'Выдать бан участнику.',
 	extraPermissions: ['BAN_MEMBERS'],
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'участник',
@@ -32,49 +35,35 @@ exports.command = {
 	],
 };
 
-exports.run = async (client, interaction) => {
-	if (!interaction.options.getMember('участник').bannable)
-		return client.userLib.retError(
-			interaction,
-			'Я не могу забанить этого участника!\nЕго защитная магия превосходит мои умения!'
-		);
+export async function run (interaction) {
+	const member = interaction.options.getMember('участник')
+	const clearmsg = interaction.options.getBoolean('clearmsg')
+	const reason = interaction.options.getString('причина') || 'Причина не указана'
+
+	if (!member.bannable)
+		return respondError(interaction, 'Я не могу забанить этого участника!\nЕго защитная магия превосходит мои умения!');
 
 	if (!interaction.options.getBoolean('force')) {
-		const warns = await client.userLib.promise(client.userLib.db, client.userLib.db.count, 'warns', {
-			userId: interaction.options.getUser('участник').id,
+		const warns = (await promise(client.userLib.db, client.userLib.db.count, 'warns', {
+			userId: member.id,
 			guildId: interaction.guildId,
-		});
+		})).res;
 
-		if (warns.res < 5)
-			return client.userLib.retError(
-				interaction,
-				'Для выдачи бана необходимо **5** варнов!\nИспользуй аргумент `force` для бана.'
-			);
+		if (warns < 5)
+			return respondError(interaction, 'Для выдачи бана необходимо **5** варнов!\nИспользуй аргумент `force` для бана.');
 	}
 
-	const reason = interaction.options.getString('причина') || 'Причина не указана';
+	await member.send(
+		`Вам был выдан бан на сервере \`\`${interaction.guild.name}\`\`, модератором \`\`${interaction.user.tag}\`\`, по причине: ${reason}`
+	).catch(() => client.userLib.sendLog(`${help.name} : DM Send catch! Guild ${interaction.guild.name} (ID:${interaction.guildId}), @${member.tag} (ID:${member.id})`, 'DM_SEND_ERROR'));
 
-	await interaction.options
-		.getUser('участник')
-		.send(
-			`Вам был выдан бан на сервере \`\`${interaction.guild.name}\`\`, модератором \`\`${interaction.user.tag}\`\`, по причине: ${reason}`
-		)
-		.catch(() =>
-			client.userLib.sendLog(
-				`${exports.help.name} : DM Send catch! Guild ${interaction.guild.name} (ID:${interaction.guildId}), @${
-					interaction.options.getUser('участник').tag
-				} (ID:${interaction.options.getUser('участник').id})`,
-				'DM_SEND_ERROR'
-			)
-		);
+	await interaction.guild.members.ban(member, { reason: interaction.user.tag + ': ' + reason, days: clearmsg ? 7 : 0 });
 
-	await interaction.guild.members.ban(interaction.options.getMember('участник'), {
-		reason: `${interaction.user.tag}: ${reason}`,
-		days: interaction.options.getBoolean('clearmsg') ? 7 : 0,
-	});
+	respondSuccess(interaction, `${member} **был забанен!** ***||*** ${reason}`);
+}
 
-	client.userLib.retSuccess(
-		interaction,
-		`${interaction.options.getMember('участник')} **был забанен!** ***||*** ${reason}`
-	);
-};
+export default {
+	help,
+	command,
+	run
+}

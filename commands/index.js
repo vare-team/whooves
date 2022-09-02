@@ -1,7 +1,7 @@
 import context from './context/index.js';
 import dev from './dev/index.js';
 import images from './images/index.js';
-//import mod from "./mod/index.js";
+import mod from "./mod/index.js";
 import others from "./others/index.js";
 
 export default {
@@ -9,7 +9,7 @@ export default {
 };
 
 export const commands = {
-	...(mapAllCommands([context, dev, images, others])),
+	...(mapAllCommands([context, dev, images, others, mod])),
 	__category__: {
 		name: 'all',
 	},

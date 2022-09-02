@@ -52,3 +52,9 @@ export async function run(interaction) {
 
 	await interaction.editReply({ embeds: [embed] });
 }
+
+export default {
+	help,
+	command,
+	run
+}

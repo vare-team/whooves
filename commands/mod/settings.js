@@ -1,11 +1,13 @@
-exports.help = {
+import {respondError, respondSuccess} from "../../utils/modules/respondMessages.js";
+
+export const help = {
 	name: 'settings',
 	description: 'Настройки бота',
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'badwords',
@@ -54,8 +56,12 @@ const normalizeParametrs = {
 	autocorrector: 'Исправление никнеймов',
 };
 
-exports.run = async (client, interaction) => {
-	switch (interaction.options.getSubcommand()) {
+export async function run (interaction) {
+	const subCommand = interaction.options.getSubcommand();
+	const state = interaction.options.getBoolean('состояние');
+	const channel = interaction.options.getChannel('канал');
+
+	switch (subCommand) {
 		case 'logchannel':
 			if (!interaction.options.getChannel('канал'))
 				client.userLib.sendLogChannel('commandUse', interaction.guild, {
@@ -66,34 +72,21 @@ exports.run = async (client, interaction) => {
 
 			client.userLib.db.update(
 				`guilds`,
-				{
-					guildId: interaction.guildId,
-					logchannel: interaction.options.getChannel('канал') ? interaction.options.getChannel('канал').id : null,
-				},
+				{ guildId: interaction.guildId, logchannel: channel ? channel.id : null },
 				() => {}
 			);
 
-			return client.userLib.retSuccess(
-				interaction,
-				!interaction.options.getChannel('канал')
-					? `**Лог канал отключен**!`
-					: `${interaction.options.getChannel('канал')} **установлен как канал для логов!**`
-			);
+			return respondSuccess(interaction, !channel ? `**Лог канал отключен**!` : `${channel} **установлен как канал для логов!**`)
 		default:
-			if (
-				!(await client.userLib.setSettings(
-					interaction.guildId,
-					interaction.options.getSubcommand(),
-					interaction.options.getBoolean('состояние')
-				))
-			)
-				return client.userLib.retError(interaction, 'Параметр уже находится в этом значении!');
+			if (!(await client.userLib.setSettings(interaction.guildId, subCommand, state)))
+				return respondError(interaction, 'Параметр уже находится в этом значении!');
 
-			return client.userLib.retSuccess(
-				interaction,
-				`«\`${normalizeParametrs[interaction.options.getSubcommand()]}\`» - **${
-					interaction.options.getBoolean('состояние') ? 'включен' : 'выключен'
-				}**!`
-			);
+			return respondSuccess(interaction, `«\`${normalizeParametrs[subCommand]}\`» - **${state ? 'включен' : 'выключен'}**!`)
 	}
-};
+}
+
+export default {
+	help,
+	command,
+	run
+}

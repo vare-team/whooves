@@ -1,12 +1,14 @@
-exports.help = {
+import {respondError, respondSuccess} from "../../utils/modules/respondMessages.js";
+
+export const help = {
 	name: 'govoice',
 	description: 'Переместить всех в вашем голосовом канале в указанный канал.',
 	extraPermissions: ['MOVE_MEMBERS'],
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'куда',
@@ -24,22 +26,24 @@ exports.command = {
 	],
 };
 
-exports.run = async (client, interaction) => {
-	const newChannel = interaction.options.getChannel('куда'),
-		oldChannel = interaction.options.getChannel('откуда') || interaction.member.voice.channel || null;
+export async function run (interaction) {
+	let newChannel = interaction.options.getChannel('куда'),
+		  oldChannel = interaction.options.getChannel('откуда') || interaction.member.voice.channel || null;
 
 	if (!oldChannel)
-		return client.userLib.retError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
-	if (oldChannel.id === newChannel.id) return client.userLib.retError(interaction, 'Новый канал совпадает со старым!');
+		return respondError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
+	if (oldChannel.id === newChannel.id)
+		return respondError(interaction, 'Новый канал совпадает со старым!');
 	if (!oldChannel.viewable || !newChannel.viewable)
-		return client.userLib.retError(interaction, 'У меня не хватает прав для взаимодействия с этими каналами!');
-	if (oldChannel.members.size === 0) return client.userLib.retError(interaction, 'В указанном канале пусто!');
+		return respondError(interaction, 'У меня не хватает прав для взаимодействия с этими каналами!');
+	if (oldChannel.members.size === 0)
+		return respondError(interaction, 'В указанном канале пусто!');
 
-	await oldChannel.fetch();
-	await newChannel.fetch();
+	oldChannel = await oldChannel.fetch();
+	newChannel = await newChannel.fetch();
 
 	if (!oldChannel.manageable || !newChannel.manageable)
-		return client.userLib.retError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
+		return respondError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
 
 	await interaction.deferReply();
 
@@ -47,5 +51,11 @@ exports.run = async (client, interaction) => {
 		await member[1].voice.setChannel(newChannel);
 	}
 
-	client.userLib.retSuccess(interaction, `${oldChannel} **был перемещён в** ${newChannel}`);
-};
+	respondSuccess(interaction, `${oldChannel} **был перемещён в** ${newChannel}`);
+}
+
+export default {
+	help,
+	command,
+	run
+}

@@ -1,9 +1,13 @@
-exports.help = {
+import {MessageEmbed} from "discord.js";
+import colors from "../../models/colors.js";
+import {codeBlock} from "../../utils/functions.js";
+
+export const help = {
 	name: 'cryptor',
 	description: 'Простенький шифратор сообщений.',
 };
 
-exports.command = {
+export const command = {
 	name: exports.help.name,
 	description: exports.help.description,
 	options: [
@@ -32,16 +36,18 @@ exports.command = {
 	],
 };
 
-exports.run = (client, interaction) => {
-	const embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setTitle('🔐 Encryptor');
+export function run (interaction) {
+	let embed = new MessageEmbed()
+		.setColor(colors.information)
+		.setTitle('🔐 Encryptor');
 
 	switch (interaction.options.getString('режим')) {
 		case 'crypt':
-			embed.setDescription(`Режим: **шифровка**\n\`\`\`${crypt(interaction.options.getString('текст'))}\`\`\``);
+			embed.setDescription('Режим: **шифровка**\n' + codeBlock(crypt(interaction.options.getString("текст"))));
 			break;
 
 		case 'decrypt':
-			embed.setDescription(`Режим: **дешифровка**\n\`\`\`${decrypt(interaction.options.getString('текст'))}\`\`\``);
+			embed.setDescription('Режим: **дешифровка**\n' + codeBlock(decrypt(interaction.options.getString("текст"))));
 			break;
 
 		default:
@@ -49,7 +55,7 @@ exports.run = (client, interaction) => {
 	}
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
-};
+}
 
 function crypt(text) {
 	let crypted = '';

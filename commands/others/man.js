@@ -1,3 +1,6 @@
+import {MessageActionRow, MessageButton, MessageEmbed} from "discord.js";
+import colors from "../../models/colors.js";
+
 exports.help = {
 	name: 'man',
 	description: 'Различные важные документы.',
@@ -68,10 +71,10 @@ readdir('./assets/docs/', (err, files) => {
 });
 //PARSE DOCS
 
-exports.run = (client, interaction) => {
+export function run (interaction) {
 	if (interaction.options._subcommand === 'все') {
-		const embed = new client.userLib.discord.MessageEmbed()
-			.setColor(client.userLib.colors.inf)
+		let embed = new MessageEmbed()
+			.setColor(colors.information)
 			.setTitle(':paperclip: Список документов:')
 			.setDescription(
 				Object.keys(docs).reduce((pr, cr, ind) => (pr += `\`\`${ind + 1}.:\`\` ${cr}\n${docs[cr].description}\n\n`), '')
@@ -81,10 +84,10 @@ exports.run = (client, interaction) => {
 
 	const docLang = interaction.options.getString('язык') ? interaction.options.getString('язык') : 'ru';
 
-	const doc = docs[interaction.options.getString('название')];
-	const embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.inf)
-		.setTitle(`:mag_right: Документ: ${interaction.options.getString('название')}`);
+	let doc = docs[interaction.options.getString('название')];
+	let embed = new MessageEmbed()
+		.setColor(colors.information)
+		.setTitle(':mag_right: Документ: ' + interaction.options.getString('название'));
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
 	let text = doc.text[docLang] ? doc.text[docLang] : Object.values(doc.text)[0],
@@ -99,8 +102,8 @@ exports.run = (client, interaction) => {
 	}
 	embed.setDescription(text[page]);
 
-	const row = new client.userLib.discord.MessageActionRow().addComponents(
-		new client.userLib.discord.MessageButton()
+	const row = new MessageActionRow().addComponents(
+		new MessageButton()
 			.setCustomId(
 				client.userLib.AEScrypt([
 					exports.help.name,
@@ -114,12 +117,12 @@ exports.run = (client, interaction) => {
 			.setLabel('Назад')
 			.setStyle('PRIMARY')
 			.setDisabled(page === 0),
-		new client.userLib.discord.MessageButton()
+		new MessageButton()
 			.setCustomId('counter')
 			.setLabel(`${page + 1} из ${text.length}`)
 			.setStyle('SECONDARY')
 			.setDisabled(true),
-		new client.userLib.discord.MessageButton()
+		new MessageButton()
 			.setCustomId(
 				client.userLib.AEScrypt([
 					exports.help.name,
@@ -135,7 +138,7 @@ exports.run = (client, interaction) => {
 			.setDisabled(page === text.length - 1)
 	);
 	interaction.reply({ embeds: [embed], ephemeral: true, components: [row] });
-};
+}
 
 exports.interaction = async (client, interaction, args) => {
 	let page = +args[3],
