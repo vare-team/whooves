@@ -12,14 +12,14 @@ exports.command = {
 			name: 'id',
 			description: 'ID пользователя',
 			type: 3,
-			required: true
-		}
-	]
+			required: true,
+		},
+	],
 };
 
 exports.run = async (client, interaction) => {
-	const user = await client.users.fetch(interaction.options.getString('id')).catch(() => {}) || undefined;
-	const ban = await interaction.guild.bans.fetch({ user, force: true }).catch(() => {}) || undefined;
+	const user = (await client.users.fetch(interaction.options.getString('id')).catch(() => {})) || undefined;
+	const ban = (await interaction.guild.bans.fetch({ user, force: true }).catch(() => {})) || undefined;
 
 	if (user === undefined) return client.userLib.retError(interaction, 'Пользователь не найден!');
 	if (ban === undefined) return client.userLib.retError(interaction, 'Пользователь не забанен!');

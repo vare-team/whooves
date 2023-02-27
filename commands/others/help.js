@@ -39,19 +39,16 @@ const { readdirSync, lstatSync } = require('fs'),
 
 exports.run = (client, interaction) => {
 	if (!interaction.options.getString('команда')) {
-		let embed = new client.userLib.discord.MessageEmbed()
+		const embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setDescription(`Вы можете написать \`/help [название команды]\` чтобы получить подробную информацию!`)
 			.setTitle(':paperclip: Список команд:');
 
 		readdirSync('./commands/')
 			.filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
-			.filter(
-				el =>
-					el !== 'dev' || (el === 'dev' && client.userLib.admins.hasOwnProperty(interaction.user.id))
-			)
+			.filter(el => el !== 'dev' || (el === 'dev' && client.userLib.admins.hasOwnProperty(interaction.user.id)))
 			.filter(el => client.commands.filter(cmd => cmd.help.module === el).size)
-			.forEach((el) => {
+			.forEach(el => {
 				embed.addField(
 					`${modules[el] ? modules[el] : el}`,
 					client.commands
@@ -78,14 +75,14 @@ exports.run = (client, interaction) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.MessageEmbed()
+	const embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
 		.setTitle(
-			command.help.module === 'context' ? '🖱️ Опция: ' + command.help.name : '🔎 Команда: ' + command.help.name
+			command.help.module === 'context' ? `🖱️ Опция: ${command.help.name}` : `🔎 Команда: ${command.help.name}`
 		);
 
 	if (command.help.description) embed.setDescription(command.help.description);
-	embed.addField('Использование', command.help.onlyGuild ? 'Только для гильдий' : 'ЛС И Гильдия')
+	embed.addField('Использование', command.help.onlyGuild ? 'Только для гильдий' : 'ЛС И Гильдия');
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
 };
@@ -94,13 +91,13 @@ exports.autocomplete = async (client, interaction) => {
 	const commands = client.commands;
 	const respond = [];
 
-	for (let element of commands) {
+	for (const element of commands) {
 		if (element[0].startsWith(interaction.options.getString('команда')) && respond.length < 5)
 			respond.push({
 				name: element[0],
-				value: element[0]
-			})
+				value: element[0],
+			});
 	}
 
-	interaction.respond(respond)
+	interaction.respond(respond);
 };

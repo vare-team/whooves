@@ -47,7 +47,7 @@ class Seamcarver {
 	 */
 	pixelToIndex(x, y) {
 		if (x < 0 || x >= this.width * 4 || y < 0 || y >= this.height) {
-			throw new Error('IndexOutOfBoundsException : ' + x + ',' + y);
+			throw new Error(`IndexOutOfBoundsException : ${x},${y}`);
 		}
 		// * 4 for rgba
 		return (y * this.width + x) * 4;
@@ -442,7 +442,7 @@ class Seamcarver {
 				for (var x = 0; x < this.width; x++) {
 					var pos = this.pixelToIndex(x, y);
 					var rgb = Array.prototype.slice.call(this.picture, pos, pos + 3);
-					lines += (this.rgbToNum(rgb[0], rgb[1], rgb[2]) / 100000).toFixed(2) + '\t';
+					lines += `${(this.rgbToNum(rgb[0], rgb[1], rgb[2]) / 100000).toFixed(2)}\t`;
 				}
 				lines += '\n';
 			}
@@ -460,7 +460,7 @@ class Seamcarver {
 					}
 
 					if (val || val === 0) {
-						lines += val.toFixed(2) + '\t';
+						lines += `${val.toFixed(2)}\t`;
 					} else {
 						lines += '-----\t';
 					}

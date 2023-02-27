@@ -16,7 +16,7 @@ exports.run = async (client, msg, args) => {
 
 	const dmsg = await msg.channel.bulkDelete(messages, true);
 
-	let embed = new client.userLib.discord.MessageEmbed()
+	const embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.suc)
 		.setTitle('Удаление сообщений')
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)

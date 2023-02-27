@@ -53,7 +53,7 @@ exports.run = async (client, interaction) => {
 		return;
 	}
 
-	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setTimestamp();
+	const embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setTimestamp();
 
 	switch (object.constructor.name) {
 		case 'ClientUser':
@@ -73,7 +73,7 @@ exports.run = async (client, interaction) => {
 					`<t:${Math.floor(object.member.joinedTimestamp / 1000)}:R>`,
 					true
 				);
-			if (object.flags.bitfield) embed.addField('Значки:', '```' + object.flags.toArray() + '```');
+			if (object.flags.bitfield) embed.addField('Значки:', `\`\`\`${object.flags.toArray()}\`\`\``);
 			break;
 		case 'Invite':
 			embed
@@ -82,18 +82,18 @@ exports.run = async (client, interaction) => {
 					object.guild.name,
 					`https://cdn.discordapp.com/icons/${object.guild.id}/${object.guild.icon}.jpg?size=128`
 				)
-				.addField('ID гильдии:', '``' + object.guild.id + '``', true)
-				.addField('Канал:', '``#' + object.channel.name + '``', true)
-				.addField('Кол-во участников:', '``' + object.memberCount + '``')
+				.addField('ID гильдии:', `\`\`${object.guild.id}\`\``, true)
+				.addField('Канал:', `\`\`#${object.channel.name}\`\``, true)
+				.addField('Кол-во участников:', `\`\`${object.memberCount}\`\``)
 				.addField('Пригласивший:', '``' + `${object.inviter.tag} (ID: ${object.inviter.id})` + '``');
 			break;
 		case 'GuildPreview':
 			embed
 				.setTitle('Публичная гильдия')
 				.setAuthor(object.name, `https://cdn.discordapp.com/icons/${object.id}/${object.icon}.jpg?size=128`)
-				.addField('Кол-во участников:', '``' + object.approximateMemberCount + '``', true)
-				.addField('Кол-во эмоджи:', '``' + object.emojis.size + '``', true)
-				.addField('Опции:', '```' + object.features + '```');
+				.addField('Кол-во участников:', `\`\`${object.approximateMemberCount}\`\``, true)
+				.addField('Кол-во эмоджи:', `\`\`${object.emojis.size}\`\``, true)
+				.addField('Опции:', `\`\`\`${object.features}\`\`\``);
 	}
 	interaction.reply({ embeds: [embed], ephemeral: true });
 };

@@ -16,9 +16,9 @@ exports.command = {
 					name: 'состояние',
 					description: 'Состояние параметра',
 					type: 5,
-					required: true
-				}
-			]
+					required: true,
+				},
+			],
 		},
 		{
 			name: 'autocorrector',
@@ -29,9 +29,9 @@ exports.command = {
 					name: 'состояние',
 					description: 'Состояние параметра',
 					type: 5,
-					required: true
-				}
-			]
+					required: true,
+				},
+			],
 		},
 		{
 			name: 'logchannel',
@@ -42,11 +42,11 @@ exports.command = {
 					name: 'канал',
 					description: 'Канал для логов',
 					type: 7,
-					channel_types: [0]
-				}
-			]
+					channel_types: [0],
+				},
+			],
 		},
-	]
+	],
 };
 
 const normalizeParametrs = {
@@ -66,14 +66,34 @@ exports.run = async (client, interaction) => {
 
 			client.userLib.db.update(
 				`guilds`,
-				{ guildId: interaction.guildId, logchannel: interaction.options.getChannel('канал') ? interaction.options.getChannel('канал').id : null },
+				{
+					guildId: interaction.guildId,
+					logchannel: interaction.options.getChannel('канал') ? interaction.options.getChannel('канал').id : null,
+				},
 				() => {}
 			);
 
-			return client.userLib.retSuccess(interaction, !interaction.options.getChannel('канал') ? `**Лог канал отключен**!` : `${interaction.options.getChannel('канал')} **установлен как канал для логов!**`)
+			return client.userLib.retSuccess(
+				interaction,
+				!interaction.options.getChannel('канал')
+					? `**Лог канал отключен**!`
+					: `${interaction.options.getChannel('канал')} **установлен как канал для логов!**`
+			);
 		default:
-			if (!(await client.userLib.setSettings(interaction.guildId, interaction.options.getSubcommand(), interaction.options.getBoolean('состояние')))) return client.userLib.retError(interaction, 'Параметр уже находится в этом значении!');
+			if (
+				!(await client.userLib.setSettings(
+					interaction.guildId,
+					interaction.options.getSubcommand(),
+					interaction.options.getBoolean('состояние')
+				))
+			)
+				return client.userLib.retError(interaction, 'Параметр уже находится в этом значении!');
 
-			return client.userLib.retSuccess(interaction, `«\`${normalizeParametrs[interaction.options.getSubcommand()]}\`» - **${interaction.options.getBoolean('состояние') ? 'включен' : 'выключен'}**!`)
+			return client.userLib.retSuccess(
+				interaction,
+				`«\`${normalizeParametrs[interaction.options.getSubcommand()]}\`» - **${
+					interaction.options.getBoolean('состояние') ? 'включен' : 'выключен'
+				}**!`
+			);
 	}
 };

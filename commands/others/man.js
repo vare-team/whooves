@@ -70,7 +70,7 @@ readdir('./assets/docs/', (err, files) => {
 
 exports.run = (client, interaction) => {
 	if (interaction.options._subcommand === 'все') {
-		let embed = new client.userLib.discord.MessageEmbed()
+		const embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
 			.setTitle(':paperclip: Список документов:')
 			.setDescription(
@@ -79,12 +79,12 @@ exports.run = (client, interaction) => {
 		return interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 
-	let docLang = interaction.options.getString('язык') ? interaction.options.getString('язык') : 'ru';
+	const docLang = interaction.options.getString('язык') ? interaction.options.getString('язык') : 'ru';
 
-	let doc = docs[interaction.options.getString('название')];
-	let embed = new client.userLib.discord.MessageEmbed()
+	const doc = docs[interaction.options.getString('название')];
+	const embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
-		.setTitle(':mag_right: Документ: ' + interaction.options.getString('название'));
+		.setTitle(`:mag_right: Документ: ${interaction.options.getString('название')}`);
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
 	let text = doc.text[docLang] ? doc.text[docLang] : Object.values(doc.text)[0],
@@ -142,7 +142,7 @@ exports.interaction = async (client, interaction, args) => {
 		text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0],
 		embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
-			.setTitle(':mag_right: Документ: ' + args[2]);
+			.setTitle(`:mag_right: Документ: ${args[2]}`);
 
 	page = args[4] === 'next' ? page + 1 : page - 1;
 	text = text.match(/[\s\S]{1,2048}/g);
@@ -172,13 +172,13 @@ exports.autocomplete = async (client, interaction) => {
 	const documents = Object.keys(docs);
 	const respond = [];
 
-	for (let element of documents) {
+	for (const element of documents) {
 		if (element.startsWith(interaction.options.getString('название')) && respond.length < 25)
 			respond.push({
 				name: element,
-				value: element
-			})
+				value: element,
+			});
 	}
 
-	interaction.respond(respond)
+	interaction.respond(respond);
 };

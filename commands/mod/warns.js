@@ -23,14 +23,15 @@ exports.run = async (client, interaction) => {
 		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, interaction.guildId]);
 	warns = warns[0];
 
-	let embed = new client.userLib.discord.MessageEmbed()
+	const embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.inf)
-		.setAuthor(user.username + '#' + user.discriminator, user.displayAvatarURL())
+		.setAuthor(`${user.username}#${user.discriminator}`, user.displayAvatarURL())
 		.setTitle('Предупреждения')
 		.setTimestamp();
 
-	let descGenerator = 'Количество предупреждений: **' + warns.length + '**\n\n';
-	for (let warn of warns) descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason ?? 'Не указана'}\n`;
+	let descGenerator = `Количество предупреждений: **${warns.length}**\n\n`;
+	for (const warn of warns)
+		descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason ?? 'Не указана'}\n`;
 	embed.setDescription(descGenerator);
 
 	interaction.reply({ embeds: [embed], ephemeral: true });

@@ -26,28 +26,29 @@ exports.command = {
 exports.run = async (client, interaction) => {
 	if (!interaction.options.getUser('участник').id || !interaction.options.getInteger('id')) return;
 
-	const warn = await client.userLib.promise(client.userLib.db, client.userLib.db.delete,
-		'warns',
-		{
-			userId: interaction.options.getUser('участник').id,
-			guildId: interaction.guildId,
-			warnId: interaction.options.getInteger('id')
-		}
-	);
+	const warn = await client.userLib.promise(client.userLib.db, client.userLib.db.delete, 'warns', {
+		userId: interaction.options.getUser('участник').id,
+		guildId: interaction.guildId,
+		warnId: interaction.options.getInteger('id'),
+	});
 
-	if (!warn.res) return client.userLib.retError(interaction, 'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.');
+	if (!warn.res)
+		return client.userLib.retError(
+			interaction,
+			'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.'
+		);
 
 	if (warn.res > 1) client.userLib.sendLog('Удаление варнов сломалось!');
 
 	client.userLib.retSuccess(interaction, `С ${interaction.options.getUser('участник')} **снято предупреждение**.`);
 
 	await client.userLib.sendLogChannel('commandUse', interaction.guild, {
-		user: { tag: interaction.user.tag, id: interaction.user.id},
+		user: { tag: interaction.user.tag, id: interaction.user.id },
 		channel: { id: interaction.channelId },
-		content: `снятие предупреждения (ID:${interaction.options.getInteger('id')}) с ${interaction.options.getUser('участник').id}`,
+		content: `снятие предупреждения (ID:${interaction.options.getInteger('id')}) с ${
+			interaction.options.getUser('участник').id
+		}`,
 	});
 };
 
-exports.autocomplete = async (client, interaction) => {
-
-};
+exports.autocomplete = async (client, interaction) => {};

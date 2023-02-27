@@ -1,14 +1,14 @@
-import permissionsArrayTranslator from '../models/permissionsArrayTranslator.js'
-import { MessageEmbed } from 'discord.js'
+import permissionsArrayTranslator from '../models/permissionsArrayTranslator.js';
+import { MessageEmbed } from 'discord.js';
 
-export const mentionDetect = /@everyone|@here/gm
+export const mentionDetect = /@everyone|@here/gm;
 
 /**
  * @function
  * @param {Array} array
  * @returns {Array}
  */
-export const permissionsArrayToString = array => array.map((el) => permissionsArrayTranslator[el])
+export const permissionsArrayToString = array => array.map(el => permissionsArrayTranslator[el]);
 
 /**
  * @function
@@ -34,7 +34,7 @@ export const permissionsArrayToString = array => array.map((el) => permissionsAr
  * @returns {number}
  */
 export function randomIntInc(low, high) {
-	return Math.floor(Math.random() * (high - low + 1) + low)
+	return Math.floor(Math.random() * (high - low + 1) + low);
 }
 
 /**

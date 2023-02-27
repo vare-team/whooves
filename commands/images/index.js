@@ -1,8 +1,7 @@
-import filter from './filter'
-import glitch from './glitch'
-import petpet from './petpet'
-import roll from './roll'
-
+import filter from './filter';
+import glitch from './glitch';
+import petpet from './petpet';
+import roll from './roll';
 
 export default {
 	__category__: {
@@ -13,4 +12,4 @@ export default {
 	glitch,
 	petpet,
 	roll,
-}
+};

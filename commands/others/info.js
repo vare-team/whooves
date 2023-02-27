@@ -25,16 +25,24 @@ exports.run = async (client, interaction) => {
 	);
 
 	const embed = new client.userLib.discord.MessageEmbed()
-		.setAuthor(client.user.username + ' - информация о боте', client.user.displayAvatarURL())
+		.setAuthor(`${client.user.username} - информация о боте`, client.user.displayAvatarURL())
 		.setColor(client.userLib.colors.inf)
-		.addField('Статистика:',
+		.addField(
+			'Статистика:',
 			`\`\`\`c\n
 Пинг:             ${Math.round(client.ws.ping)} ms
 Команд исполнено: ${client.statistic.executedcmd}
 Из них ошибок:    ${client.statistic.erroredcmd}
-\`\`\``, true
+\`\`\``,
+			true
 		)
-		.addField('Зависимости:', `\`\`\`c\nВерсия бота:    ${version}\nDiscord.js:     ${client.userLib.discord.version}\nВерсия Node:    ${process.version.replace('v', '')}\`\`\``, true)
+		.addField(
+			'Зависимости:',
+			`\`\`\`c\nВерсия бота:    ${version}\nDiscord.js:     ${
+				client.userLib.discord.version
+			}\nВерсия Node:    ${process.version.replace('v', '')}\`\`\``,
+			true
+		)
 		.addField(
 			'Разработчики:',
 			`**${
@@ -47,7 +55,7 @@ exports.run = async (client, interaction) => {
 					: 'MegaVasiliy007#3301'
 			}**`,
 			false
-		)
+		);
 
 	if (interaction.inGuild()) {
 		let data = await client.userLib.db
@@ -67,5 +75,5 @@ exports.run = async (client, interaction) => {
 		);
 	}
 
-	interaction.reply({ embeds: [embed], components: [row] })
+	interaction.reply({ embeds: [embed], components: [row] });
 };

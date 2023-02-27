@@ -1,10 +1,10 @@
-import { MessageEmbed } from "discord.js";
-import colors from "../../models/colors";
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors';
 
 export const help = {
 	name: 'avatar',
 	description: 'Ссылка на аватара пользователя',
-}
+};
 
 export const command = {
 	name: help.name,
@@ -16,24 +16,24 @@ export const command = {
 			type: 6,
 		},
 	],
-}
+};
 
 export function run(interaction) {
-	const user = interaction.options.getUser('пользователь') || interaction.user
+	const user = interaction.options.getUser('пользователь') || interaction.user;
 
-	let embed = new MessageEmbed()
+	const embed = new MessageEmbed()
 		.setDescription(`Аватар ${user}`)
 		.setColor(colors.information)
 		.setImage(user.displayAvatarURL({ dynamic: true, size: 2048 }))
-		.setTimestamp()
+		.setTimestamp();
 
-	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF')
+	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF');
 
-	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') })
+	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') });
 }
 
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

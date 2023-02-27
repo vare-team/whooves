@@ -1,12 +1,12 @@
-import { respondError } from "../../utils/modules/respondMessages";
-import { MessageEmbed } from "discord.js";
-import colors from "../../models/colors";
-import { randomIntInc } from "../../utils/functions";
+import { respondError } from '../../utils/modules/respondMessages';
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors';
+import { randomIntInc } from '../../utils/functions';
 
 export const help = {
 	name: '8ball',
 	description: 'Задайте магическому шару вопрос и он на него ответит',
-}
+};
 
 export const command = {
 	name: help.name,
@@ -19,7 +19,7 @@ export const command = {
 			required: true,
 		},
 	],
-}
+};
 
 const answers = [
 	'Бесспорно',
@@ -42,7 +42,7 @@ const answers = [
 	'По моим данным — «нет»',
 	'Перспективы не очень хорошие',
 	'Весьма сомнительно',
-]
+];
 
 //TODO добавить больше вопрос/ответ
 const questions = {
@@ -54,20 +54,19 @@ const questions = {
 
 export function run(interaction) {
 	if (100 < interaction.options.getString('вопрос').length)
-		return respondError(interaction, `Количество символов в вопросе не должно превышать **100** символов!`)
+		return respondError(interaction, `Количество символов в вопросе не должно превышать **100** символов!`);
 
 	if (interaction.options.getString('вопрос').trim()[interaction.options.getString('вопрос').length - 1] !== '?')
-		return respondError(interaction, `Вопрос должен оканчиваться знаком вопроса!`)
+		return respondError(interaction, `Вопрос должен оканчиваться знаком вопроса!`);
 
 	const embed = new MessageEmbed()
 		.setColor(colors.information)
 		.setTitle('Магический шар')
-		.addField('Твой вопрос', `\`\`${interaction.options.getString('вопрос')}\`\``)
+		.addField('Твой вопрос', `\`\`${interaction.options.getString('вопрос')}\`\``);
 
 	if (questions.hasOwnProperty(interaction.options.getString('вопрос').toLowerCase()))
-		embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``)
-	else
-		embed.addField('Ответ шара', `\`\`${answers[randomIntInc(0, answers.length - 1)]}\`\``)
+		embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``);
+	else embed.addField('Ответ шара', `\`\`${answers[randomIntInc(0, answers.length - 1)]}\`\``);
 
 	interaction.reply({ embeds: [embed], ephemeral: false });
 }
@@ -75,5 +74,5 @@ export function run(interaction) {
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

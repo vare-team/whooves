@@ -17,7 +17,7 @@ exports.command = {
 	],
 };
 
-let SeamCarver = require('../../utils/seamcarver');
+const SeamCarver = require('../../utils/seamcarver');
 
 exports.run = async (client, interaction) => {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
@@ -82,7 +82,7 @@ exports.run = async (client, interaction) => {
 	await drawRotated(-90);
 
 	const file = new client.userLib.discord.MessageAttachment(canvas.toBuffer(), 'img.jpg');
-	let embed = new client.userLib.discord.MessageEmbed()
+	const embed = new client.userLib.discord.MessageEmbed()
 		.setImage('attachment://img.jpg')
 		.setColor(client.userLib.colors.inf);
 

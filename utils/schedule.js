@@ -4,13 +4,11 @@
  * All in one tasks schedule module
  */
 module.exports = function (sendLog) {
-	let counter = 0
-		, queue = {}
-		, tasks = {}
-		, timer = null
-		, nextTaskExecution = null
-	;
-
+	let counter = 0,
+		queue = {},
+		tasks = {},
+		timer = null,
+		nextTaskExecution = null;
 	/**
 	 * Function for register new task type for execution
 	 * Gets task object as parameter
@@ -19,8 +17,8 @@ module.exports = function (sendLog) {
 	 * @param {string} taskObject.code - Task code for future execution
 	 * @param {function} taskObject.execute - Function which will be executed
 	 */
-	this.registerTask = (taskObject) => {
-		let taskCode = taskObject.code;
+	this.registerTask = taskObject => {
+		const taskCode = taskObject.code;
 		if (tasks.hasOwnProperty(taskCode)) {
 			sendLog(`task.${taskCode} is already exist!`, 'error');
 			return;
@@ -38,9 +36,14 @@ module.exports = function (sendLog) {
 	 * @param {number} pushTaskObject.time - Time parameter
 	 * @param {boolean} [pushTaskObject.timeAbsolute] - Relative / Absolute time type
 	 */
-	this.pushTask = (pushTaskObject) => {
+	this.pushTask = pushTaskObject => {
 		if (!pushTaskObject.timeAbsolute) pushTaskObject.time = Date.now() + pushTaskObject.time;
-		queue[counter++] = {code: pushTaskObject.code, params: pushTaskObject.params ? pushTaskObject.params : [], time: pushTaskObject.time, processed: false};
+		queue[counter++] = {
+			code: pushTaskObject.code,
+			params: pushTaskObject.params ? pushTaskObject.params : [],
+			time: pushTaskObject.time,
+			processed: false,
+		};
 		resetTimer();
 	};
 
@@ -50,20 +53,21 @@ module.exports = function (sendLog) {
 	 * @param { * | boolean } doNotProcess - Flag for not processing tasks
 	 * @return {{next: *, now: *}}
 	 */
-	let getTasks = (doNotProcess) => {
-		let tasksToRun = [];
+	const getTasks = doNotProcess => {
+		const tasksToRun = [];
 		let nextTaskTimer = null;
-		let now = +new Date;
-		for (let taskIndex in queue) {
-			let currentTask = queue[taskIndex];
+		const now = +new Date();
+		for (const taskIndex in queue) {
+			const currentTask = queue[taskIndex];
 			if (currentTask.time < now && !doNotProcess) {
 				tasksToRun.push(taskIndex);
 				currentTask.processed = true;
 				continue;
 			}
-			if ((!nextTaskTimer || currentTask.time < nextTaskTimer) && !currentTask.processed) nextTaskTimer = currentTask.time;
+			if ((!nextTaskTimer || currentTask.time < nextTaskTimer) && !currentTask.processed)
+				nextTaskTimer = currentTask.time;
 		}
-		return {next: nextTaskTimer, now: tasksToRun};
+		return { next: nextTaskTimer, now: tasksToRun };
 	};
 
 	/**
@@ -71,11 +75,11 @@ module.exports = function (sendLog) {
 	 *
 	 * @return {Promise<void>}
 	 */
-	let process = async () => {
-		let currentTasks = getTasks();
+	const process = async () => {
+		const currentTasks = getTasks();
 		for (let index = 0, length = currentTasks.now.length; index < length; index++) {
-			let queueIndex = currentTasks.now[index];
-			let queueTask = queue[queueIndex];
+			const queueIndex = currentTasks.now[index];
+			const queueTask = queue[queueIndex];
 			if (!tasks.hasOwnProperty(queueTask.code)) {
 				sendLog(`Trying to execute unavailable task: ${queueTask.code}.`, 'error');
 				continue;
@@ -92,7 +96,7 @@ module.exports = function (sendLog) {
 	 * @param { * | Object } tasksObject - Possible object from process function
 	 * @param {number} tasksObject.next - time for next timer
 	 */
-	let resetTimer = (tasksObject) => {
+	const resetTimer = tasksObject => {
 		let currentTasks = tasksObject;
 		if (!currentTasks) currentTasks = getTasks(true);
 		if (currentTasks.next && isFinite(currentTasks.next)) {
@@ -101,5 +105,4 @@ module.exports = function (sendLog) {
 			timer = setTimeout(process, currentTasks.next - Date.now());
 		}
 	};
-
 };

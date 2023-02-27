@@ -1,5 +1,5 @@
-import publishcommand from './publishcommand.js'
+import publishcommand from './publishcommand.js';
 
 export default {
-	publishcommand
-}
+	publishcommand,
+};

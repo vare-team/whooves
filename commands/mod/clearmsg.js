@@ -11,22 +11,23 @@ exports.command = {
 			name: 'количество',
 			description: 'Количество сообщений (не более 100 за раз)',
 			type: 4,
-			required: true
+			required: true,
 		},
 		{
 			name: 'участник',
 			description: 'Удалить только сообщения от участника',
 			type: 6,
-		}
-	]
+		},
+	],
 };
 
 exports.run = async (client, interaction) => {
-	if (interaction.options.getInteger('количество') > 99 || interaction.options.getInteger('количество') < 1) return client.userLib.retError(interaction, 'Число должно быть не более 100 и не менее 1!');
+	if (interaction.options.getInteger('количество') > 99 || interaction.options.getInteger('количество') < 1)
+		return client.userLib.retError(interaction, 'Число должно быть не более 100 и не менее 1!');
 
-	let dmsg = await interaction.channel.bulkDelete(interaction.options.getInteger('количество'), true);
+	const dmsg = await interaction.channel.bulkDelete(interaction.options.getInteger('количество'), true);
 
-	let embed = new client.userLib.discord.MessageEmbed()
+	const embed = new client.userLib.discord.MessageEmbed()
 		.setColor(client.userLib.colors.suc)
 		.setTitle('Удаление сообщений')
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)

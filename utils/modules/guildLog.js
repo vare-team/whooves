@@ -1,4 +1,3 @@
-
 /**
  * Send Guild custom log
  * @function
@@ -23,34 +22,30 @@ export async function sendLogChannel(type, guild, data) {
 	]);
 	logchannel = logchannel.res;
 	if (!logchannel) return;
-	let channel = guild.channels.cache.get(logchannel);
+	const channel = guild.channels.cache.get(logchannel);
 
 	if (!channel || !channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
 		con.update('guilds', { guildId: guild.id, logchannel: null }, () => {});
 		return;
 	}
 
-	let now = new Date();
+	const now = new Date();
 	let text = `[<t:${Math.floor(now / 1000)}:R>] `;
 
 	if (!type) return console.warn('Error! Тип не указан');
 	switch (type) {
 		case 'memberAdd':
-			text += `📈 **Заход участника** ${data.user.tag} (ID: ${
-				data.user.id
-			});\nАккаунт зарегистрирован <t:${data.user.createdAt}:R>;`;
+			text += `📈 **Заход участника** ${data.user.tag} (ID: ${data.user.id});\nАккаунт зарегистрирован <t:${data.user.createdAt}:R>;`;
 			break;
 
 		case 'memberRemove':
-			text += `📉 **Выход участника** ${data.user.tag}  (ID: ${
-				data.user.id
-			});\nАккаунт зашёл на сервер <t:${data.user.joinedAt}:R>`;
+			text += `📉 **Выход участника** ${data.user.tag}  (ID: ${data.user.id});\nАккаунт зашёл на сервер <t:${data.user.joinedAt}:R>`;
 			break;
 
 		case 'messageDelete':
-			text += `✂ **Удаление сообщения** от ${data.user.tag}  (ID: ${data.user.id}), в канале <#${
-				data.channel.id
-			}>;\n${data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`}`;
+			text += `✂ **Удаление сообщения** от ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;\n${
+				data.content.length > 1950 ? 'Сообщение больше 2k символов.' : `>>> ${data.content}`
+			}`;
 			break;
 
 		case 'messageDeleteBulk':
@@ -86,4 +81,4 @@ export async function sendLogChannel(type, guild, data) {
 	}
 
 	channel.send(text).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
-};
+}
