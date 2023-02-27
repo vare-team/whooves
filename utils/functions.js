@@ -5,6 +5,56 @@ export const mentionDetect = /@everyone|@here/gm;
 
 /**
  * @function
+ * @param txt {string}
+ * @returns {string}
+ */
+export function codeBlock(txt){
+	return `\`\`\` ${txt} \`\`\``
+}
+
+/**
+ * @function
+ * @param txt {string}
+ * @returns {string}
+ */
+export function cssBlock(txt){
+	return codeBlock(`css\n${txt}`)
+}
+
+/**
+ * @function
+ * @param txt {string}
+ * @returns {string}
+ */
+export function cBlock(txt){
+	return codeBlock(`c\n${txt}`)
+}
+
+/**
+ * @function
+ * @param txt {string}
+ * @returns {string}
+ */
+export function boldText(txt){
+	return codeBlock(`**${txt}**`)
+}
+
+/**
+ * @function
+ * @param commands {Object[]}
+ * @param dm_permission {boolean}
+ * @returns {Object[]}
+ */
+export function mapCommand(commands, dm_permission = true) {
+	return commands.map(x => {
+		let cmd = Object(x);
+		cmd.command.dm_permission = dm_permission
+		return cmd;
+	});
+}
+
+/**
+ * @function
  * @param {Array} array
  * @returns {Array}
  */

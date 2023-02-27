@@ -1,8 +1,10 @@
-import { MessageAttachment, MessageEmbed } from 'discord.js';
-import colors from '../../models/colors';
-import { createCanvas, loadImage } from 'canvas';
-import { randomIntInc } from '../../utils/functions';
-import GifEncoder from 'gif-encoder';
+import { MessageAttachment, MessageEmbed } from 'discord.js'
+import colors from '../../models/colors.js'
+
+import {createCanvas, loadImage} from "canvas";
+
+import { randomIntInc } from '../../utils/functions.js'
+import GifEncoder from 'gif-encoder'
 
 export const help = {
 	name: 'glitch',

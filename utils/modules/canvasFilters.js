@@ -1,3 +1,6 @@
+import {randomIntInc} from "../functions.js";
+import {respondError} from "./respondMessages.js";
+
 export function greyscale(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
 	for (let i = 0; i < data.data.length; i += 4) {
@@ -63,4 +66,15 @@ export function distort(ctx, x = 0, y = 0, width = 0, height = 0, amplitude = 60
 	}
 	ctx.putImageData(data, x, y);
 	return ctx;
+}
+
+export function glitch(ava, canvas, ctx, interaction){
+	ava.src = canvas.toDataURL('image/jpeg')
+	for (let i = 0; i < 5; i++)
+		ava.src = ava.src.replaceAt(randomIntInc(50, ava.src.length - 50), '0')
+	try {
+		ctx.drawImage(ava, 0, 0);
+	} catch (e) {
+		return respondError(interaction, 'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.')
+	}
 }

@@ -1,5 +1,5 @@
-import mysql2 from 'mysql2';
-import logger from '../utils/logger';
+import mysql2 from 'mysql2'
+import logger from '../utils/logger.js'
 
 const db = mysql2.createConnection({
 	user: process.env.DBLOGIN,
