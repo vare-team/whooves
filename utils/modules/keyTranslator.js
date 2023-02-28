@@ -1,4 +1,4 @@
-import keyList from "../../models/keyList";
+import keyList from '../../models/keyList.js';
 
 /**
  * @function
@@ -6,7 +6,7 @@ import keyList from "../../models/keyList";
  * @param {string} mode
  * @returns {string}
  */
-export default function(str = '', mode= 'en2ru') {
+export default function (str = '', mode = 'en2ru') {
 	if (mode === 'en2ru') {
 		return str.replace(/[A-z/,.;?&'`~}{\]\[]/g, x => {
 			return x === x.toLowerCase() ? keyList.en2ru[x] : keyList.en2ru[x.toLowerCase()].toUpperCase();
@@ -16,4 +16,4 @@ export default function(str = '', mode= 'en2ru') {
 			return x === x.toLowerCase() ? keyList.ru2en[x] : keyList.ru2en[x.toLowerCase()].toUpperCase();
 		});
 	}
-};
+}

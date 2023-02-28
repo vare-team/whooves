@@ -1,9 +1,13 @@
-exports.help = {
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+import { codeBlock } from '../../utils/functions.js';
+
+export const help = {
 	name: 'cryptor',
 	description: 'Простенький шифратор сообщений.',
 };
 
-exports.command = {
+export const command = {
 	name: exports.help.name,
 	description: exports.help.description,
 	options: [
@@ -15,13 +19,13 @@ exports.command = {
 			choices: [
 				{
 					name: 'Зашифровать',
-					value: 'crypt'
+					value: 'crypt',
 				},
 				{
 					name: 'Дешифровать',
-					value: 'decrypt'
-				}
-			]
+					value: 'decrypt',
+				},
+			],
 		},
 		{
 			name: 'текст',
@@ -32,30 +36,30 @@ exports.command = {
 	],
 };
 
-exports.run = (client, interaction) => {
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.inf)
+export function run (interaction) {
+	let embed = new MessageEmbed()
+		.setColor(colors.information)
 		.setTitle('🔐 Encryptor');
 
-	switch (interaction.options.getString("режим")) {
+	switch (interaction.options.getString('режим')) {
 		case 'crypt':
-			embed.setDescription('Режим: **шифровка**\n```' + crypt(interaction.options.getString("текст")) + '```');
+			embed.setDescription('Режим: **шифровка**\n' + codeBlock(crypt(interaction.options.getString('текст'))));
 			break;
 
 		case 'decrypt':
-			embed.setDescription('Режим: **дешифровка**\n```' + decrypt(interaction.options.getString("текст")) + '```');
+			embed.setDescription('Режим: **дешифровка**\n' + codeBlock(decrypt(interaction.options.getString('текст'))));
 			break;
 
 		default:
 			return client.userLib.retError(interaction, 'Указан неверный режим!');
 	}
 
-	interaction.reply({embeds: [embed], ephemeral: true});
-};
+	interaction.reply({ embeds: [embed], ephemeral: true });
+}
 
 function crypt(text) {
 	let crypted = '';
-	let cryptSeed = text.charCodeAt(0);
+	const cryptSeed = text.charCodeAt(0);
 	crypted += String.fromCodePoint(text.charCodeAt(0) + 11);
 	for (let i = 1; i < text.length; i++) {
 		crypted += String.fromCodePoint(text.charCodeAt(i) + i + cryptSeed);
@@ -65,7 +69,7 @@ function crypt(text) {
 
 function decrypt(crypted) {
 	let text = '';
-	let cryptSeed = crypted.charCodeAt(0) - 11;
+	const cryptSeed = crypted.charCodeAt(0) - 11;
 	text += String.fromCodePoint(crypted.charCodeAt(0) - 11);
 	for (let i = 1; i < crypted.length; i++) {
 		if (crypted.charCodeAt(i) - i - cryptSeed > 0) text += String.fromCodePoint(crypted.charCodeAt(i) - i - cryptSeed);

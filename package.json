@@ -1,36 +1,46 @@
 {
-  "name": "whooves",
-  "version": "3.7.0",
-  "description": "Discord Bot",
-  "main": "shard.js",
-  "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vare-team/whooves.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/vare-team/whooves/issues"
-  },
-  "homepage": "https://github.com/vare-team/whooves#readme",
-  "dependencies": {
-    "axios": "^0.24.0",
-    "canvas": "^2.5.0",
-    "crypto-js": "^4.0.0",
-    "discord.js": "^13.3.1",
-    "gif-encoder": "^0.7.2",
-    "mysql2": "^2.1.0"
-  },
-  "devDependencies": {
-    "eslint": "^7.29.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "nodemon": "^2.0.2",
-    "prettier": "^2.3.2"
-  },
-  "scripts": {
-    "start": "node .",
-    "debug": "nodemon .",
-    "lint": "eslint . --fix"
-  }
+	"name": "whooves",
+	"version": "3.7.0",
+	"description": "Discord Bot",
+	"main": "shard.js",
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/vare-team/whooves.git"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/vare-team/whooves/issues"
+	},
+	"homepage": "https://github.com/vare-team/whooves#readme",
+	"engines": {
+		"node": ">=16"
+	},
+	"dependencies": {
+		"axios": "^0.24.0",
+		"canvas": "^2.9.1",
+		"crypto-js": "^4.0.0",
+		"discord.js": "^13.10.3",
+		"gif-encoder": "^0.7.2",
+		"mysql2": "^2.1.0"
+	},
+	"devDependencies": {
+		"eslint": "^8.34.0",
+		"eslint-config-prettier": "^8.6.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"nodemon": "^2.0.20",
+		"prettier": "^2.8.4"
+	},
+	"optionalDependencies": {
+		"bufferutil": "^4.0.7",
+		"erlpack": "github:discord/erlpack",
+		"utf-8-validate": "^6.0.2",
+		"zlib-sync": "^0.1.8"
+	},
+	"scripts": {
+		"start": "node .",
+		"debug": "nodemon .",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix"
+	}
 }

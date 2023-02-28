@@ -1,13 +1,15 @@
+import SeamCarver from '../../utils/seamcarver.js'
+
 //TODO: Seamcarver
 
-exports.help = {
+export const help = {
 	name: 'seamcarving',
 	description: 'Сжатие изображения без потери полезных данных',
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'пользователь',
@@ -17,9 +19,7 @@ exports.command = {
 	],
 };
 
-let SeamCarver = require('../../utils/seamcarver');
-
-exports.run = async (client, interaction) => {
+export async function run (interaction) {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
 
@@ -82,9 +82,9 @@ exports.run = async (client, interaction) => {
 	await drawRotated(-90);
 
 	const file = new client.userLib.discord.MessageAttachment(canvas.toBuffer(), 'img.jpg');
-	let embed = new client.userLib.discord.MessageEmbed()
+	const embed = new client.userLib.discord.MessageEmbed()
 		.setImage('attachment://img.jpg')
 		.setColor(client.userLib.colors.inf);
 
 	interaction.editReply({ embeds: [embed], files: [file] });
-};
+}

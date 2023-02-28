@@ -10,10 +10,10 @@ export const settingsList = {
  * @returns {boolean}
  */
 export async function checkSettings(guildId, setNumber) {
-	let setting = await con.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId])
-	setting = setting[0][0].settings
+	let setting = await con.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId]);
+	setting = setting[0][0].settings;
 
-	return !!(settingsList[setNumber] & setting)
+	return !!(settingsList[setNumber] & setting);
 }
 
 /**
@@ -31,4 +31,4 @@ export async function setSettings(guildId, setNumber, state) {
 		guildId,
 	]);
 	return true;
-};
+}

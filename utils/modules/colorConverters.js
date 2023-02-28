@@ -1,33 +1,35 @@
 export function hexToRgb(hex) {
 	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result ? {
-		r: parseInt(result[1], 16),
-		g: parseInt(result[2], 16),
-		b: parseInt(result[3], 16)
-	} : null;
+	return result
+		? {
+				r: parseInt(result[1], 16),
+				g: parseInt(result[2], 16),
+				b: parseInt(result[3], 16),
+		  }
+		: null;
 }
 
-export function rgbToCmyk (r, g, b) {
+export function rgbToCmyk(r, g, b) {
 	let computedC = 0,
 		computedM = 0,
 		computedY = 0,
 		computedK = 0;
 
 	if (!r && !g && !b) {
-		return {c: 0,m: 0,y: 0,k: 100};
+		return { c: 0, m: 0, y: 0, k: 100 };
 	}
 
-	computedC = 1 - (r/255);
-	computedM = 1 - (g/255);
-	computedY = 1 - (b/255);
+	computedC = 1 - r / 255;
+	computedM = 1 - g / 255;
+	computedY = 1 - b / 255;
 
-	let minCMY = Math.min(computedC, Math.min(computedM,computedY));
-	computedC = Math.round((computedC - minCMY) / (1 - minCMY) * 100) ;
-	computedM = Math.round((computedM - minCMY) / (1 - minCMY) * 100) ;
-	computedY = Math.round((computedY - minCMY) / (1 - minCMY) * 100 );
+	const minCMY = Math.min(computedC, Math.min(computedM, computedY));
+	computedC = Math.round(((computedC - minCMY) / (1 - minCMY)) * 100);
+	computedM = Math.round(((computedM - minCMY) / (1 - minCMY)) * 100);
+	computedY = Math.round(((computedY - minCMY) / (1 - minCMY)) * 100);
 	computedK = Math.round(minCMY * 100);
 
-	return {c: computedC,m: computedM,y: computedY,k: computedK};
+	return { c: computedC, m: computedM, y: computedY, k: computedK };
 }
 
 export function contrastYiq(r, g, b) {
@@ -40,8 +42,8 @@ export function rgbToHsl(r, g, b) {
 	g /= 255;
 	b /= 255;
 
-	let cmin = Math.min(r,g,b),
-		cmax = Math.max(r,g,b),
+	let cmin = Math.min(r, g, b),
+		cmax = Math.max(r, g, b),
 		delta = cmax - cmin,
 		h = 0,
 		s = 0,

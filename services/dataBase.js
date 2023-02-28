@@ -1,5 +1,5 @@
-import mysql2 from 'mysql2';
-import logger from "../utils/logger";
+import mysql2 from 'mysql2'
+import logger from '../utils/logger.js'
 
 const db = mysql2.createConnection({
 	user: process.env.DBLOGIN,
@@ -17,7 +17,7 @@ db.on('error', err => {
 });
 
 db.connect(err => {
-	if (err) return console.error('Error connecting: ' + err.stack);
+	if (err) return console.error(`Error connecting: ${err.stack}`);
 	db.query('SET SESSION wait_timeout = 604800');
 	logger(`Connected! (ID:${db.threadId})`, 'dataBase');
 });

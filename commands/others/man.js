@@ -1,4 +1,7 @@
-exports.help = {
+import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+
+export const help = {
 	name: 'man',
 	description: 'Различные важные документы.',
 	dm: 1,
@@ -7,9 +10,9 @@ exports.help = {
 	interactions: 1,
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'все',
@@ -68,10 +71,10 @@ readdir('./assets/docs/', (err, files) => {
 });
 //PARSE DOCS
 
-exports.run = (client, interaction) => {
+export function run (interaction) {
 	if (interaction.options._subcommand === 'все') {
-		let embed = new client.userLib.discord.MessageEmbed()
-			.setColor(client.userLib.colors.inf)
+		let embed = new MessageEmbed()
+			.setColor(colors.information)
 			.setTitle(':paperclip: Список документов:')
 			.setDescription(
 				Object.keys(docs).reduce((pr, cr, ind) => (pr += `\`\`${ind + 1}.:\`\` ${cr}\n${docs[cr].description}\n\n`), '')
@@ -79,11 +82,11 @@ exports.run = (client, interaction) => {
 		return interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 
-	let docLang = interaction.options.getString('язык') ? interaction.options.getString('язык') : 'ru';
+	const docLang = interaction.options.getString('язык') ? interaction.options.getString('язык') : 'ru';
 
 	let doc = docs[interaction.options.getString('название')];
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.inf)
+	let embed = new MessageEmbed()
+		.setColor(colors.information)
 		.setTitle(':mag_right: Документ: ' + interaction.options.getString('название'));
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
@@ -99,8 +102,8 @@ exports.run = (client, interaction) => {
 	}
 	embed.setDescription(text[page]);
 
-	const row = new client.userLib.discord.MessageActionRow().addComponents(
-		new client.userLib.discord.MessageButton()
+	const row = new MessageActionRow().addComponents(
+		new MessageButton()
 			.setCustomId(
 				client.userLib.AEScrypt([
 					exports.help.name,
@@ -114,12 +117,12 @@ exports.run = (client, interaction) => {
 			.setLabel('Назад')
 			.setStyle('PRIMARY')
 			.setDisabled(page === 0),
-		new client.userLib.discord.MessageButton()
+		new MessageButton()
 			.setCustomId('counter')
 			.setLabel(`${page + 1} из ${text.length}`)
 			.setStyle('SECONDARY')
 			.setDisabled(true),
-		new client.userLib.discord.MessageButton()
+		new MessageButton()
 			.setCustomId(
 				client.userLib.AEScrypt([
 					exports.help.name,
@@ -135,14 +138,14 @@ exports.run = (client, interaction) => {
 			.setDisabled(page === text.length - 1)
 	);
 	interaction.reply({ embeds: [embed], ephemeral: true, components: [row] });
-};
+}
 
-exports.interaction = async (client, interaction, args) => {
+export async function interaction (client, interaction, args) {
 	let page = +args[3],
 		text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0],
 		embed = new client.userLib.discord.MessageEmbed()
 			.setColor(client.userLib.colors.inf)
-			.setTitle(':mag_right: Документ: ' + args[2]);
+			.setTitle(`:mag_right: Документ: ${args[2]}`);
 
 	page = args[4] === 'next' ? page + 1 : page - 1;
 	text = text.match(/[\s\S]{1,2048}/g);
@@ -168,17 +171,17 @@ exports.interaction = async (client, interaction, args) => {
 	interaction.update({ embeds: [embed], ephemeral: true, components: [row] });
 };
 
-exports.autocomplete = async (client, interaction) => {
+export async function autocomplete (client, interaction) {
 	const documents = Object.keys(docs);
 	const respond = [];
 
-	for (let element of documents) {
+	for (const element of documents) {
 		if (element.startsWith(interaction.options.getString('название')) && respond.length < 25)
 			respond.push({
 				name: element,
-				value: element
-			})
+				value: element,
+			});
 	}
 
-	interaction.respond(respond)
-};
+	interaction.respond(respond);
+}

@@ -1,36 +1,45 @@
-exports.help = {
+import { MessageEmbed } from 'discord.js';
+import colors from "../../models/colors.js";
+
+export const help = {
 	name: 'clearmsg',
 	description: 'Очистить сообщения',
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'количество',
 			description: 'Количество сообщений (не более 100 за раз)',
 			type: 4,
-			required: true
+			required: true,
+			min_value: 1,
+			max_value: 99
 		},
 		{
 			name: 'участник',
 			description: 'Удалить только сообщения от участника',
 			type: 6,
-		}
-	]
+		},
+	],
 };
 
-exports.run = async (client, interaction) => {
-	if (interaction.options.getInteger('количество') > 99 || interaction.options.getInteger('количество') < 1) return client.userLib.retError(interaction, 'Число должно быть не более 100 и не менее 1!');
-
+export async function run (interaction) {
 	let dmsg = await interaction.channel.bulkDelete(interaction.options.getInteger('количество'), true);
 
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
+	let embed = new MessageEmbed()
+		.setColor(colors.success)
 		.setTitle('Удаление сообщений')
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
 		.setTimestamp();
 
-	msg.channel.send(embed).then(msgs => msgs.delete({ timeout: 10000 }));
-};
+	interaction.editReply({ embeds: [embed] });
+}
+
+export default {
+	help,
+	command,
+	run
+}

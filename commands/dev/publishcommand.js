@@ -1,65 +1,89 @@
-import { MessageEmbed } from 'discord.js';
+import { MessageEmbed } from 'discord.js'
+import axios from 'axios'
+import { commands } from '../index.js'
+import colors from '../../models/colors.js'
+import { codeBlock } from "../../utils/functions.js";
 
 export const APILinks = {
 	devGuild: 'https://discord.com/api/v9/applications/662302431282987009/guilds/581070953703014401/commands',
-	release: `https://discord.com/api/v9/applications/${discordClient.user.id}/commands/`,
-}
+	release() {
+		return `https://discord.com/api/v9/applications/${discordClient.user.id}/commands/`;
+	},
+};
 
 export const help = {
 	name: 'publishcommand',
-	description: 'Опубликовать команду',
-}
+	description: 'Publish command to Discord',
+};
 
 export const command = {
 	name: help.name,
+	// name_localizations: {
+	// 	'ru': 'опубликоватькоманду'
+	// },
 	description: help.description,
+	description_localizations: {
+		ru: 'Опубликовать команду в Discord',
+	},
 	options: [
 		{
-			name: 'команда',
-			description: 'название команды',
+			name: 'command',
+			name_localizations: {
+				ru: 'команда',
+			},
+			description: 'Command name',
+			description_localizations: {
+				ru: 'Название команды',
+			},
 			type: 3,
 			required: true,
 			autocomplete: true,
 		},
 	],
-}
+};
 
 export async function run(interaction) {
+	const embed = new MessageEmbed().setTimestamp().setColor(colors.success);
 
-	const embed = new MessageEmbed().setTimestamp()
-
-	client.userLib.request.post( //TODO: Axios
-		APILinks.devGuild,
-		{
-			headers: { Authorization: 'Bot ' + discordClient.token },
-			json: client.commands.get(interaction.options.getString('команда')).command,
-		},
-		function (error, response, body) {
-			embed.addField('Body', '```json\n' + JSON.stringify(body, null, ' ') + '```')
-			embed.addField('Error', '```json\n' + JSON.stringify(error, null, ' ') + '```')
-			interaction.reply({ embeds: [embed], ephemeral: true })
-		}
-	)
-}
-
-export async function autocomplete(interaction) {
-	const commands = client.commands //TODO: Commands
-	const respond = []
-
-	for (let element of commands) {
-		if (element[0].startsWith(interaction.options.getString('команда')) && respond.length < 25)
-		respond.push({
-			name: element[0],
-			value: element[0]
+	if (!response.response) {
+		fields.push({
+			name: `Body (Status: ${response.status})`,
+			value: codeBlock(JSON.stringify(response.data, null, ' '))
 		})
 	}
+	else {
+		fields.push({
+			name: `${response.response.status}: ${response.response.statusText}`,
+			value: codeBlock(JSON.stringify(response.response.data, null, ' '))
+		})
+		embed.setColor(colors.error)
+	}
 
-	interaction.respond(respond)
+	embed.addFields(fields);
+
+	//TODO: fix embed empty fields error
+	//interaction.reply({ embeds: [embed], ephemeral: true })
+	interaction.reply({ content: 'done', ephemeral: true })
+}
+
+export async function autocomplete(commands, interaction) {
+	const respond = []
+	let cmd = interaction.options.getString('команда') || '';
+
+	for (const element of Object.keys(commands).filter(el => !el.startsWith('__'))) {
+		if (element.startsWith(interaction.options.getString('command')) && respond.length < 25)
+			respond.push({
+				name: element,
+				value: element,
+			});
+	}
+
+	interaction.respond(respond);
 }
 
 export default {
 	help,
 	command,
 	run,
-	autocomplete
-}
+	autocomplete,
+};

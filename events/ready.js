@@ -15,7 +15,7 @@ module.exports = client => {
 	client.userLib.db.query(
 		'SELECT guildId, userId, time, mutedRole FROM mutes LEFT JOIN guilds using(guildId) WHERE time > now()',
 		(err, fields) => {
-			for (let field of fields)
+			for (const field of fields)
 				if (
 					client.guilds.cache.get(field.guildId) &&
 					client.guilds.cache.get(field.guildId).members.cache.get(field.userId)
@@ -30,5 +30,5 @@ module.exports = client => {
 	);
 
 	client.userLib.sendLog(`Shard ready!`, 'ShardingManager');
-	client.userLib.sendWebhookLog("Shard ready!");
+	client.userLib.sendWebhookLog('Shard ready!');
 };

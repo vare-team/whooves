@@ -1,7 +1,7 @@
-import { respondError } from "../../utils/modules/respondMessages";
-import { MessageEmbed } from "discord.js";
-import colors from "../../models/colors";
-import { randomIntInc } from "../../utils/functions";
+import { respondError } from '../../utils/modules/respondMessages.js';
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+import { randomIntInc } from '../../utils/functions.js';
 
 export const help = {
 	name: '8ball',
@@ -17,9 +17,10 @@ export const command = {
 			description: 'Вопрос, на который вы хотите получить ответ.',
 			type: 3,
 			required: true,
+			max_length: 100,
 		},
 	],
-}
+};
 
 const answers = [
 	'Бесспорно',

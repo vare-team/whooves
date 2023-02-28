@@ -1,11 +1,15 @@
-exports.help = {
+const { respondError } = require('../../utils/modules/respondMessages.js');
+const { MessageEmbed } = require('discord.js');
+const colors = require('../../models/colors.js');
+
+export const help = {
 	name: 'lookup',
 	description: 'Информация о пользователе, гильдии или приглашении.',
 };
 
-exports.command = {
-	name: exports.help.name,
-	description: exports.help.description,
+export const command = {
+	name: help.name,
+	description: help.description,
 	options: [
 		{
 			name: 'пользователь',
@@ -30,70 +34,142 @@ exports.command = {
 					description: 'ID публичной гильдии, приглашения или пользователя',
 					type: 3,
 					required: true,
+					min_length: 16,
+					maxlength: 19,
+
 				},
 			],
 		},
 	],
 };
 
-exports.run = async (client, interaction) => {
-	let object;
+export async function run (interaction) {
+	const client = interaction.client;
+	const id = interaction.options.getString('id');
+	let target = interaction.options.getMember('пользователь') || interaction.options.getUser('пользователь') || (await client.users.fetch(id).catch(() => 0));
 
-	if (interaction.options.getMember('пользователь'))
-		object = await client.users.fetch(interaction.options.getUser('пользователь').id).catch(() => 0);
-	else if (interaction.options.getString('id')) {
-		if (/([0-9]){17,18}/.test(interaction.options.getString('id')))
-			object = await client.users.fetch(interaction.options.getString('id')).catch(() => 0);
-		if (!object) object = await client.fetchInvite(interaction.options.getString('id')).catch(() => 0);
-		if (!object) object = await client.fetchGuildPreview(interaction.options.getString('id')).catch(() => 0);
+	if (!target && /([0-9]){17,19}/.test(id)) {
+		target = (await client.fetchInvite(id).catch(() => 0)) || (await client.fetchGuildPreview(id).catch(() => 0));
 	}
 
-	if (!object) {
-		client.userLib.retError(interaction, 'Пользователя/Приглашения/Гильдии с таким ID не найдено.');
+	if (!target) {
+		respondError(interaction, 'Пользователя/Приглашения/Гильдии с таким ID не найдено.');
 		return;
 	}
 
-	let embed = new client.userLib.discord.MessageEmbed().setColor(client.userLib.colors.inf).setTimestamp();
+	let embed = new MessageEmbed()
+		.setColor(colors.information)
+		.setTimestamp();
 
-	switch (object.constructor.name) {
+	switch (target.constructor.name) {
 		case 'ClientUser':
 		case 'User':
-			object.member = await client.guilds
-				.resolve(interaction.guildId)
-				.members.fetch(object.id)
-				.catch(() => 0);
-			embed
-				.setTitle(object.bot ? 'Бот' : 'Пользователь')
-				.setAuthor(object.tag, object.displayAvatarURL({ dynamic: true }))
-				.addField('Дата регистрации:', `<t:${Math.floor(object.createdAt / 1000)}:R>`, true)
-				.setThumbnail(object.displayAvatarURL({ dynamic: true }));
-			if (object.member)
-				embed.addField(
-					'Дата присоединения к этой гильдии:',
-					`<t:${Math.floor(object.member.joinedTimestamp / 1000)}:R>`,
-					true
-				);
-			if (object.flags.bitfield) embed.addField('Значки:', '```' + object.flags.toArray() + '```');
+			embed = await userEmbed(embed, target, interaction, client)
 			break;
 		case 'Invite':
-			embed
-				.setTitle('Приглашение')
-				.setAuthor(
-					object.guild.name,
-					`https://cdn.discordapp.com/icons/${object.guild.id}/${object.guild.icon}.jpg?size=128`
-				)
-				.addField('ID гильдии:', '``' + object.guild.id + '``', true)
-				.addField('Канал:', '``#' + object.channel.name + '``', true)
-				.addField('Кол-во участников:', '``' + object.memberCount + '``')
-				.addField('Пригласивший:', '``' + `${object.inviter.tag} (ID: ${object.inviter.id})` + '``');
+			embed = await inviteEmbed(embed, target)
 			break;
 		case 'GuildPreview':
-			embed
-				.setTitle('Публичная гильдия')
-				.setAuthor(object.name, `https://cdn.discordapp.com/icons/${object.id}/${object.icon}.jpg?size=128`)
-				.addField('Кол-во участников:', '``' + object.approximateMemberCount + '``', true)
-				.addField('Кол-во эмоджи:', '``' + object.emojis.size + '``', true)
-				.addField('Опции:', '```' + object.features + '```');
+			embed = await guildEmbed(embed, target)
+			break;
 	}
+
 	interaction.reply({ embeds: [embed], ephemeral: true });
-};
+}
+
+async function guildEmbed (embed, guild){
+	embed
+		.setTitle('Публичная гильдия')
+		.setAuthor(guild.name, `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg?size=128`)
+		.addFields([
+			{
+				name: 'Кол-во участников:',
+				value: '``' + guild.approximateMemberCount + '``',
+				inline: true
+			},
+			{
+				name: 'Кол-во эмоджи:',
+				value: '``' + guild.emojis.size + '``',
+				inline: true
+			},
+			{
+				name: 'Опции:',
+				value: '```' + guild.features + '```',
+			},
+		])
+
+	return embed
+}
+
+async function inviteEmbed(embed, invite) {
+	embed
+		.setTitle('Приглашение')
+		.setAuthor(
+			invite.guild.name,
+			`https://cdn.discordapp.com/icons/${invite.guild.id}/${invite.guild.icon}.jpg?size=128`
+		)
+		.addFields([
+			{
+				name: 'ID гильдии:',
+				value: '``' + invite.guild.id + '``',
+				inline: true
+			},
+			{
+				name: 'Канал:',
+				value: '``#' + invite.channel.name + '``',
+				inline: true
+			},
+			{
+				name: 'Кол-во участников:',
+				value: '``' + invite.memberCount + '``',
+			},
+			{
+				name: 'Пригласивший:',
+				value: '``' + `${invite.inviter.tag} (ID: ${invite.inviter.id})` + '``',
+			},
+		])
+
+	return embed
+}
+
+async function userEmbed(embed, user, interaction, client) {
+	let fields = [
+		{
+			name: 'Дата регистрации:',
+			value: `<t:${Math.floor(user.createdAt / 1000)}:R>`,
+			inline: true
+		}
+	]
+	user.member = await client.guilds
+		.resolve(interaction.guildId)
+		.members.fetch(user.id)
+		.catch(() => 0);
+
+	embed
+		.setTitle(user.bot ? 'Бот' : 'Пользователь')
+		.setAuthor(user.tag, user.displayAvatarURL({ dynamic: true }))
+		.setThumbnail(user.displayAvatarURL({ dynamic: true }));
+
+	if (user.member)
+		fields.push({
+			name: 'Дата присоединения к этой гильдии:',
+			value: `<t:${Math.floor(user.member.joinedTimestamp / 1000)}:R>`,
+			inline: true
+		})
+
+	if (user.flags.bitfield)
+		fields.push({
+			name: 'Значки:',
+			value: '```' + user.flags.toArray() + '```'
+		})
+
+	embed.addFields(fields)
+	return embed
+}
+
+export default {
+	help,
+	command,
+	run
+}
+

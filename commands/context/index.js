@@ -1,15 +1,13 @@
-import about from './about'
-import lang from './lang'
-import ticker from './ticker'
-import unshorten from './unshorten'
+import about from './about.js';
+import lang from './lang.js';
+// import ticker from './ticker.js'
+import unshorten from './unshorten.js'
+import { mapCommand } from '../../utils/functions.js';
 
 export default {
 	__category__: {
 		name: 'Контекстные команды',
 		onlyGuild: true,
 	},
-	about,
-	lang,
-	ticker,
-	unshorten
+	...[mapCommand([about, lang, unshorten], false)]
 }

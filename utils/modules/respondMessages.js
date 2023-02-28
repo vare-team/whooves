@@ -1,5 +1,5 @@
-import { MessageEmbed } from "discord.js";
-import colors from "../../models/colors";
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
 
 export const emoji = {
 	load: '<a:load:793027778554888202>',
@@ -15,12 +15,10 @@ export const emoji = {
  * @param {string} reason
  */
 export const respondError = (interaction, reason = 'Какая разница вообще?') => {
-	let embed = new MessageEmbed()
-		.setColor(colors.error)
-		.setDescription( emoji.err + ' **Ошибка:** ' + reason)
+	const embed = new MessageEmbed().setColor(colors.error).setDescription(`${emoji.err} **Ошибка:** ${reason}`);
 
-	if (interaction.deferred) interaction.editReply({ embeds: [embed], ephemeral: true })
-	else interaction.reply({ embeds: [embed], ephemeral: true })
+	if (interaction.deferred) interaction.editReply({ embeds: [embed], ephemeral: true });
+	else interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
 /**
@@ -29,10 +27,8 @@ export const respondError = (interaction, reason = 'Какая разница в
  * @param {string} reason
  */
 export const respondSuccess = (interaction, reason = 'Какая разница вообще?') => {
-	let embed = new MessageEmbed()
-		.setColor(colors.success)
-		.setDescription( emoji.ready + ' ' + reason)
+	const embed = new MessageEmbed().setColor(colors.success).setDescription(`${emoji.ready} ${reason}`);
 
-	if (interaction.deferred) interaction.editReply({ embeds: [embed] })
-	else interaction.reply({ embeds: [embed] })
-}
+	if (interaction.deferred) interaction.editReply({ embeds: [embed] });
+	else interaction.reply({ embeds: [embed] });
+};

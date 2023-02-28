@@ -1,9 +1,6 @@
-import { WebhookClient } from "discord.js";
+import { WebhookClient } from 'discord.js';
 
-const webHook = new WebhookClient(
-	process.env.webhookId,
-	process.env.webhookToken
-);
+const webHook = new WebhookClient(process.env.webhookId, process.env.webhookToken);
 
 /**
  * @function
