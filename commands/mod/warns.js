@@ -18,7 +18,7 @@ export const command = {
 	],
 };
 
-export async function run (interaction) {
+export async function run(interaction) {
 	const user = interaction.options.getUser('пользователь') || interaction.user;
 
 	let warns = await client.userLib.db
@@ -26,11 +26,11 @@ export async function run (interaction) {
 		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, interaction.guildId]);
 	warns = warns[0];
 
-	let embed = new MessageEmbed()
+	const embed = new MessageEmbed()
 		.setColor(colors.information)
 		.setAuthor({
-			name: user.username + '#' + user.discriminator,
-			iconURL:  user.displayAvatarURL()
+			name: `${user.username}#${user.discriminator}`,
+			iconURL: user.displayAvatarURL(),
 		})
 		.setTitle('Предупреждения')
 		.setTimestamp();
@@ -46,5 +46,5 @@ export async function run (interaction) {
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

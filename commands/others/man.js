@@ -71,9 +71,9 @@ readdir('./assets/docs/', (err, files) => {
 });
 //PARSE DOCS
 
-export function run (interaction) {
+export function run(interaction) {
 	if (interaction.options._subcommand === 'все') {
-		let embed = new MessageEmbed()
+		const embed = new MessageEmbed()
 			.setColor(colors.information)
 			.setTitle(':paperclip: Список документов:')
 			.setDescription(
@@ -84,10 +84,10 @@ export function run (interaction) {
 
 	const docLang = interaction.options.getString('язык') ? interaction.options.getString('язык') : 'ru';
 
-	let doc = docs[interaction.options.getString('название')];
-	let embed = new MessageEmbed()
+	const doc = docs[interaction.options.getString('название')];
+	const embed = new MessageEmbed()
 		.setColor(colors.information)
-		.setTitle(':mag_right: Документ: ' + interaction.options.getString('название'));
+		.setTitle(`:mag_right: Документ: ${interaction.options.getString('название')}`);
 	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
 
 	let text = doc.text[docLang] ? doc.text[docLang] : Object.values(doc.text)[0],
@@ -140,7 +140,7 @@ export function run (interaction) {
 	interaction.reply({ embeds: [embed], ephemeral: true, components: [row] });
 }
 
-export async function interaction (client, interaction, args) {
+export async function interaction(client, interaction, args) {
 	let page = +args[3],
 		text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0],
 		embed = new client.userLib.discord.MessageEmbed()
@@ -169,9 +169,9 @@ export async function interaction (client, interaction, args) {
 	);
 
 	interaction.update({ embeds: [embed], ephemeral: true, components: [row] });
-};
+}
 
-export async function autocomplete (client, interaction) {
+export async function autocomplete(client, interaction) {
 	const documents = Object.keys(docs);
 	const respond = [];
 

@@ -30,34 +30,32 @@ export const command = {
 	],
 };
 
-export async function run (interaction) {
-	const reason = interaction.options.getString('причина') || 'Не указана'
+export async function run(interaction) {
+	const reason = interaction.options.getString('причина') || 'Не указана';
 	if (reason && reason.length > 300)
 		return respondError(interaction, 'Причина не может содержать в себе более 300 символов!');
 
 	const wUser = interaction.options.getUser('участник'),
-		warn = await client.userLib.promise(client.userLib.db, client.userLib.db.insert,
-			'warns',
-				{
-					userId: wUser.id,
-					guildId: interaction.guildId,
-					who: interaction.user.id,
-					reason: reason,
-				}
-			),
-		warnInfo = await client.userLib.promise(client.userLib.db, client.userLib.db.queryValue,
-				'SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?',
-				[
-					wUser.id,
-					interaction.guildId
-				]
-			);
+		warn = await client.userLib.promise(client.userLib.db, client.userLib.db.insert, 'warns', {
+			userId: wUser.id,
+			guildId: interaction.guildId,
+			who: interaction.user.id,
+			reason: reason,
+		}),
+		warnInfo = await client.userLib.promise(
+			client.userLib.db,
+			client.userLib.db.queryValue,
+			'SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?',
+			[wUser.id, interaction.guildId]
+		);
 
-	let embed = new MessageEmbed()
+	const embed = new MessageEmbed()
 		.setColor(colors.warning)
 		.setTitle(`${wUser.tag} выдано предупреждение!`)
 		.setDescription(
-			`Причина: ${boldText(reason)}\nВсего предупреждений: ${boldText(warnInfo.res)}\nID предупреждения: ${boldText(warn.res)}`
+			`Причина: ${boldText(reason)}\nВсего предупреждений: ${boldText(warnInfo.res)}\nID предупреждения: ${boldText(
+				warn.res
+			)}`
 		)
 		.setTimestamp();
 
@@ -73,5 +71,5 @@ export async function run (interaction) {
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

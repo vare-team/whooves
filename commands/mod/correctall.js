@@ -56,5 +56,5 @@ export async function run(interaction) {
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

@@ -19,14 +19,12 @@ export const command = {
 	],
 };
 
-export async function run (interaction) {
-	const user = await interaction.client.users.fetch(interaction.options.getString('id')).catch(() => {}) || undefined;
-	const ban = await interaction.guild.bans.fetch({ user, force: true }).catch(() => {}) || undefined;
+export async function run(interaction) {
+	const user = (await interaction.client.users.fetch(interaction.options.getString('id')).catch(() => {})) || undefined;
+	const ban = (await interaction.guild.bans.fetch({ user, force: true }).catch(() => {})) || undefined;
 
-	if (user === undefined)
-		return respondError(interaction, 'Пользователь не найден!');
-	if (ban === undefined)
-		return respondError(interaction, 'Пользователь не забанен!');
+	if (user === undefined) return respondError(interaction, 'Пользователь не найден!');
+	if (ban === undefined) return respondError(interaction, 'Пользователь не забанен!');
 
 	await interaction.guild.members.unban(user).catch(() => {});
 
@@ -36,5 +34,5 @@ export async function run (interaction) {
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

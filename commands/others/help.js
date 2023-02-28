@@ -41,26 +41,27 @@ const tiers = {
 		context: 'Контекстные команды',
 	};
 
-export function run (interaction) {
-	let cmds = Object.values(commands);
-	let cmd = interaction.options.getString('команда');
-	let fields = []
-	let embed = new MessageEmbed().setColor(colors.information)
+export function run(interaction) {
+	const cmds = Object.values(commands);
+	const cmd = interaction.options.getString('команда');
+	const fields = [];
+	const embed = new MessageEmbed().setColor(colors.information);
 
 	if (!cmd) {
-		embed.setDescription(`Вы можете написать \`/help [название команды]\` чтобы получить подробную информацию!`)
+		embed
+			.setDescription(`Вы можете написать \`/help [название команды]\` чтобы получить подробную информацию!`)
 			.setTitle(':paperclip: Список команд:');
 
-		for (let command of cmds.filter(x => x.help !== undefined)) {
-			let helpData = command.help;
+		for (const command of cmds.filter(x => x.help !== undefined)) {
+			const helpData = command.help;
 			fields.push({
 				name: helpData.name,
 				value: helpData.description,
-				inline: true
-			})
+				inline: true,
+			});
 		}
 
-		embed.addFields(fields)
+		embed.addFields(fields);
 
 		return interaction.reply({ embeds: [embed], ephemeral: true });
 	}
@@ -68,48 +69,43 @@ export function run (interaction) {
 	const command = cmds.filter(x => x.help && x.help.name === cmd)[0];
 
 	if (!command) {
-		respondError(
-			interaction,
-			'Возможно, в другой временной линии эта команда и есть, но тут пока ещё не добавили.'
-		);
+		respondError(interaction, 'Возможно, в другой временной линии эта команда и есть, но тут пока ещё не добавили.');
 		return;
 	}
-	if (command.help.description)
-		embed.setDescription(command.help.description);
+	if (command.help.description) embed.setDescription(command.help.description);
 
 	embed.setTitle(
-		command.help.module === 'context'
-			? '🖱️ Опция: ' + command.help.name
-			: '🔎 Команда: ' + command.help.name);
+		command.help.module === 'context' ? `🖱️ Опция: ${command.help.name}` : `🔎 Команда: ${command.help.name}`
+	);
 
-	embed.addFields([{
-		name: 'Использование',
-		value: command.command.dm_permission
-			? 'Только для гильдий'
-			: 'ЛС И Гильдия'
-	}])
+	embed.addFields([
+		{
+			name: 'Использование',
+			value: command.command.dm_permission ? 'Только для гильдий' : 'ЛС И Гильдия',
+		},
+	]);
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
-export async function autocomplete (commands, interaction) {
+export async function autocomplete(commands, interaction) {
 	const respond = [];
-	let cmd = interaction.options.getString('команда') || '';
+	const cmd = interaction.options.getString('команда') || '';
 
-	for (let element of commands) {
+	for (const element of commands) {
 		if (element.help.name.toLowerCase().startsWith(cmd.toLowerCase()) && respond.length < 25)
 			respond.push({
 				name: element.help.name,
-				value: element.help.name
-			})
+				value: element.help.name,
+			});
 	}
 
-	interaction.respond(respond)
+	interaction.respond(respond);
 }
 
 export default {
 	help,
 	command,
 	run,
-	autocomplete
-}
+	autocomplete,
+};

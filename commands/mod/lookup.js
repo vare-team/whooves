@@ -36,17 +36,19 @@ export const command = {
 					required: true,
 					min_length: 16,
 					maxlength: 19,
-
 				},
 			],
 		},
 	],
 };
 
-export async function run (interaction) {
+export async function run(interaction) {
 	const client = interaction.client;
 	const id = interaction.options.getString('id');
-	let target = interaction.options.getMember('пользователь') || interaction.options.getUser('пользователь') || (await client.users.fetch(id).catch(() => 0));
+	let target =
+		interaction.options.getMember('пользователь') ||
+		interaction.options.getUser('пользователь') ||
+		(await client.users.fetch(id).catch(() => 0));
 
 	if (!target && /([0-9]){17,19}/.test(id)) {
 		target = (await client.fetchInvite(id).catch(() => 0)) || (await client.fetchGuildPreview(id).catch(() => 0));
@@ -57,48 +59,46 @@ export async function run (interaction) {
 		return;
 	}
 
-	let embed = new MessageEmbed()
-		.setColor(colors.information)
-		.setTimestamp();
+	let embed = new MessageEmbed().setColor(colors.information).setTimestamp();
 
 	switch (target.constructor.name) {
 		case 'ClientUser':
 		case 'User':
-			embed = await userEmbed(embed, target, interaction, client)
+			embed = await userEmbed(embed, target, interaction, client);
 			break;
 		case 'Invite':
-			embed = await inviteEmbed(embed, target)
+			embed = await inviteEmbed(embed, target);
 			break;
 		case 'GuildPreview':
-			embed = await guildEmbed(embed, target)
+			embed = await guildEmbed(embed, target);
 			break;
 	}
 
 	interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
-async function guildEmbed (embed, guild){
+async function guildEmbed(embed, guild) {
 	embed
 		.setTitle('Публичная гильдия')
 		.setAuthor(guild.name, `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg?size=128`)
 		.addFields([
 			{
 				name: 'Кол-во участников:',
-				value: '``' + guild.approximateMemberCount + '``',
-				inline: true
+				value: `\`\`${guild.approximateMemberCount}\`\``,
+				inline: true,
 			},
 			{
 				name: 'Кол-во эмоджи:',
-				value: '``' + guild.emojis.size + '``',
-				inline: true
+				value: `\`\`${guild.emojis.size}\`\``,
+				inline: true,
 			},
 			{
 				name: 'Опции:',
-				value: '```' + guild.features + '```',
+				value: `\`\`\`${guild.features}\`\`\``,
 			},
-		])
+		]);
 
-	return embed
+	return embed;
 }
 
 async function inviteEmbed(embed, invite) {
@@ -111,35 +111,35 @@ async function inviteEmbed(embed, invite) {
 		.addFields([
 			{
 				name: 'ID гильдии:',
-				value: '``' + invite.guild.id + '``',
-				inline: true
+				value: `\`\`${invite.guild.id}\`\``,
+				inline: true,
 			},
 			{
 				name: 'Канал:',
-				value: '``#' + invite.channel.name + '``',
-				inline: true
+				value: `\`\`#${invite.channel.name}\`\``,
+				inline: true,
 			},
 			{
 				name: 'Кол-во участников:',
-				value: '``' + invite.memberCount + '``',
+				value: `\`\`${invite.memberCount}\`\``,
 			},
 			{
 				name: 'Пригласивший:',
 				value: '``' + `${invite.inviter.tag} (ID: ${invite.inviter.id})` + '``',
 			},
-		])
+		]);
 
-	return embed
+	return embed;
 }
 
 async function userEmbed(embed, user, interaction, client) {
-	let fields = [
+	const fields = [
 		{
 			name: 'Дата регистрации:',
 			value: `<t:${Math.floor(user.createdAt / 1000)}:R>`,
-			inline: true
-		}
-	]
+			inline: true,
+		},
+	];
 	user.member = await client.guilds
 		.resolve(interaction.guildId)
 		.members.fetch(user.id)
@@ -154,22 +154,21 @@ async function userEmbed(embed, user, interaction, client) {
 		fields.push({
 			name: 'Дата присоединения к этой гильдии:',
 			value: `<t:${Math.floor(user.member.joinedTimestamp / 1000)}:R>`,
-			inline: true
-		})
+			inline: true,
+		});
 
 	if (user.flags.bitfield)
 		fields.push({
 			name: 'Значки:',
-			value: '```' + user.flags.toArray() + '```'
-		})
+			value: `\`\`\`${user.flags.toArray()}\`\`\``,
+		});
 
-	embed.addFields(fields)
-	return embed
+	embed.addFields(fields);
+	return embed;
 }
 
 export default {
 	help,
 	command,
-	run
-}
-
+	run,
+};

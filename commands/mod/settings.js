@@ -56,7 +56,7 @@ const normalizeParametrs = {
 	autocorrector: 'Исправление никнеймов',
 };
 
-export async function run (interaction) {
+export async function run(interaction) {
 	const subCommand = interaction.options.getSubcommand();
 	const state = interaction.options.getBoolean('состояние');
 	const channel = interaction.options.getChannel('канал');
@@ -76,17 +76,23 @@ export async function run (interaction) {
 				() => {}
 			);
 
-			return respondSuccess(interaction, !channel ? `**Лог канал отключен**!` : `${channel} **установлен как канал для логов!**`)
+			return respondSuccess(
+				interaction,
+				!channel ? `**Лог канал отключен**!` : `${channel} **установлен как канал для логов!**`
+			);
 		default:
 			if (!(await client.userLib.setSettings(interaction.guildId, subCommand, state)))
 				return respondError(interaction, 'Параметр уже находится в этом значении!');
 
-			return respondSuccess(interaction, `«\`${normalizeParametrs[subCommand]}\`» - **${state ? 'включен' : 'выключен'}**!`)
+			return respondSuccess(
+				interaction,
+				`«\`${normalizeParametrs[subCommand]}\`» - **${state ? 'включен' : 'выключен'}**!`
+			);
 	}
 }
 
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

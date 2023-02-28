@@ -1,5 +1,5 @@
 import { MessageEmbed } from 'discord.js';
-import colors from "../../models/colors.js";
+import colors from '../../models/colors.js';
 
 export const help = {
 	name: 'clearmsg',
@@ -16,7 +16,7 @@ export const command = {
 			type: 4,
 			required: true,
 			min_value: 1,
-			max_value: 99
+			max_value: 99,
 		},
 		{
 			name: 'участник',
@@ -26,10 +26,10 @@ export const command = {
 	],
 };
 
-export async function run (interaction) {
-	let dmsg = await interaction.channel.bulkDelete(interaction.options.getInteger('количество'), true);
+export async function run(interaction) {
+	const dmsg = await interaction.channel.bulkDelete(interaction.options.getInteger('количество'), true);
 
-	let embed = new MessageEmbed()
+	const embed = new MessageEmbed()
 		.setColor(colors.success)
 		.setTitle('Удаление сообщений')
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
@@ -41,5 +41,5 @@ export async function run (interaction) {
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

@@ -1,5 +1,5 @@
 import { Client } from 'discord.js';
-import ready from './events/ready.js'
+import ready from './events/ready.js';
 import logger from './utils/logger.js';
 import interactionCreate from './events/interactionCreate.js';
 
@@ -11,5 +11,5 @@ global.discordClient = client;
 
 client.login().then(() => logger('Bot authorized', 'core'));
 
-client.once('ready', ready)
-client.on('interactionCreate', interactionCreate)
+client.once('ready', ready);
+client.on('interactionCreate', interactionCreate);

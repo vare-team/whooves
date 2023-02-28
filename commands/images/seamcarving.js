@@ -1,4 +1,4 @@
-import SeamCarver from '../../utils/seamcarver.js'
+import SeamCarver from '../../utils/seamcarver.js';
 
 //TODO: Seamcarver
 
@@ -19,7 +19,7 @@ export const command = {
 	],
 };
 
-export async function run (interaction) {
+export async function run(interaction) {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
 

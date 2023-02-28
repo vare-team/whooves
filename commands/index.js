@@ -9,7 +9,7 @@ export default {
 };
 
 export const commands = {
-	...(mapAllCommands([context, dev, images, others, mod])),
+	...mapAllCommands([context, dev, images, others, mod]),
 	__category__: {
 		name: 'all',
 	},
@@ -19,11 +19,11 @@ export const commands = {
  * @param categories {Object[]}
  * @return {Object}
  */
-function mapAllCommands(categories){
-	let cmds = {}
-	categories = categories.map(x => Object(x)[0])
-	for (const category of categories){
-		for (const cmd of category){
+function mapAllCommands(categories) {
+	const cmds = {};
+	categories = categories.map(x => Object(x)[0]);
+	for (const category of categories) {
+		for (const cmd of category) {
 			cmds[cmd.command.name] = cmd;
 		}
 	}

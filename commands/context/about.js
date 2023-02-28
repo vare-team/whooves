@@ -15,40 +15,37 @@ export const command = {
 };
 
 export async function run(interaction) {
-	const embed = new MessageEmbed().setColor(colors.information).setTimestamp()
-	let targetUserAvatar = interaction.targetUser.displayAvatarURL({ dynamic: true });
-	let fields = [
+	const embed = new MessageEmbed().setColor(colors.information).setTimestamp();
+	const targetUserAvatar = interaction.targetUser.displayAvatarURL({ dynamic: true });
+	const fields = [
 		{
 			name: 'Дата регистрации:',
 			value: `<t:${Math.floor(interaction.targetUser.createdAt / 1000)}:R>`,
-			inline: true
+			inline: true,
 		},
 		{
 			name: 'Дата присоединения к этой гильдии:',
 			value: `<t:${Math.floor(interaction.targetMember.joinedTimestamp / 1000)}:R>`,
-			inline: true
-		}
-	]
+			inline: true,
+		},
+	];
 
 	if (interaction.targetUser.flags.bitfield)
 		fields.push({
-				name: 'Значки',
-				value: '```' + interaction.targetUser.flags.toArray() + '```'
-			}
-		)
+			name: 'Значки',
+			value: `\`\`\`${interaction.targetUser.flags.toArray()}\`\`\``,
+		});
 
 	embed
 		.setTitle(interaction.targetUser.bot ? 'Бот' : 'Пользователь')
-		.setAuthor(
-			{
-				name: interaction.targetUser.tag,
-				iconURL: targetUserAvatar
-			}
-		)
+		.setAuthor({
+			name: interaction.targetUser.tag,
+			iconURL: targetUserAvatar,
+		})
 		.addFields(fields)
-		.setThumbnail(targetUserAvatar)
+		.setThumbnail(targetUserAvatar);
 
-	interaction.reply({ embeds: [embed], ephemeral: true })
+	interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
 export default {

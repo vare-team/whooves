@@ -1,8 +1,8 @@
-import { MessageEmbed } from 'discord.js'
-import axios from 'axios'
-import { commands } from '../index.js'
-import colors from '../../models/colors.js'
-import { codeBlock } from "../../utils/functions.js";
+import { MessageEmbed } from 'discord.js';
+import axios from 'axios';
+import { commands } from '../index.js';
+import colors from '../../models/colors.js';
+import { codeBlock } from '../../utils/functions.js';
 
 export const APILinks = {
 	devGuild: 'https://discord.com/api/v9/applications/662302431282987009/guilds/581070953703014401/commands',
@@ -48,27 +48,26 @@ export async function run(interaction) {
 	if (!response.response) {
 		fields.push({
 			name: `Body (Status: ${response.status})`,
-			value: codeBlock(JSON.stringify(response.data, null, ' '))
-		})
-	}
-	else {
+			value: codeBlock(JSON.stringify(response.data, null, ' ')),
+		});
+	} else {
 		fields.push({
 			name: `${response.response.status}: ${response.response.statusText}`,
-			value: codeBlock(JSON.stringify(response.response.data, null, ' '))
-		})
-		embed.setColor(colors.error)
+			value: codeBlock(JSON.stringify(response.response.data, null, ' ')),
+		});
+		embed.setColor(colors.error);
 	}
 
 	embed.addFields(fields);
 
 	//TODO: fix embed empty fields error
 	//interaction.reply({ embeds: [embed], ephemeral: true })
-	interaction.reply({ content: 'done', ephemeral: true })
+	interaction.reply({ content: 'done', ephemeral: true });
 }
 
 export async function autocomplete(commands, interaction) {
-	const respond = []
-	let cmd = interaction.options.getString('команда') || '';
+	const respond = [];
+	const cmd = interaction.options.getString('команда') || '';
 
 	for (const element of Object.keys(commands).filter(el => !el.startsWith('__'))) {
 		if (element.startsWith(interaction.options.getString('command')) && respond.length < 25)

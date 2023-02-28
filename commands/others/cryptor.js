@@ -36,18 +36,16 @@ export const command = {
 	],
 };
 
-export function run (interaction) {
-	let embed = new MessageEmbed()
-		.setColor(colors.information)
-		.setTitle('🔐 Encryptor');
+export function run(interaction) {
+	const embed = new MessageEmbed().setColor(colors.information).setTitle('🔐 Encryptor');
 
 	switch (interaction.options.getString('режим')) {
 		case 'crypt':
-			embed.setDescription('Режим: **шифровка**\n' + codeBlock(crypt(interaction.options.getString('текст'))));
+			embed.setDescription(`Режим: **шифровка**\n${codeBlock(crypt(interaction.options.getString('текст')))}`);
 			break;
 
 		case 'decrypt':
-			embed.setDescription('Режим: **дешифровка**\n' + codeBlock(decrypt(interaction.options.getString('текст'))));
+			embed.setDescription(`Режим: **дешифровка**\n${codeBlock(decrypt(interaction.options.getString('текст')))}`);
 			break;
 
 		default:

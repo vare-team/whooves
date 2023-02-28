@@ -16,7 +16,7 @@ export const command = {
 			type: 6,
 		},
 	],
-}
+};
 
 export function run(interaction) {
 	const user = interaction.options.getUser('пользователь') || interaction.user;
@@ -25,15 +25,15 @@ export function run(interaction) {
 		.setDescription(`Аватар ${user}`)
 		.setColor(colors.information)
 		.setImage(user.displayAvatarURL({ dynamic: true, size: 2048 }))
-		.setTimestamp()
+		.setTimestamp();
 
-	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF')
+	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF');
 
-	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') })
+	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') });
 }
 
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

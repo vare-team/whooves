@@ -8,8 +8,8 @@ export const mentionDetect = /@everyone|@here/gm;
  * @param txt {string}
  * @returns {string}
  */
-export function codeBlock(txt){
-	return `\`\`\` ${txt} \`\`\``
+export function codeBlock(txt) {
+	return `\`\`\` ${txt} \`\`\``;
 }
 
 /**
@@ -17,8 +17,8 @@ export function codeBlock(txt){
  * @param txt {string}
  * @returns {string}
  */
-export function cssBlock(txt){
-	return codeBlock(`css\n${txt}`)
+export function cssBlock(txt) {
+	return codeBlock(`css\n${txt}`);
 }
 
 /**
@@ -26,8 +26,8 @@ export function cssBlock(txt){
  * @param txt {string}
  * @returns {string}
  */
-export function cBlock(txt){
-	return codeBlock(`c\n${txt}`)
+export function cBlock(txt) {
+	return codeBlock(`c\n${txt}`);
 }
 
 /**
@@ -35,8 +35,8 @@ export function cBlock(txt){
  * @param txt {string}
  * @returns {string}
  */
-export function boldText(txt){
-	return codeBlock(`**${txt}**`)
+export function boldText(txt) {
+	return codeBlock(`**${txt}**`);
 }
 
 /**
@@ -47,8 +47,8 @@ export function boldText(txt){
  */
 export function mapCommand(commands, dm_permission = true) {
 	return commands.map(x => {
-		let cmd = Object(x);
-		cmd.command.dm_permission = dm_permission
+		const cmd = Object(x);
+		cmd.command.dm_permission = dm_permission;
 		return cmd;
 	});
 }

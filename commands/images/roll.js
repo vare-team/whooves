@@ -1,9 +1,9 @@
-import { MessageAttachment, MessageEmbed } from 'discord.js'
-import colors from '../../models/colors.js'
+import { MessageAttachment, MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
 
-import {createCanvas, loadImage} from 'canvas';
+import { createCanvas, loadImage } from 'canvas';
 
-import GifEncoder from 'gif-encoder'
+import GifEncoder from 'gif-encoder';
 
 export const help = {
 	name: 'roll',

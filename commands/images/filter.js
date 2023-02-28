@@ -1,13 +1,13 @@
-import {createCanvas, loadImage} from "canvas";
+import { createCanvas, loadImage } from 'canvas';
 
-import { MessageAttachment, MessageEmbed } from 'discord.js'
-import colors from '../../models/colors.js'
-import { contrast, distort, greyscale, invert, sepia, glitch } from '../../utils/modules/canvasFilters.js'
+import { MessageAttachment, MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
+import { contrast, distort, greyscale, invert, sepia, glitch } from '../../utils/modules/canvasFilters.js';
 
 export const help = {
 	name: 'filter',
 	description: 'Применить фильтр к аватарке',
-}
+};
 
 export const command = {
 	name: help.name,
@@ -86,11 +86,11 @@ export async function run(interaction) {
 			distort(ctx, 0, 0, ava.width, ava.height);
 			break;
 		case 'glitch':
-			glitch(ava, canvas,ctx, interaction);
-			break
+			glitch(ava, canvas, ctx, interaction);
+			break;
 	}
 
-	const file = new MessageAttachment(canvas.toBuffer(), 'filter.jpeg')
+	const file = new MessageAttachment(canvas.toBuffer(), 'filter.jpeg');
 	const embed = new MessageEmbed()
 		.setImage('attachment://filter.jpeg')
 		.setColor(colors.information)

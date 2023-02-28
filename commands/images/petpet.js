@@ -1,14 +1,14 @@
-import { MessageAttachment, MessageEmbed } from 'discord.js'
-import colors from '../../models/colors.js'
+import { MessageAttachment, MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
 
-import {createCanvas, loadImage} from "canvas";
+import { createCanvas, loadImage } from 'canvas';
 
-import GifEncoder from 'gif-encoder'
+import GifEncoder from 'gif-encoder';
 
 export const help = {
 	name: 'petpet',
 	description: 'Погладить что-нибудь\n\n*Основано на [PetPet Generator](https://benisland.neocities.org/petpet/)*',
-}
+};
 
 export const command = {
 	name: help.name,
@@ -20,7 +20,7 @@ export const command = {
 			type: 6,
 		},
 	],
-}
+};
 
 export async function run(interaction) {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
@@ -33,11 +33,11 @@ export async function run(interaction) {
 		ctx = canvas.getContext('2d'),
 		hand = await loadImage('./assets/hand.png');
 
-	const gif = new GifEncoder(256, 256, { highWaterMark: 8 * 1024 * 1024 })
-	gif.setFrameRate(16)
-	gif.setQuality(20)
-	gif.setRepeat(0)
-	gif.setTransparent(0x000000)
+	const gif = new GifEncoder(256, 256, { highWaterMark: 8 * 1024 * 1024 });
+	gif.setFrameRate(16);
+	gif.setQuality(20);
+	gif.setRepeat(0);
+	gif.setTransparent(0x000000);
 
 	gif.writeHeader();
 

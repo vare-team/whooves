@@ -24,18 +24,25 @@ export const command = {
 	],
 };
 
-export async function run (interaction) {
-	const member = interaction.options.getMember('участник')
+export async function run(interaction) {
+	const member = interaction.options.getMember('участник');
 	const reason = interaction.options.getString('причина') || 'Причина не указана';
 
 	if (!member.kickable)
 		return respondError(interaction, 'Я не могу кикнуть этого участника!\nЕго защитная магия превосходит мои умения!');
 
-	await member.send(
-		`Вы были кикнуты с сервера \`\`${interaction.guild.name}\`\`, модератором \`\`${interaction.user.tag}\`\`, по причине: ${reason}`
-	).catch(() => client.userLib.sendLog(`${exports.help.name} : DM Send catch! Guild ${interaction.guild.name} (ID:${interaction.guildId}), @${member.tag} (ID:${member.id})`, 'DM_SEND_ERROR'));
+	await member
+		.send(
+			`Вы были кикнуты с сервера \`\`${interaction.guild.name}\`\`, модератором \`\`${interaction.user.tag}\`\`, по причине: ${reason}`
+		)
+		.catch(() =>
+			client.userLib.sendLog(
+				`${exports.help.name} : DM Send catch! Guild ${interaction.guild.name} (ID:${interaction.guildId}), @${member.tag} (ID:${member.id})`,
+				'DM_SEND_ERROR'
+			)
+		);
 
-	await member.kick(interaction.user.tag + ": " + reason);
+	await member.kick(`${interaction.user.tag}: ${reason}`);
 
 	respondSuccess(interaction, `${member} **был кикнут!** ***||*** ${reason}`);
 }
@@ -43,5 +50,5 @@ export async function run (interaction) {
 export default {
 	help,
 	command,
-	run
-}
+	run,
+};

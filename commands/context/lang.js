@@ -12,7 +12,7 @@ export const command = {
 };
 
 export function run(interaction) {
-	let message = interaction.options.getMessage('message');
+	const message = interaction.options.getMessage('message');
 	if (message.content.length < 1)
 		return respondError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
 
@@ -20,13 +20,11 @@ export function run(interaction) {
 		eng = 0;
 
 	for (let i = 0; i < message.content.length; i++) {
-		let point = message.content.codePointAt(i)
+		const point = message.content.codePointAt(i);
 
-		if (point > 64 && point < 123)
-			eng++;
+		if (point > 64 && point < 123) eng++;
 
-		if (point > 1039 && point < 1104)
-			rus++;
+		if (point > 1039 && point < 1104) rus++;
 	}
 
 	interaction.reply({
