@@ -1,4 +1,4 @@
-module.exports = client => {
+export default client => {
 	client.userLib.sc.registerTask({ code: 'presence', execute: client.userLib.presenceFunc });
 	client.userLib.sc.registerTask({ code: 'sendSDC', execute: client.userLib.sendSDC });
 	client.userLib.sc.registerTask({ code: 'unCooldown', execute: (times, id) => times.delete(id) });

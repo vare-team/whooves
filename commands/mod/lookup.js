@@ -1,6 +1,6 @@
-const { respondError } = require('../../utils/modules/respondMessages.js');
-const { MessageEmbed } = require('discord.js');
-const colors = require('../../models/colors.js');
+import { respondError } from '../../utils/modules/respondMessages.js';
+import { MessageEmbed } from 'discord.js';
+import colors from '../../models/colors.js';
 
 export const help = {
 	name: 'lookup',

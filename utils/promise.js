@@ -38,4 +38,4 @@ function promiseToAssoc(results) {
 	return res;
 }
 
-module.exports = promise;
+export default promise;

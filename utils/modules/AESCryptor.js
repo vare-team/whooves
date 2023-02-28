@@ -7,7 +7,7 @@ import Utf8 from 'crypto-js/enc-utf8.js';
  * @returns {string}
  */
 export function crypt(args) {
-	AES.encrypt(args.join(':'), process.env.secret).toString();
+	AES.encrypt(args.join(':'), process.env.SECRET).toString();
 }
 
 /**
@@ -16,5 +16,5 @@ export function crypt(args) {
  * @returns {string}
  */
 export function decrypt(string) {
-	AES.decrypt(string, process.env.secret).toString(Utf8);
+	AES.decrypt(string, process.env.SECRET).toString(Utf8);
 }

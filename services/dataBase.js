@@ -2,10 +2,10 @@ import mysql2 from 'mysql2';
 import logger from '../utils/logger.js';
 
 const db = mysql2.createConnection({
-	user: process.env.DBLOGIN,
-	password: process.env.DBPASS,
-	host: process.env.DBHOST,
-	database: process.env.DBNAME,
+	user: process.env.DB_LOGIN,
+	password: process.env.DB_PASS,
+	host: process.env.DB_HOST,
+	database: process.env.DB_NAME,
 	charset: 'utf8mb4',
 	keepAliveInitialDelay: 7 * 60 * 1000,
 	enableKeepAlive: true,
