@@ -1,11 +1,19 @@
-module.exports = (client, msgs) => {
-	client.userLib.sendLogChannel('messageDeleteBulk', msgs.first().guild, {
+import { sendLogChannel } from '../utils/modules/guildLog.js';
+
+/**
+ *
+ * @param messages {Collection<Snowflake, Message>}
+ * @return {Promise<undefined|*>}
+ */
+export default function (messages) {
+	const first = messages.first();
+	return sendLogChannel('messageDeleteBulk', first.guild, {
 		user: {
 			tag: 'NullPony#0000',
 			id: '',
-			avatar: client.user.defaultAvatarURL,
+			avatar: first.client.user.defaultAvatarURL,
 		},
-		channel: { id: msgs.first().channel.id },
-		size: msgs.size,
+		channel: { id: first.channel.id },
+		size: messages.size,
 	});
-};
+}

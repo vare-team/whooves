@@ -28,7 +28,7 @@ class Seamcarver {
 		this.energyMatrix = new Array(this.width);
 		this.minsumMatrix = new Array(this.width);
 		this.minxMatrix = new Array(this.width);
-		for (var i = 0; i < this.width; i++) {
+		for (let i = 0; i < this.width; i++) {
 			this.energyMatrix[i] = new Float32Array(this.height);
 			this.minsumMatrix[i] = new Float32Array(this.height);
 			this.minxMatrix[i] = new Uint16Array(this.height);
@@ -62,16 +62,16 @@ class Seamcarver {
 	}
 
 	rgbToNum(red, green, blue) {
-		var rgb = red;
+		let rgb = red;
 		rgb = (rgb << 8) + green;
 		rgb = (rgb << 8) + blue;
 		return rgb;
 	}
 
 	numToRgb(num) {
-		var red = (num >> 16) & 0xff;
-		var green = (num >> 8) & 0xff;
-		var blue = num & 0xff;
+		const red = (num >> 16) & 0xff;
+		const green = (num >> 8) & 0xff;
+		const blue = num & 0xff;
 		return [red, green, blue];
 	}
 
@@ -95,15 +95,15 @@ class Seamcarver {
 			return BORDER_ENERGY;
 		}
 
-		var pos_xant = this.pixelToIndex(x - 1, y);
-		var pos_xpost = this.pixelToIndex(x + 1, y);
-		var pos_yant = this.pixelToIndex(x, y - 1);
-		var pos_ypost = this.pixelToIndex(x, y + 1);
+		const pos_xant = this.pixelToIndex(x - 1, y);
+		const pos_xpost = this.pixelToIndex(x + 1, y);
+		const pos_yant = this.pixelToIndex(x, y - 1);
+		const pos_ypost = this.pixelToIndex(x, y + 1);
 
-		var p = this.picture; // Just to make it more readable ...
+		const p = this.picture; // Just to make it more readable ...
 
 		// TODO: Could include self in this calculation
-		var score = Math.sqrt(
+		const score = Math.sqrt(
 			(p[pos_xpost + RED] - p[pos_xant + RED]) * (p[pos_xpost + RED] - p[pos_xant + RED]) +
 				(p[pos_xpost + GREEN] - p[pos_xant + GREEN]) * (p[pos_xpost + GREEN] - p[pos_xant + GREEN]) +
 				(p[pos_xpost + BLUE] - p[pos_xant + BLUE]) * (p[pos_xpost + BLUE] - p[pos_xant + BLUE]) +
@@ -119,7 +119,7 @@ class Seamcarver {
 	 * Assumes x and y in range.
 	 */
 	recalculate(x, y) {
-		var energy_cell = {};
+		const energy_cell = {};
 
 		energy_cell.energy = this.energy(x, y);
 		energy_cell.vminsum = Number.POSITIVE_INFINITY;
@@ -129,8 +129,8 @@ class Seamcarver {
 			energy_cell.vminsum = energy_cell.energy;
 			energy_cell.minx = x;
 		} else {
-			var cursum = 0;
-			var curminx = 0;
+			let cursum = 0;
+			const curminx = 0;
 
 			// below left
 			if (x - 1 >= 0) {
@@ -176,10 +176,10 @@ class Seamcarver {
 	createEnergyMatrix() {
 		// This has to be reverse order (bottom to top)
 		this.maxVminsum = 0;
-		for (var y = this.height - 1; y >= 0; y--) {
+		for (let y = this.height - 1; y >= 0; y--) {
 			// This can be in any order ...
-			for (var x = 0; x < this.width; x++) {
-				var energy = this.recalculate(x, y);
+			for (let x = 0; x < this.width; x++) {
+				const energy = this.recalculate(x, y);
 				this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
 				this.energyMatrix[x][y] = energy.energy;
 				this.minsumMatrix[x][y] = energy.vminsum;
@@ -193,13 +193,13 @@ class Seamcarver {
 	 *
 	 */
 	findVerticalSeam() {
-		var vseam = [];
+		const vseam = [];
 
-		var xminsum = 0;
-		var vminsum = Number.POSITIVE_INFINITY;
+		let xminsum = 0;
+		let vminsum = Number.POSITIVE_INFINITY;
 
 		// Find smallest sum on first row
-		for (var x = 0; x < this.width; x++) {
+		for (let x = 0; x < this.width; x++) {
 			if (this.minsumMatrix[x][0] < vminsum) {
 				vminsum = this.minsumMatrix[x][0];
 				xminsum = x;
@@ -209,7 +209,7 @@ class Seamcarver {
 		vseam[0] = xminsum;
 
 		// Follow down to get array
-		var y = 0;
+		let y = 0;
 		while (y < this.height - 1) {
 			xminsum = this.minxMatrix[xminsum][y];
 			y++;
@@ -226,12 +226,12 @@ class Seamcarver {
 	 */
 	removePixelsFromDataStructures(vseam) {
 		this.imageData = this.context.createImageData(this.width - 1, this.height);
-		for (var row = this.height - 1; row >= 0; row--) {
-			var deletedCol = vseam[row];
+		for (let row = this.height - 1; row >= 0; row--) {
+			const deletedCol = vseam[row];
 
 			// copy across pixels before seam col
 			for (var col = 0; col < deletedCol; col++) {
-				var oldPos = this.pixelToIndex(col, row);
+				const oldPos = this.pixelToIndex(col, row);
 				var pos = oldPos - row * 4;
 				for (var i = 0; i < 4; i++) {
 					this.imageData.data[pos + i] = this.picture[oldPos + i];
@@ -243,15 +243,15 @@ class Seamcarver {
 			for (var col = deletedCol; col < this.width - 1; col++) {
 				// copy across pixels after seam col
 				var pos = this.pixelToIndex(col, row) - row * 4;
-				var pos_right = this.pixelToIndex(col + 1, row);
+				const pos_right = this.pixelToIndex(col + 1, row);
 				for (var i = 0; i < 4; i++) {
 					this.imageData.data[pos + i] = this.picture[pos_right + i];
 				}
 
 				// copy across energy_matrix
-				var energy_right = this.energyMatrix[col + 1][row];
-				var minx_right = this.minxMatrix[col + 1][row];
-				var minsum_right = this.minsumMatrix[col + 1][row];
+				const energy_right = this.energyMatrix[col + 1][row];
+				let minx_right = this.minxMatrix[col + 1][row];
+				const minsum_right = this.minsumMatrix[col + 1][row];
 				minx_right--;
 				this.energyMatrix[col][row] = energy_right;
 				this.minxMatrix[col][row] = minx_right;
@@ -278,15 +278,15 @@ class Seamcarver {
 	 * @return {list} List of affected pixels for which the vminsum may be affected.
 	 */
 	recalculateEnergiesAndFindAffectedPixels(vseam) {
-		var queue = [];
+		const queue = [];
 
 		// bottom to top, ignore last row
-		for (var row = this.height - 2; row >= 0; row--) {
-			var deletedCol = vseam[row];
-			var affectedCols = [];
+		for (let row = this.height - 2; row >= 0; row--) {
+			const deletedCol = vseam[row];
+			const affectedCols = [];
 
-			for (var i = -1; i < 1; i++) {
-				var col = deletedCol + i;
+			for (let i = -1; i < 1; i++) {
+				const col = deletedCol + i;
 
 				if (this.pixelInRange(col, row)) {
 					this.energyMatrix[col][row] = this.energy(col, row);
@@ -303,19 +303,19 @@ class Seamcarver {
 	 * Recalculate vminsum for affected pixels
 	 */
 	recalculateVminsumForAffectedPixels(queue) {
-		var marked = {};
-		var enqueued = {};
-		var maxRow = -1;
+		const marked = {};
+		const enqueued = {};
+		const maxRow = -1;
 		// start at second to last row
-		var row = this.height - 2;
-		var enqueuedCols = queue[row];
+		let row = this.height - 2;
+		let enqueuedCols = queue[row];
 		// used later in loop so as not to go past borders
-		var lastCol = this.width - 1;
+		const lastCol = this.width - 1;
 
 		while (enqueuedCols) {
 			// This iterates in topological order (bottom to top)
-			var col = enqueuedCols.pop();
-			var pixelIndex = this.pixelToIndex(col, row);
+			const col = enqueuedCols.pop();
+			const pixelIndex = this.pixelToIndex(col, row);
 			if (enqueuedCols.length === 0) enqueuedCols = queue[--row];
 
 			// already explored this pixel
@@ -323,14 +323,14 @@ class Seamcarver {
 
 			marked[pixelIndex] = true;
 
-			var nodeEnergy = this.energyMatrix[col][row];
-			var oldVminsum = this.minsumMatrix[col][row];
+			const nodeEnergy = this.energyMatrix[col][row];
+			const oldVminsum = this.minsumMatrix[col][row];
 			this.minsumMatrix[col][row] = Number.POSITIVE_INFINITY;
 
 			// check three parents in row below
 			for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i++) {
-				var parentVminsum = this.minsumMatrix[i][row + 1];
-				var newVminsum = parentVminsum + nodeEnergy;
+				const parentVminsum = this.minsumMatrix[i][row + 1];
+				const newVminsum = parentVminsum + nodeEnergy;
 
 				if (newVminsum < this.minsumMatrix[col][row]) {
 					this.minsumMatrix[col][row] = newVminsum;
@@ -347,7 +347,7 @@ class Seamcarver {
 
 			// enqueue three affected children from row above
 			for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i++) {
-				var childIndex = this.pixelToIndex(i, row - 1);
+				const childIndex = this.pixelToIndex(i, row - 1);
 				if (!enqueued[childIndex]) {
 					enqueued[childIndex] = true;
 					queue[row - 1].push(i);
@@ -363,7 +363,7 @@ class Seamcarver {
 	removeVerticalSeam(vseam) {
 		this.removePixelsFromDataStructures(vseam);
 
-		var affectedPixels = this.recalculateEnergiesAndFindAffectedPixels(vseam);
+		const affectedPixels = this.recalculateEnergiesAndFindAffectedPixels(vseam);
 
 		this.recalculateVminsumForAffectedPixels(affectedPixels);
 	}
@@ -373,8 +373,8 @@ class Seamcarver {
 	 *
 	 */
 	reDrawImage(options) {
-		var field = options.field;
-		var actualSize = options.actualSize;
+		const field = options.field;
+		const actualSize = options.actualSize;
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.canvas.width = this.imageData.width;
 		this.canvas.height = this.imageData.height;
@@ -383,9 +383,9 @@ class Seamcarver {
 			this.imageData = this.context.createImageData(this.width, this.height);
 			this.imageData.dataField = field;
 
-			for (var row = 0; row < this.height; row++) {
-				for (var col = 0; col < this.width; col++) {
-					var pos = this.pixelToIndex(col, row);
+			for (let row = 0; row < this.height; row++) {
+				for (let col = 0; col < this.width; col++) {
+					const pos = this.pixelToIndex(col, row);
 
 					if (field === 'energy') {
 						var val = this.energyMatrix[col][row];
@@ -395,7 +395,7 @@ class Seamcarver {
 						var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255;
 					} else if (field === 'minx') {
 						var val = this.minxMatrix[col][row];
-						var direction = val - col + 1;
+						const direction = val - col + 1;
 						for (var i = 0; i < 3; i++) {
 							this.imageData.data[pos + i] = 0;
 						}
@@ -436,12 +436,12 @@ class Seamcarver {
 	 */
 	toString(field) {
 		field = field || 'rgb';
-		var lines = '';
+		let lines = '';
 		if (field === 'rgb') {
 			for (var y = 0; y < this.height; y++) {
 				for (var x = 0; x < this.width; x++) {
-					var pos = this.pixelToIndex(x, y);
-					var rgb = Array.prototype.slice.call(this.picture, pos, pos + 3);
+					const pos = this.pixelToIndex(x, y);
+					const rgb = Array.prototype.slice.call(this.picture, pos, pos + 3);
 					lines += `${(this.rgbToNum(rgb[0], rgb[1], rgb[2]) / 100000).toFixed(2)}\t`;
 				}
 				lines += '\n';
@@ -449,7 +449,7 @@ class Seamcarver {
 		} else {
 			for (var y = 0; y < this.height; y++) {
 				for (var x = 0; x < this.width; x++) {
-					var val;
+					let val;
 
 					if (field === 'energy') {
 						val = this.energyMatrix[x][y];

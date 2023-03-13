@@ -1,75 +1,68 @@
-import { MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
-import { respondError } from '../../utils/modules/respondMessages.js';
-import { boldText } from '../../utils/functions.js';
+import { bold, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { respondSuccess } from '../../utils/modules/respondMessages.js';
+import promise from '../../utils/promise.js';
+import Command from '../../models/Command.js';
+import { sendLogChannel } from '../../utils/modules/guildLog.js';
 
-export const help = {
-	name: 'warn',
-	description: 'Выдать предупреждение участнику',
-	usage: [
-		{ type: 'user', opt: 0 },
-		{ type: 'text', opt: 1, name: 'причина' },
-	],
-};
-
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'участник',
-			description: 'Участник сервера',
-			type: 6,
-			required: true,
-		},
-		{
-			name: 'причина',
-			description: 'Причина выдачи предупреждения',
-			type: 3,
-		},
-	],
-};
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('warn')
+		.setDescription('add warn to user')
+		.setNameLocalization('ru', 'выдать_варн')
+		.setDescriptionLocalization('ru', 'Выдать варн пользователю')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user to warn')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь которому надо выдать')
+				.setRequired(true)
+		)
+		.addStringOption(option =>
+			option
+				.setName('reason')
+				.setDescription('reason of warning')
+				.setNameLocalization('ru', 'причина')
+				.setDescriptionLocalization('ru', 'причина варна')
+				.setMinLength(1)
+				.setMaxLength(300)
+				.setRequired(true)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ModerateMembers),
+	run
+);
 
 export async function run(interaction) {
-	const reason = interaction.options.getString('причина') || 'Не указана';
-	if (reason && reason.length > 300)
-		return respondError(interaction, 'Причина не может содержать в себе более 300 символов!');
+	const user = interaction.options.getString('user');
+	const reason = interaction.options.getString('reason') || 'Не указана';
 
-	const wUser = interaction.options.getUser('участник'),
-		warn = await client.userLib.promise(client.userLib.db, client.userLib.db.insert, 'warns', {
-			userId: wUser.id,
+	//TODO: бдшка
+	const warn = await promise(client.userLib.db, client.userLib.db.insert, 'warns', {
+			userId: user.id,
 			guildId: interaction.guildId,
 			who: interaction.user.id,
 			reason: reason,
 		}),
-		warnInfo = await client.userLib.promise(
+		warnInfo = await promise(
 			client.userLib.db,
 			client.userLib.db.queryValue,
 			'SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?',
-			[wUser.id, interaction.guildId]
+			[user.id, interaction.guildId]
 		);
 
-	const embed = new MessageEmbed()
-		.setColor(colors.warning)
-		.setTitle(`${wUser.tag} выдано предупреждение!`)
+	const embed = new EmbedBuilder()
+		.setTitle(`${user.tag} выдано предупреждение!`)
 		.setDescription(
-			`Причина: ${boldText(reason)}\nВсего предупреждений: ${boldText(warnInfo.res)}\nID предупреждения: ${boldText(
-				warn.res
-			)}`
+			`Причина: ${bold(reason)}\nВсего предупреждений: ${bold(warnInfo.res)}\nID предупреждения: ${bold(warn.res)}`
 		)
 		.setTimestamp();
 
-	interaction.reply({ embeds: [embed] });
+	await respondSuccess(interaction, embed);
 
-	await client.userLib.sendLogChannel('commandUse', interaction.guild, {
+	await sendLogChannel('commandUse', interaction.guild, {
 		user: { tag: interaction.user.tag, id: interaction.user.id },
 		channel: { id: interaction.channelId },
-		content: `выдача предупреждения (ID: ${warn.res}) ${wUser.id} по причине: ${reason}`,
+		content: `выдача предупреждения (ID: ${warn.res}) ${user.id} по причине: ${reason}`,
 	});
 }
-
-export default {
-	help,
-	command,
-	run,
-};

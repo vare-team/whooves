@@ -1,3 +1,6 @@
+import { codeBlock } from 'discord.js';
+import promise from '../promise.js';
+
 /**
  * Send Guild custom log
  * @function
@@ -17,15 +20,14 @@
 // * @param {string} data.newContent - New Message
  */
 export async function sendLogChannel(type, guild, data) {
-	let logchannel = await this.promise(con, con.queryValue, 'SELECT logchannel FROM guilds WHERE guildId = ?', [
-		guild.id,
-	]);
-	logchannel = logchannel.res;
+	const logchannel = (
+		await promise(connection, connection.queryValue, 'SELECT logchannel FROM guilds WHERE guildId = ?', [guild.id])
+	).res;
 	if (!logchannel) return;
 	const channel = guild.channels.cache.get(logchannel);
 
 	if (!channel || !channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
-		con.update('guilds', { guildId: guild.id, logchannel: null }, () => {});
+		connection.update('guilds', { guildId: guild.id, logchannel: null }, () => {});
 		return;
 	}
 
@@ -56,7 +58,7 @@ export async function sendLogChannel(type, guild, data) {
 			text += `✏ **Изменение сообщения** ${data.user.tag}  (ID: ${data.user.id}), в канале <#${data.channel.id}>;\n${
 				data.oldContent.length + data.newContent.length > 1950
 					? 'Сообщение больше 2k символов.'
-					: `>>> ${data.oldContent}\n\`\`======\`\`\n${data.newContent}`
+					: `>>> ${data.oldContent}\n${codeBlock('======')}\n${data.newContent}`
 			}`;
 			break;
 

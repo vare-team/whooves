@@ -1,56 +1,36 @@
 import permissionsArrayTranslator from '../models/permissionsArrayTranslator.js';
-import { MessageEmbed } from 'discord.js';
 
 export const mentionDetect = /@everyone|@here/gm;
 
 /**
- * @function
- * @param txt {string}
- * @returns {string}
+ *
+ * @param commands {[Command]}
+ * @return {Object.<string, (function(): Promise<*>)>}
  */
-export function codeBlock(txt) {
-	return `\`\`\` ${txt} \`\`\``;
+export function mapRunners(commands) {
+	return commands.reduce((data, command) => ({ ...data, [command.builder.name]: command.run }), {});
+}
+/**
+ *
+ * @param commands {[Command]}
+ * @return {Object<string, (function(): Promise<*>)>}
+ */
+export function mapAutocomplete(commands) {
+	return commands.reduce((data, command) => ({ ...data, [command.builder.name]: command.autocomplete }), {});
 }
 
 /**
- * @function
- * @param txt {string}
- * @returns {string}
+ *
+ * @param baseBuilder {SlashCommandBuilder}
+ * @param commands {[SlashCommandSubcommandBuilder]}
+ * @returns {SlashCommandBuilder}
  */
-export function cssBlock(txt) {
-	return codeBlock(`css\n${txt}`);
-}
+export function mapSubcommands(baseBuilder, commands) {
+	for (const command of commands) {
+		baseBuilder.addSubcommand(command);
+	}
 
-/**
- * @function
- * @param txt {string}
- * @returns {string}
- */
-export function cBlock(txt) {
-	return codeBlock(`c\n${txt}`);
-}
-
-/**
- * @function
- * @param txt {string}
- * @returns {string}
- */
-export function boldText(txt) {
-	return codeBlock(`**${txt}**`);
-}
-
-/**
- * @function
- * @param commands {Object[]}
- * @param dm_permission {boolean}
- * @returns {Object[]}
- */
-export function mapCommand(commands, dm_permission = true) {
-	return commands.map(x => {
-		const cmd = Object(x);
-		cmd.command.dm_permission = dm_permission;
-		return cmd;
-	});
+	return baseBuilder;
 }
 
 /**
@@ -58,7 +38,9 @@ export function mapCommand(commands, dm_permission = true) {
  * @param {Array} array
  * @returns {Array}
  */
-export const permissionsArrayToString = array => array.map(el => permissionsArrayTranslator[el]);
+export function permissionsArrayToString(array) {
+	return array.map(el => permissionsArrayTranslator[el]);
+}
 
 /**
  * @function

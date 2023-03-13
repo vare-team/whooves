@@ -1,5 +1,6 @@
 import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
 import colors from '../../models/colors.js';
+import { crypt } from '../../utils/modules/AESCryptor.js';
 
 export const help = {
 	name: 'man',
@@ -104,16 +105,7 @@ export function run(interaction) {
 
 	const row = new MessageActionRow().addComponents(
 		new MessageButton()
-			.setCustomId(
-				client.userLib.AEScrypt([
-					exports.help.name,
-					interaction.user.id,
-					embed.title.split(' ')[2],
-					page,
-					'back',
-					docLang,
-				])
-			)
+			.setCustomId(crypt([exports.help.name, interaction.user.id, embed.title.split(' ')[2], page, 'back', docLang]))
 			.setLabel('Назад')
 			.setStyle('PRIMARY')
 			.setDisabled(page === 0),
@@ -123,16 +115,7 @@ export function run(interaction) {
 			.setStyle('SECONDARY')
 			.setDisabled(true),
 		new MessageButton()
-			.setCustomId(
-				client.userLib.AEScrypt([
-					exports.help.name,
-					interaction.user.id,
-					embed.title.split(' ')[2],
-					page,
-					'next',
-					docLang,
-				])
-			)
+			.setCustomId(crypt([exports.help.name, interaction.user.id, embed.title.split(' ')[2], page, 'next', docLang]))
 			.setLabel('Вперёд')
 			.setStyle('PRIMARY')
 			.setDisabled(page === text.length - 1)
@@ -140,7 +123,7 @@ export function run(interaction) {
 	interaction.reply({ embeds: [embed], ephemeral: true, components: [row] });
 }
 
-export async function interaction(client, interaction, args) {
+export async function interaction(interaction) {
 	let page = +args[3],
 		text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0],
 		embed = new client.userLib.discord.MessageEmbed()
@@ -152,7 +135,7 @@ export async function interaction(client, interaction, args) {
 	embed.description = text[page];
 	const row = new client.userLib.discord.MessageActionRow().addComponents(
 		new client.userLib.discord.MessageButton()
-			.setCustomId(client.userLib.AEScrypt([exports.help.name, args[1], args[2], page, 'back', args[5]]))
+			.setCustomId(crypt([exports.help.name, args[1], args[2], page, 'back', args[5]]))
 			.setLabel('Назад')
 			.setStyle('PRIMARY')
 			.setDisabled(page === 0),
@@ -162,7 +145,7 @@ export async function interaction(client, interaction, args) {
 			.setStyle('SECONDARY')
 			.setDisabled(true),
 		new client.userLib.discord.MessageButton()
-			.setCustomId(client.userLib.AEScrypt([exports.help.name, args[1], args[2], page, 'next', args[5]]))
+			.setCustomId(crypt([exports.help.name, args[1], args[2], page, 'next', args[5]]))
 			.setLabel('Вперёд')
 			.setStyle('PRIMARY')
 			.setDisabled(page === text.length - 1)

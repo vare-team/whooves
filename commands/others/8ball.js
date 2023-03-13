@@ -1,26 +1,26 @@
-import { respondError } from '../../utils/modules/respondMessages.js';
-import { MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
+import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { codeBlock, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { randomIntInc } from '../../utils/functions.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: '8ball',
-	description: 'Задайте магическому шару вопрос и он на него ответит',
-};
-
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'вопрос',
-			description: 'Вопрос, на который вы хотите получить ответ.',
-			type: 3,
-			required: true,
-			max_length: 100,
-		},
-	],
-};
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('8ball')
+		.setDescription('ask the ball about something')
+		.setNameLocalization('ru', '8шар')
+		.setDescriptionLocalization('ru', 'спроси у шара о чем-нибудь')
+		.addStringOption(option =>
+			option
+				.setName('question')
+				.setDescription('a question to 8ball')
+				.setNameLocalization('ru', 'вопрос')
+				.setDescriptionLocalization('ru', 'вопрос для шара')
+				.setMaxLength(100)
+				.setMinLength(2)
+				.setRequired(true)
+		),
+	run
+);
 
 const answers = [
 	'Бесспорно',
@@ -53,27 +53,23 @@ const questions = {
 	'когда v3?': 'Завтра',
 };
 
-export function run(interaction) {
-	if (100 < interaction.options.getString('вопрос').length)
-		return respondError(interaction, `Количество символов в вопросе не должно превышать **100** символов!`);
+export async function run(interaction) {
+	const question = interaction.options.getString('question');
+	if (question.trim().length < 2)
+		return respondError(interaction, `Количество символов в вопросе должно быть не менее 2х !`);
 
-	if (interaction.options.getString('вопрос').trim()[interaction.options.getString('вопрос').length - 1] !== '?')
-		return respondError(interaction, `Вопрос должен оканчиваться знаком вопроса!`);
+	const embed = new EmbedBuilder().setTitle('Магический шар');
+	embed.addFields([
+		{ name: 'Твой вопрос', value: codeBlock(question) },
+		{
+			name: 'Ответ шара',
+			value: codeBlock(
+				questions.hasOwnProperty(question.toLowerCase())
+					? questions[question.toLowerCase()]
+					: answers[randomIntInc(0, answers.length - 1)]
+			),
+		},
+	]);
 
-	const embed = new MessageEmbed()
-		.setColor(colors.information)
-		.setTitle('Магический шар')
-		.addField('Твой вопрос', `\`\`${interaction.options.getString('вопрос')}\`\``);
-
-	if (questions.hasOwnProperty(interaction.options.getString('вопрос').toLowerCase()))
-		embed.addField('Ответ шара', `\`\`${questions[interaction.options.getString('вопрос').toLowerCase()]}\`\``);
-	else embed.addField('Ответ шара', `\`\`${answers[randomIntInc(0, answers.length - 1)]}\`\``);
-
-	interaction.reply({ embeds: [embed], ephemeral: false });
+	await respondSuccess(interaction, embed);
 }
-
-export default {
-	help,
-	command,
-	run,
-};

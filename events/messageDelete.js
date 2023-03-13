@@ -1,9 +1,11 @@
-module.exports = (client, msg) => {
-	if (msg.author.bot) return;
+import { sendLogChannel } from '../utils/modules/guildLog.js';
 
-	client.userLib.sendLogChannel('messageDelete', msg.guild, {
-		user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() },
-		channel: { id: msg.channel.id },
-		content: msg.cleanContent ? msg.cleanContent.replace(client.userLib.mentionDetect, '**@**🏓') : 'Что-то',
+export default async function (message) {
+	if (message.author.bot) return;
+
+	return sendLogChannel('messageDelete', message.guild, {
+		user: { tag: message.author.tag, id: message.author.id, avatar: message.author.displayAvatarURL() },
+		channel: { id: message.channel.id },
+		content: message.cleanContent ? message.cleanContent.replace(client.userLib.mentionDetect, '**@**🏓') : 'Что-то',
 	});
-};
+}

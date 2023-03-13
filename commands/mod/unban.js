@@ -1,38 +1,39 @@
 import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'unban',
-	description: 'Разбанить участника',
-	extraPermissions: ['BAN_MEMBERS'],
-};
-
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'id',
-			description: 'ID пользователя',
-			type: 3,
-			required: true,
-		},
-	],
-};
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('unban')
+		.setDescription('unbans user')
+		.setNameLocalization('ru', 'снять_бан')
+		.setDescriptionLocalization('ru', 'снимает бан с пользователя')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user to unban')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь которого надо разбанить')
+				.setRequired(true)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
+	run
+);
 
 export async function run(interaction) {
-	const user = (await interaction.client.users.fetch(interaction.options.getString('id')).catch(() => {})) || undefined;
-	const ban = (await interaction.guild.bans.fetch({ user, force: true }).catch(() => {})) || undefined;
+	const user = interaction.options.getUser('user');
+	const ban = await interaction.guild.bans.resolve(user.id);
 
-	if (user === undefined) return respondError(interaction, 'Пользователь не найден!');
-	if (ban === undefined) return respondError(interaction, 'Пользователь не забанен!');
+	if (!user) return respondError(interaction, 'Пользователь не найден!');
+	if (!ban) return respondError(interaction, 'Пользователь не забанен!');
 
-	await interaction.guild.members.unban(user).catch(() => {});
-
-	respondSuccess(interaction, `\`${user.tag}\` **был разбанен!**`);
+	await interaction.guild.members
+		.unban(user)
+		.then(async () => {
+			await respondSuccess(interaction, new EmbedBuilder().setDescription(`\`${user.tag}\` **был разбанен!**`));
+		})
+		.catch(async () => {
+			await respondError(interaction, 'Не удалось разбанить!');
+		});
 }
-
-export default {
-	help,
-	command,
-	run,
-};

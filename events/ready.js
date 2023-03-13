@@ -1,34 +1,35 @@
-export default client => {
-	client.userLib.sc.registerTask({ code: 'presence', execute: client.userLib.presenceFunc });
-	client.userLib.sc.registerTask({ code: 'sendSDC', execute: client.userLib.sendSDC });
-	client.userLib.sc.registerTask({ code: 'unCooldown', execute: (times, id) => times.delete(id) });
-	client.userLib.sc.registerTask({
-		code: 'unMute',
-		execute: (mutedRole, member) => {
-			member.roles.remove(mutedRole, 'Снятие мута!').catch(() => {});
-		},
-	});
+import logger from '../utils/logger.js';
+import { send } from '../utils/webhook.js';
+import guildCreate from './guildCreate.js';
+import guildDelete from './guildDelete.js';
+import guildMemberAdd from './guildMemberAdd.js';
+import interactionCreate from './interactionCreate.js';
+import messageCreate from './messageCreate.js';
+import messageDelete from './messageDelete.js';
+import messageDeleteBulk from './messageDeleteBulk.js';
+import messageUpdate from './messageUpdate.js';
+import voiceStateUpdate from './voiceStateUpdate.js';
+import startPresence from '../utils/startPresence.js';
+import sendSdc from '../utils/sendSdc.js';
 
-	client.userLib.presenceFunc();
-	if (process.env.sdc) client.userLib.sendSDC();
+/**
+ *
+ * @param client {Client}
+ */
+export default async function (client) {
+	client.on('guildCreate', guildCreate);
+	client.on('guildDelete', guildDelete);
+	client.on('guildMemberAdd', guildMemberAdd);
+	client.on('interactionCreate', interactionCreate);
+	client.on('messageCreate', messageCreate);
+	client.on('messageDelete', messageDelete);
+	client.on('messageDeleteBulk', messageDeleteBulk);
+	client.on('messageUpdate', messageUpdate);
+	client.on('voiceStateUpdate', voiceStateUpdate);
 
-	client.userLib.db.query(
-		'SELECT guildId, userId, time, mutedRole FROM mutes LEFT JOIN guilds using(guildId) WHERE time > now()',
-		(err, fields) => {
-			for (const field of fields)
-				if (
-					client.guilds.cache.get(field.guildId) &&
-					client.guilds.cache.get(field.guildId).members.cache.get(field.userId)
-				)
-					client.userLib.sc.pushTask({
-						code: 'unMute',
-						params: [field.mutedRole, client.guilds.cache.get(field.guildId).members.cache.get(field.userId)],
-						time: field.time,
-						timeAbsolute: true,
-					});
-		}
-	);
+	startPresence(client);
+	if (process.env.SDC) await sendSdc(client);
 
-	client.userLib.sendLog(`Shard ready!`, 'ShardingManager');
-	client.userLib.sendWebhookLog('Shard ready!');
-};
+	logger(`Shard ready!`, 'ShardingManager');
+	send('Shard ready!');
+}

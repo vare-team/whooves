@@ -21,38 +21,35 @@ export default function (log = 'Clap one hand', emitter = 'unknown', type = 'Log
 
 /**
  * @function
- * @param {object} interaction
+ * @param {BaseInteraction} interaction
  * @return {string}
  */
 export function generateUseLog(interaction) {
 	console.log(interaction);
-	switch (interaction.type) {
-		case 'APPLICATION_COMMAND':
-			return `Use: ${interaction.commandName}, By: @${interaction.user.username}#${interaction.user.discriminator}(${
-				interaction.user.id
-			}), ${interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'} => #${
-				interaction.channelId
-			}`;
+	if (interaction.isCommand()) {
+		return `Use: ${interaction.commandName}, By: @${interaction.user.username}#${interaction.user.discriminator}(${
+			interaction.user.id
+		}), ${interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'} => #${interaction.channelId}`;
+	}
 
-		case 'MESSAGE_COMPONENT':
-			return `Interaction: ${interaction.commandName}, By: @${interaction.user.username}#${
-				interaction.user.discriminator
-			}(${interaction.user.id}), ${interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'} => ${
-				interaction.channelId
-			}, custom_id: "${interaction['customId']}"(${decrypt(interaction['customId'])})`;
+	if (interaction.isMessageComponent()) {
+		return `Interaction: ${interaction.commandName}, By: @${interaction.user.username}#${
+			interaction.user.discriminator
+		}(${interaction.user.id}), ${interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'} => ${
+			interaction.channelId
+		}, custom_id: "${interaction['customId']}"(${decrypt(interaction['customId'])})`;
 	}
 }
 
 /**
  * @function
- * @param {boolean} inGuild
  * @param {string} command
  * @param {object} interaction
  * @param {string} err
  * @returns {string}
  */
-export function generateErrLog(inGuild, command, interaction, err) {
-	if (inGuild)
+export function generateErrLog(command, interaction, err) {
+	if (interaction.inGuild())
 		return `Ошибка!\n! Команда - ${command}\n! Сервер: ${interaction.guild.name} (ID: ${interaction.guild.id})\n! Канал: ${interaction.channel.name} (ID: ${interaction.channel.id})\n! Пользователь: ${interaction.user.tag} (ID: ${interaction.user.id})\n! Текст ошибки: ${err}`;
 	return `Ошибка!\n! Команда - ${command}\n! Пользователь: ${interaction.user.tag} (ID: ${interaction.user.id})\n! Текст ошибки: ${err}`;
 }

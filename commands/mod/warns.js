@@ -1,33 +1,35 @@
-import { MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { respondSuccess } from '../../utils/modules/respondMessages.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'warns',
-	description: 'Количество предупреждений',
-};
-
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'пользователь',
-			description: 'пользователь',
-			type: 6,
-		},
-	],
-};
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('warns')
+		.setDescription('show warns')
+		.setNameLocalization('ru', 'варны')
+		.setDescriptionLocalization('ru', 'показывает варны')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user of whose warns to show')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь чьи варны отобразить')
+				.setRequired(false)
+		)
+		.setDMPermission(false),
+	run
+);
 
 export async function run(interaction) {
-	const user = interaction.options.getUser('пользователь') || interaction.user;
+	const user = interaction.options.getUser('user') || interaction.member || interaction.user;
 
+	//TODO: бдшка
 	let warns = await client.userLib.db
 		.promise()
 		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, interaction.guildId]);
 	warns = warns[0];
 
-	const embed = new MessageEmbed()
-		.setColor(colors.information)
+	const embed = new EmbedBuilder()
 		.setAuthor({
 			name: `${user.username}#${user.discriminator}`,
 			iconURL: user.displayAvatarURL(),
@@ -40,11 +42,5 @@ export async function run(interaction) {
 		descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason ?? 'Не указана'}\n`;
 	embed.setDescription(descGenerator);
 
-	interaction.reply({ embeds: [embed], ephemeral: true });
+	await respondSuccess(interaction, embed, true);
 }
-
-export default {
-	help,
-	command,
-	run,
-};

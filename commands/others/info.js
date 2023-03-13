@@ -1,14 +1,31 @@
-import { boldText, cBlock } from '../../utils/functions.js';
-import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
 import admins from '../../models/admins.js';
 import dataBase from '../../services/dataBase.js';
 import emojis from '../../models/emojis.js';
 import settings from '../../models/settings.js';
 import { createRequire } from 'module';
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	SlashCommandSubcommandBuilder,
+	ButtonStyle,
+	codeBlock,
+	bold,
+	EmbedBuilder,
+} from 'discord.js';
+import { respondSuccess } from '../../utils/modules/respondMessages.js';
+import Command from '../../models/Command.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');
+
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('info')
+		.setDescription('bot info')
+		.setNameLocalization('ru', 'инфо')
+		.setDescriptionLocalization('ru', 'информация о боте'),
+	run
+);
 
 export const help = {
 	name: 'info',
@@ -22,32 +39,34 @@ export const command = {
 
 export async function run(interaction) {
 	const client = interaction.client;
-	const row = new MessageActionRow().addComponents(
-		new MessageButton()
+	const components = new ActionRowBuilder().setComponents([
+		new ButtonBuilder()
 			.setLabel('Github')
-			.setStyle('LINK')
+			.setStyle(ButtonStyle.Link)
 			.setURL('https://github.com/vare-team/whooves')
 			.setEmoji('🌀'),
-		new MessageButton()
+		new ButtonBuilder()
 			.setLabel('Сервер поддержки')
-			.setStyle('LINK')
+			.setStyle(ButtonStyle.Link)
 			.setURL('https://discordapp.com/invite/8KKVhTU')
-			.setEmoji('💬')
-	);
+			.setEmoji('💬'),
+	]);
 
 	const devs = Object.keys(admins).map(async x => client.users.cache.get(x) || (await client.users.fetch(x)));
 
 	const fields = [
 		{
 			name: 'Статистика:',
-			value: cBlock(
-				`Пинг:             ${Math.round(client.ws.ping)} ms\n` + `Команд исполнено: ${0}\n` + `Из них ошибок:    ${0}`
+			value: codeBlock(
+				'c',
+				`Пинг:             ${Math.round(client.ws.ping)} ms\nКоманд исполнено: ${0}\nИз них ошибок:    ${0}`
 			),
 			inline: true,
 		},
 		{
 			name: 'Зависимости:',
-			value: cBlock(
+			value: codeBlock(
+				'c',
 				`Версия бота:    ${pkg.version}\n` +
 					`Discord.js:     ${pkg.dependencies['discord.js']}\n` +
 					`Версия Node:    ${process.version.replace("'v'", " ''")}`
@@ -56,17 +75,14 @@ export async function run(interaction) {
 		},
 		{
 			name: 'Разработчики:',
-			value: devs.map(x => `${boldText(x.tag)}\n`).join('\n'),
+			value: devs.map(x => `${bold(x.tag)}\n`).join('\n'),
 			inline: false,
 		},
 	];
-	const embed = new MessageEmbed()
-		.setAuthor({
-			name: `${client.user.username} - информация о боте`,
-			iconURL: client.user.displayAvatarURL(),
-		})
-		.setColor(colors.information)
-		.addFields(fields);
+	const embed = new EmbedBuilder().setAuthor({
+		name: `${client.user.username} - информация о боте`,
+		iconURL: client.user.displayAvatarURL(),
+	});
 
 	if (interaction.inGuild()) {
 		/*let data = await client.userLib.db
@@ -76,20 +92,22 @@ export async function run(interaction) {
 		let data = await dataBase.query('SELECT logchannel, settings FROM guilds WHERE guildId = ?', [interaction.guildId]);
 
 		data = data[0][0];
-		embed.addFields([
+		fields.push([
 			{
 				name: 'Настройки:',
 				value:
 					`Канал логирования: ${data.logchannel ? `<#${data.logchannel}>` : emojis.error}` +
-					`Фильтр плохих слов: ${boldText(
-						isPresent(data.settings, settings.badwords)
-					)`Исправитель никнеймов: `}${boldText(isPresent(data.settings, settings.usernamechecker))}`,
+					`Фильтр плохих слов: ${bold(isPresent(data.settings, settings.badwords))`Исправитель никнеймов: `}${bold(
+						isPresent(data.settings, settings.usernamechecker)
+					)}`,
 				inline: true,
 			},
 		]);
 	}
 
-	interaction.reply({ embeds: [embed], components: [row] });
+	embed.addFields(fields);
+
+	await respondSuccess(interaction, embed, false, [components]);
 }
 
 /**
@@ -100,9 +118,3 @@ export async function run(interaction) {
 function isPresent(settings, parameter) {
 	return settings & parameter ? emojis.ready : emojis.error;
 }
-
-export default {
-	help,
-	command,
-	run,
-};

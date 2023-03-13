@@ -6,10 +6,10 @@ const webHook = new WebhookClient(process.env.WEBHOOK_URL);
  * @function
  * @param {string} content
  */
-export const send = (content = 'Clap one hand') => {
-	if (webhook) return;
+export function send(content = 'Clap one hand') {
+	if (webHook) return;
 
 	const now = new Date();
 
-	webhook.send(`<t:${Math.floor(now.getTime() / 1000)}:T> | Shard[${client.shard.ids}] | : ${content}`);
-};
+	return webHook.send(`<t:${Math.floor(now.getTime() / 1000)}:T> | Shard[${client.shard.ids}] | : ${content}`);
+}

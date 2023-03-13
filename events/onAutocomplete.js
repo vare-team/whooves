@@ -1,12 +1,16 @@
-import { commands } from '../commands/index.js';
+import commands from '../commands/index.js';
 
+const autocompletes = commands.autocompletes;
+
+/**
+ *
+ * @param interaction {AutocompleteInteraction}
+ * @return {Promise<void>}
+ */
 export default async function (interaction) {
-	const cmd = commands[interaction.commandName.toLowerCase()];
+	const autocomplete = autocompletes[interaction.commandName];
 
-	if (!cmd) return console.log(interaction.commandName);
+	if (!autocomplete) return console.log(interaction.commandName);
 
-	await cmd.autocomplete(
-		Object.values(commands).filter(x => x.help !== undefined),
-		interaction
-	);
+	await autocomplete(interaction);
 }

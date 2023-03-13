@@ -1,38 +1,56 @@
 import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import promise from '../../utils/promise.js';
+import logger, { generateErrLog } from '../../utils/logger.js';
+import { sendLogChannel } from '../../utils/modules/guildLog.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'unwarn',
-	description: 'Снять предупреждение с участника',
-};
+const warnsCollection = {};
+const warnsClears = {};
 
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'участник',
-			description: 'Участник сервера',
-			type: 6,
-			required: true,
-		},
-		{
-			name: 'id',
-			description: 'ID Предупреждения',
-			type: 4,
-			required: true,
-			autocomplete: true,
-		},
-	],
-};
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('unwarn')
+		.setDescription('reduce warns of user')
+		.setNameLocalization('ru', 'снять_варн')
+		.setDescriptionLocalization('ru', 'снимает варн с пользователя')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user to unwarn')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь у которого надо снять')
+				.setRequired(true)
+		)
+		.addStringOption(option =>
+			option
+				.setName('warn_id')
+				.setDescription('id of warn to remove')
+				.setNameLocalization('ru', 'айди_варна')
+				.setDescriptionLocalization('ru', 'варн который будет снят')
+				.setAutocomplete(true)
+				.setRequired(true)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ModerateMembers),
+	run,
+	autocomplete
+);
 
 export async function run(interaction) {
-	const member = interaction.options.getUser('участник');
-	const id = interaction.options.getInteger('id');
+	const user = interaction.options.getUser('user');
+	const id = interaction.options.getInteger('warn_id');
 
-	if (!member.id || !id) return;
+	clearInterval(warnsClears[user.id]);
+	warnsClears[user.id] = setInterval(() => {
+		delete warnsCollection[user.id];
+	}, 15e3);
 
-	const warn = await client.userLib.promise(client.userLib.db, client.userLib.db.delete, 'warns', {
-		userId: member.id,
+	if (!user || !id) return;
+
+	//TODO: бдшка
+	const warn = await promise(client.userLib.db, client.userLib.db.delete, 'warns', {
+		userId: user.id,
 		guildId: interaction.guildId,
 		warnId: id,
 	});
@@ -40,22 +58,38 @@ export async function run(interaction) {
 	if (!warn.res)
 		return respondError(interaction, 'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.');
 
-	if (warn.res > 1) client.userLib.sendLog('Удаление варнов сломалось!');
+	if (warn.res > 1) logger(generateErrLog('unwarn', interaction, 'Удаление варнов сломалось!'));
 
-	respondSuccess(interaction, `С ${interaction.options.getUser('участник')} **снято предупреждение**.`);
+	await respondSuccess(interaction, `С ${user} **снято предупреждение**.`);
 
-	await client.userLib.sendLogChannel('commandUse', interaction.guild, {
+	await sendLogChannel('commandUse', interaction.guild, {
 		user: { tag: interaction.user.tag, id: interaction.user.id },
 		channel: { id: interaction.channelId },
-		content: `снятие предупреждения (ID:${id}) с ${member.id}`,
+		content: `снятие предупреждения (ID:${id}) с ${user.id}`,
 	});
 }
 
-export async function autocomplete(ids, interaction) {}
+/**
+ *
+ * @param interaction {AutocompleteInteraction}
+ * @return {Promise<void>}
+ */
+async function autocomplete(interaction) {
+	let options = [{ name: '', value: '' }];
 
-export default {
-	help,
-	command,
-	run,
-	autocomplete,
-};
+	const target = interaction.command.options.getUser('user');
+	if (!target) return await interaction.respond(options);
+
+	//TODO: бдшка
+	let warns = warnsCollection[target];
+	if (!warns) {
+		warns = db.getWarns(target);
+		warnsCollection[target] = warns;
+	}
+
+	options = warns.map(w => {
+		return { name: w, value: w };
+	});
+
+	await interaction.respond(options);
+}

@@ -1,58 +1,62 @@
-import { MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
-import { codeBlock } from '../../utils/functions.js';
+import { EmbedBuilder, codeBlock, SlashCommandSubcommandBuilder } from 'discord.js';
+import { respondSuccess } from '../../utils/modules/respondMessages.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'cryptor',
-	description: 'Простенький шифратор сообщений.',
-};
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('cryptor')
+		.setDescription('message cipher tool')
+		.setNameLocalization('ru', 'криптор')
+		.setDescriptionLocalization('ru', 'Простенький шифратор сообщений.')
+		.addStringOption(option => {
+			option
+				.setName('mode')
+				.setDescription('cryptor mode')
+				.setNameLocalization('ru', 'режим')
+				.setDescriptionLocalization('ru', 'режим работы')
+				.setChoices([
+					{
+						name: 'Crypt',
+						name_localizations: { ru: 'Зашифровать' },
+						value: 'crypt',
+					},
+					{
+						name: 'Decrypt',
+						name_localizations: { ru: 'Дешифровать' },
+						value: 'decrypt',
+					},
+				])
+				.setRequired(true);
+		})
+		.addStringOption(option =>
+			option
+				.setName('text')
+				.setDescription('text of message to (de-)crypt')
+				.setNameLocalization('ru', 'текст')
+				.setDescriptionLocalization('ru', 'текст для за/де-шифровки')
+				.setMinLength(2)
+				.setMaxLength(256)
+				.setRequired(true)
+		),
+	run
+);
 
-export const command = {
-	name: exports.help.name,
-	description: exports.help.description,
-	options: [
-		{
-			name: 'режим',
-			description: 'Режим работы',
-			type: 3,
-			required: true,
-			choices: [
-				{
-					name: 'Зашифровать',
-					value: 'crypt',
-				},
-				{
-					name: 'Дешифровать',
-					value: 'decrypt',
-				},
-			],
-		},
-		{
-			name: 'текст',
-			description: 'Текст',
-			type: 3,
-			required: true,
-		},
-	],
-};
+function run(interaction) {
+	const mode = interaction.options.getString('mode');
+	const text = interaction.options.getString('текст');
+	const embed = new EmbedBuilder().setTitle('🔐 Encryptor');
 
-export function run(interaction) {
-	const embed = new MessageEmbed().setColor(colors.information).setTitle('🔐 Encryptor');
-
-	switch (interaction.options.getString('режим')) {
+	switch (mode) {
 		case 'crypt':
-			embed.setDescription(`Режим: **шифровка**\n${codeBlock(crypt(interaction.options.getString('текст')))}`);
+			embed.setDescription(`Режим: **шифровка**\n${codeBlock(crypt(text))}`);
 			break;
 
 		case 'decrypt':
-			embed.setDescription(`Режим: **дешифровка**\n${codeBlock(decrypt(interaction.options.getString('текст')))}`);
+			embed.setDescription(`Режим: **дешифровка**\n${codeBlock(decrypt(text))}`);
 			break;
-
-		default:
-			return client.userLib.retError(interaction, 'Указан неверный режим!');
 	}
 
-	interaction.reply({ embeds: [embed], ephemeral: true });
+	return respondSuccess(interaction, embed, true);
 }
 
 function crypt(text) {

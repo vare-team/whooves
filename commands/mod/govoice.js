@@ -1,59 +1,58 @@
 import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { PermissionsBitField, SlashCommandBuilder, ChannelType, EmbedBuilder } from 'discord.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'govoice',
-	description: 'Переместить всех в вашем голосовом канале в указанный канал.',
-	extraPermissions: ['MOVE_MEMBERS'],
-};
-
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'куда',
-			description: 'Голосовой канал, в который будут перемещены участники',
-			type: 7,
-			required: true,
-			channel_types: [2],
-		},
-		{
-			name: 'откуда',
-			description: 'Голосовой канал, из которого будут перемещены участники',
-			type: 7,
-			channel_types: [2],
-		},
-	],
-};
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('govoice')
+		.setDescription('move all members from voice channel to another voice channel')
+		.setNameLocalization('ru', 'перейти_в_голосовой')
+		.setDescriptionLocalization('ru', 'Переместить всех в вашем голосовом канале в указанный канал')
+		.addChannelOption(option =>
+			option
+				.setName('to')
+				.setDescription('move TO channel')
+				.setNameLocalization('ru', 'в')
+				.setDescriptionLocalization('ru', 'канал В который переместить')
+				.setRequired(true)
+				.addChannelTypes(ChannelType.GuildVoice)
+		)
+		.addChannelOption(option =>
+			option
+				.setName('from')
+				.setDescription('move FROM channel')
+				.setNameLocalization('ru', 'с')
+				.setDescriptionLocalization('ru', 'канал С которого переместить')
+				.setRequired(false)
+				.addChannelTypes(ChannelType.GuildVoice)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.MoveMembers),
+	run
+);
 
 export async function run(interaction) {
-	let newChannel = interaction.options.getChannel('куда'),
-		oldChannel = interaction.options.getChannel('откуда') || interaction.member.voice.channel || null;
+	const newChannel = interaction.options.getChannel('to'),
+		oldChannel = interaction.options.getChannel('from') || interaction.member.voice.channel || null;
 
 	if (!oldChannel)
 		return respondError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
+
 	if (oldChannel.id === newChannel.id) return respondError(interaction, 'Новый канал совпадает со старым!');
-	if (!oldChannel.viewable || !newChannel.viewable)
+
+	if (!oldChannel.viewable || !oldChannel.manageable || !newChannel.viewable || !newChannel.manageable)
 		return respondError(interaction, 'У меня не хватает прав для взаимодействия с этими каналами!');
+
 	if (oldChannel.members.size === 0) return respondError(interaction, 'В указанном канале пусто!');
-
-	oldChannel = await oldChannel.fetch();
-	newChannel = await newChannel.fetch();
-
-	if (!oldChannel.manageable || !newChannel.manageable)
-		return respondError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
 
 	await interaction.deferReply();
 
-	for (const member of oldChannel.members) {
-		await member[1].voice.setChannel(newChannel);
+	for (const [, member] of oldChannel.members) {
+		await member.voice.setChannel(newChannel);
 	}
 
-	respondSuccess(interaction, `${oldChannel} **был перемещён в** ${newChannel}`);
+	await respondSuccess(
+		interaction,
+		new EmbedBuilder().setDescription(`из <#${oldChannel}> перемещенны в <#${newChannel}>`)
+	);
 }
-
-export default {
-	help,
-	command,
-	run,
-};

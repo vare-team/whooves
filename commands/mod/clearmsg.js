@@ -1,45 +1,62 @@
-import { MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
+import { EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'clearmsg',
-	description: 'Очистить сообщения',
-};
-
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'количество',
-			description: 'Количество сообщений (не более 100 за раз)',
-			type: 4,
-			required: true,
-			min_value: 1,
-			max_value: 99,
-		},
-		{
-			name: 'участник',
-			description: 'Удалить только сообщения от участника',
-			type: 6,
-		},
-	],
-};
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('clear')
+		.setDescription('clear messages')
+		.setNameLocalization('ru', 'очистка')
+		.setDescriptionLocalization('ru', 'очищает сообщения')
+		.addIntegerOption(option =>
+			option
+				.setName('count')
+				.setDescription('message count to clear')
+				.setNameLocalization('ru', 'количество')
+				.setDescriptionLocalization('ru', 'кол-во сообщений для очистки')
+				.setMinValue(1)
+				.setMaxValue(100)
+				.setRequired(false)
+		)
+		.addStringOption(option =>
+			option
+				.setName('message_id')
+				.setDescription('message id, after which you need to clear the chat')
+				.setNameLocalization('ru', 'айди_сообщения')
+				.setDescriptionLocalization('ru', 'айди сообщения до которого нужно очистить чат')
+				.setMinLength(18)
+				.setMinLength(21)
+				.setRequired(false)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+	run
+);
 
 export async function run(interaction) {
-	const dmsg = await interaction.channel.bulkDelete(interaction.options.getInteger('количество'), true);
+	let count = interaction.options.getInteger('count');
+	const message = interaction.options.getString('message_id');
+	const channel = interaction.channel;
 
-	const embed = new MessageEmbed()
-		.setColor(colors.success)
+	if (!count && !message)
+		return await respondError(interaction, 'Укажите кол-во сообщений или айди сообщения, для очистки');
+
+	if (message && !count) {
+		if (/([0-9]){18,19,20,21}/.test(message)) return await respondError(interaction, 'ID сообщения введено не верно!');
+
+		const currentMsg = await channel.messages.fetch(message).catch(() => 0);
+		if (!currentMsg || currentMsg.channel.id !== channel.id)
+			return await respondError(interaction, 'Сообщение не найдено!');
+
+		count = (await channel.messages.fetch()).filter(message => message.id >= currentMsg.id);
+	}
+
+	const dmsg = await channel.bulkDelete(count, true);
+
+	const embed = new EmbedBuilder()
 		.setTitle('Удаление сообщений')
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
 		.setTimestamp();
 
-	interaction.editReply({ embeds: [embed] });
+	await respondSuccess(interaction, embed);
 }
-
-export default {
-	help,
-	command,
-	run,
-};

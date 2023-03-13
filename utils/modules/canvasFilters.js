@@ -80,3 +80,6 @@ export function glitch(ava, canvas, ctx, interaction) {
 		);
 	}
 }
+
+String.prototype.replaceAt = (index, replacement) =>
+	this.substr(0, index) + replacement + this.substr(index + replacement.length);

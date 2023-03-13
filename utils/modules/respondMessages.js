@@ -1,5 +1,5 @@
-import { MessageEmbed } from 'discord.js';
 import colors from '../../models/colors.js';
+import { EmbedBuilder } from 'discord.js';
 
 export const emoji = {
 	load: '<a:load:793027778554888202>',
@@ -10,25 +10,40 @@ export const emoji = {
 };
 
 /**
- * @function
+ *
  * @param interaction
- * @param {string} reason
+ * @param message {string}
+ * @return {Promise<Message<BooleanCache<CacheType>>>}
  */
-export const respondError = (interaction, reason = 'Какая разница вообще?') => {
-	const embed = new MessageEmbed().setColor(colors.error).setDescription(`${emoji.err} **Ошибка:** ${reason}`);
+export function respondError(interaction, message) {
+	const embed = new EmbedBuilder().setTitle('Ошибка').setDescription(`${emoji.err} ${message}`).setColor(colors.error);
+	const options = { embeds: [embed], ephemeral: true };
 
-	if (interaction.deferred) interaction.editReply({ embeds: [embed], ephemeral: true });
-	else interaction.reply({ embeds: [embed], ephemeral: true });
-};
+	if (interaction.deferred) return interaction.editReply(options);
+	return interaction.reply(options);
+}
 
 /**
- * @function
+ *
  * @param interaction
- * @param {string} reason
+ * @param embed {EmbedBuilder}
+ * @param ephemeral {boolean}
+ * @param components {[ActionRowBuilder] | null}
+ * @param color {string | null}
+ * @param files {[AttachmentBuilder] | null}
+ * @return {Promise<Message<BooleanCache<CacheType>>>}
  */
-export const respondSuccess = (interaction, reason = 'Какая разница вообще?') => {
-	const embed = new MessageEmbed().setColor(colors.success).setDescription(`${emoji.ready} ${reason}`);
+export async function respondSuccess(
+	interaction,
+	embed,
+	ephemeral = false,
+	components = null,
+	color = null,
+	files = null
+) {
+	embed = embed.setColor(color || colors.success);
+	const options = { embeds: [embed], components, files: files, ephemeral: ephemeral };
 
-	if (interaction.deferred) interaction.editReply({ embeds: [embed] });
-	else interaction.reply({ embeds: [embed] });
-};
+	if (interaction.deferred) return interaction.editReply(options);
+	return interaction.reply(options);
+}

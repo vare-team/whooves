@@ -1,39 +1,33 @@
-import { MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { respondSuccess } from '../../utils/modules/respondMessages.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'avatar',
-	description: 'Ссылка на аватара пользователя',
-};
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('avatar')
+		.setDescription('get user avatar')
+		.setNameLocalization('ru', 'аватар')
+		.setDescriptionLocalization('ru', 'взять аватар пользователя')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user whose avatar will be gathered')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь чья аватарка будет взята')
+				.setRequired(false)
+		),
+	run
+);
 
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'пользователь',
-			description: 'пользователь',
-			type: 6,
-		},
-	],
-};
+async function run(interaction) {
+	const user = interaction.options.getUser('user') || interaction.user || interaction.user;
 
-export function run(interaction) {
-	const user = interaction.options.getUser('пользователь') || interaction.user;
-
-	const embed = new MessageEmbed()
+	const embed = new EmbedBuilder()
 		.setDescription(`Аватар ${user}`)
-		.setColor(colors.information)
 		.setImage(user.displayAvatarURL({ dynamic: true, size: 2048 }))
 		.setTimestamp();
 
 	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF');
 
-	interaction.reply({ embeds: [embed], ephemeral: !interaction.options.getUser('пользователь') });
+	await respondSuccess(interaction, embed);
 }
-
-export default {
-	help,
-	command,
-	run,
-};

@@ -1,18 +1,18 @@
 import keyTranslator from '../../utils/modules/keyTranslator.js';
-import { respondError } from '../../utils/modules/respondMessages.js';
+import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { ApplicationCommandType, ContextMenuCommandBuilder, EmbedBuilder } from 'discord.js';
+import Command from '../../models/Command.js';
 
-export const help = {
-	name: 'Switch text layout',
-	description: 'Изменяет раскладку текста сообщения на противоположную. (QWERTY <=> ЙЦУКЕН)',
-};
+export default new Command(
+	new ContextMenuCommandBuilder()
+		.setName('Switch text layout')
+		.setNameLocalization('ru', 'Перевод транслита')
+		.setType(ApplicationCommandType.Message),
+	run
+);
 
-export const command = {
-	name: help.name,
-	type: 3,
-};
-
-export function run(interaction) {
-	const message = interaction.options.getMessage('message');
+function run(interaction) {
+	const message = interaction.targetMessage;
 	if (message.content.length < 1)
 		return respondError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
 
@@ -23,17 +23,10 @@ export function run(interaction) {
 		const point = message.content.codePointAt(i);
 
 		if (point > 64 && point < 123) eng++;
-
-		if (point > 1039 && point < 1104) rus++;
+		else if (point > 1039 && point < 1104) rus++;
 	}
 
-	interaction.reply({
-		content: keyTranslator(message.content, eng >= rus ? 'en2ru' : 'ru2en'),
-	});
+	return respondSuccess(interaction, [
+		new EmbedBuilder().setDescription(keyTranslator(message.content, eng >= rus ? 'en2ru' : 'ru2en')),
+	]);
 }
-
-export default {
-	help,
-	command,
-	run,
-};

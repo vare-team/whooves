@@ -1,28 +1,36 @@
-module.exports = async (client, msg) => {
-	if (msg.author.bot) return;
+import badWords from '../models/badwords.js';
+import { ChannelType } from 'discord.js';
+import { randomIntInc } from '../utils/functions.js';
 
-	if (msg.channel.type !== 'dm' && !client.userLib.checkPerm(-1, { ownerID: msg.guild.ownerID, member: msg.member })) {
-		msg.badWordsCheck = msg.content
+//TODO: бдшка
+export default async function (message) {
+	if (message.author.bot) return;
+
+	if (
+		message.channel.type !== ChannelType.DM &&
+		!client.userLib.checkPerm(-1, { ownerID: message.guild.ownerID, member: message.member })
+	) {
+		message.badWordsCheck = message.content
 			.toLowerCase()
 			.replace(/[^a-zа-яЁё ]/g, '')
 			.replace('ё', 'е')
 			.trim()
 			.split(/ +/g);
 		if (
-			(await client.userLib.checkSettings(msg.guild.id, 'badwords')) &&
-			client.userLib.badWords.some(w => msg.badWordsCheck.includes(w))
+			(await client.userLib.checkSettings(message.guild.id, 'badwords')) &&
+			badWords.some(w => message.badWordsCheck.includes(w))
 		) {
-			client.userLib.autowarn(msg.author, msg.guild, msg.channel, 'Ненормативная лексика');
-			msg.delete();
+			client.userLib.autowarn(message.author, message.guild, message.channel, 'Ненормативная лексика');
+			message.delete();
 		}
 	}
 
 	client.userLib.db.query('INSERT INTO users (userId, tag) VALUES (?, ?) ON DUPLICATE KEY UPDATE xp = xp + ?', [
-		msg.author.id,
-		msg.author.tag,
-		client.userLib.randomIntInc(1, 5),
+		message.author.id,
+		message.author.tag,
+		randomIntInc(1, 5),
 	]);
-};
+}
 
 /*
   tier

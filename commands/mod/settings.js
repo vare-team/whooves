@@ -1,98 +1,111 @@
 import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { ChannelType, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { sendLogChannel } from '../../utils/modules/guildLog.js';
+import Command from '../../models/Command.js';
+import { setSettings } from '../../utils/modules/settingsController.js';
 
-export const help = {
-	name: 'settings',
-	description: 'Настройки бота',
-};
+const states = [
+	{
+		name: 'On',
+		name_localizations: { ru: 'Вкл' },
+		value: 'true',
+	},
+	{
+		name: 'Off',
+		name_localizations: { ru: 'Откл' },
+		value: 'false',
+	},
+];
 
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'badwords',
-			description: 'Фильтр плохих слов в чате',
-			type: 1,
-			options: [
-				{
-					name: 'состояние',
-					description: 'Состояние параметра',
-					type: 5,
-					required: true,
-				},
-			],
-		},
-		{
-			name: 'autocorrector',
-			description: 'Проверка никнейма участнкиа при его заходе',
-			type: 1,
-			options: [
-				{
-					name: 'состояние',
-					description: 'Состояние параметра',
-					type: 5,
-					required: true,
-				},
-			],
-		},
-		{
-			name: 'logchannel',
-			description: 'Лог-канал',
-			type: 1,
-			options: [
-				{
-					name: 'канал',
-					description: 'Канал для логов',
-					type: 7,
-					channel_types: [0],
-				},
-			],
-		},
-	],
-};
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('settings')
+		.setDescription('bot setting')
+		.setNameLocalization('ru', 'настройк')
+		.setDescriptionLocalization('ru', 'настройки бота')
+		.addChannelOption(option =>
+			option
+				.setName('logs')
+				.setDescription('channel for logs')
+				.setNameLocalization('ru', 'логи')
+				.setDescriptionLocalization('ru', 'канал для логов')
+				.addChannelTypes(ChannelType.GuildText)
+				.setRequired(false)
+		)
+		.addStringOption(option =>
+			option
+				.setName('bad_words')
+				.setDescription('filter of bad words')
+				.setNameLocalization('ru', 'фильтр_слов')
+				.setDescriptionLocalization('ru', 'Фильтр плохих слов в чате')
+				.addChoices(states)
+				.setRequired(false)
+		)
+		.addStringOption(option =>
+			option
+				.setName('autocorrector')
+				.setDescription('user nickname autocorrector')
+				.setNameLocalization('ru', 'корректор_ников')
+				.setDescriptionLocalization('ru', 'Проверка никнейма участнкиа при его заходе')
+				.addChoices(states)
+				.setRequired(false)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
+	run
+);
 
 const normalizeParametrs = {
-	badwords: 'Фильтр плохих слов',
+	bad_words: 'Фильтр плохих слов',
 	autocorrector: 'Исправление никнеймов',
 };
 
 export async function run(interaction) {
-	const subCommand = interaction.options.getSubcommand();
-	const state = interaction.options.getBoolean('состояние');
-	const channel = interaction.options.getChannel('канал');
+	const badWords = interaction.options.getBoolean('bad_words');
+	const autocorrector = interaction.options.getBoolean('autocorrector');
+	const logs = interaction.options.getChannel('logs');
+	const embed = new EmbedBuilder();
+	const fields = [];
 
-	switch (subCommand) {
-		case 'logchannel':
-			if (!interaction.options.getChannel('канал'))
-				client.userLib.sendLogChannel('commandUse', interaction.guild, {
-					user: { tag: interaction.user.tag, id: interaction.user.id },
-					channel: { id: interaction.channel.id },
-					content: 'отключение лог-канала',
-				});
+	if (badWords) {
+		const [name, value] = await changeState('bad_words', badWords, interaction);
+		if (!name && !value) return;
 
-			client.userLib.db.update(
-				`guilds`,
-				{ guildId: interaction.guildId, logchannel: channel ? channel.id : null },
-				() => {}
-			);
-
-			return respondSuccess(
-				interaction,
-				!channel ? `**Лог канал отключен**!` : `${channel} **установлен как канал для логов!**`
-			);
-		default:
-			if (!(await client.userLib.setSettings(interaction.guildId, subCommand, state)))
-				return respondError(interaction, 'Параметр уже находится в этом значении!');
-
-			return respondSuccess(
-				interaction,
-				`«\`${normalizeParametrs[subCommand]}\`» - **${state ? 'включен' : 'выключен'}**!`
-			);
+		fields.push({ name: name, value: value });
 	}
+
+	if (autocorrector) {
+		const [name, value] = await changeState('autocorrector', autocorrector, interaction);
+		if (!name && !value) return;
+
+		fields.push({ name: name, value: value });
+	}
+
+	if (!logs) return respondSuccess(interaction, embed.addFields(fields));
+	await sendLogChannel('commandUse', interaction.guild, {
+		user: { tag: interaction.user.tag, id: interaction.user.id },
+		channel: { id: interaction.channel.id },
+		content: 'отключение лог-канала',
+	});
+
+	//TODO: бдшка
+	//TODO: если сервака нет в бд, то над бы закинуть туда пустой
+	//TODO: currentChannel - над бы взять из бд, какой сейчас установлен
+	const state = logs.id !== currentChannel;
+	client.userLib.db.update(`guilds`, { guildId: interaction.guildId, logchannel: state ? logs.id : null }, () => {});
+	fields.push({
+		name: 'Лог канал',
+		value: !state ? `**отключен**!` : `<#${logs.id}> **установлен как канал для логов!**`,
+	});
+
+	return respondSuccess(interaction, embed.addFields(fields));
 }
 
-export default {
-	help,
-	command,
-	run,
-};
+async function changeState(parameter, state, interaction) {
+	//TODO: бдшка
+	if (!(await setSettings(interaction.guildId, parameter, state))) {
+		await respondError(interaction, 'Параметр уже находится в этом значении!');
+		return [null, null];
+	}
+	return [normalizeParametrs[parameter], state ? 'включен' : 'выключен'];
+}

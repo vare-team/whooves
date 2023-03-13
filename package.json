@@ -19,22 +19,22 @@
 	"dependencies": {
 		"axios": "^1.3.4",
 		"canvas": "^2.11.0",
-		"crypto-js": "^4.0.0",
-		"discord.js": "^13.10.3",
+		"crypto-js": "^4.1.1",
+		"discord.js": "^14.7.1",
 		"gif-encoder": "^0.7.2",
-		"mysql2": "^3.1.2"
+		"mysql2": "^3.2.0"
 	},
 	"devDependencies": {
 		"eslint": "^8.35.0",
-		"eslint-config-prettier": "^8.6.0",
+		"eslint-config-prettier": "^8.7.0",
 		"eslint-plugin-prettier": "^4.2.1",
-		"nodemon": "^2.0.20",
+		"nodemon": "^2.0.21",
 		"prettier": "^2.8.4"
 	},
 	"optionalDependencies": {
 		"bufferutil": "^4.0.7",
 		"erlpack": "github:discord/erlpack",
-		"utf-8-validate": "^6.0.2",
+		"utf-8-validate": "^6.0.3",
 		"zlib-sync": "^0.1.8"
 	},
 	"scripts": {

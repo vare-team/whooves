@@ -1,3 +1,5 @@
-module.exports = (client, rateLimitInfo) => {
-	if (!rateLimitInfo.limit) client.userLib.sendLog(`RateLimit! - ${rateLimitInfo.path}`);
-};
+import logger from '../utils/logger.js';
+
+export default function (client, rateLimitInfo) {
+	if (!rateLimitInfo.limit) logger(`RateLimit! - ${rateLimitInfo.path}`, 'rateLimit.js');
+}
