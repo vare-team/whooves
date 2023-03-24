@@ -1,4 +1,6 @@
-export const settingsList = {
+import Guild from '../models/guild.js';
+
+const settingsList = {
 	chatAutoModeration: 0x1,
 	nicknameAutoModeration: 0x2,
 };
@@ -7,13 +9,11 @@ export const settingsList = {
  * @function
  * @param {string} guildId
  * @param {string} setNumber
- * @returns {boolean}
+ * @returns {Promise<boolean>}
  */
 export async function checkSettings(guildId, setNumber) {
-	let setting = await connection.promise().query('SELECT settings FROM guilds WHERE guildId = ?', [guildId]);
-	setting = setting[0][0].settings;
-
-	return !!(settingsList[setNumber] & setting);
+	const guild = await Guild.findByPk(guildId);
+	return !!(settingsList[setNumber] & guild?.settings);
 }
 
 /**
@@ -26,9 +26,6 @@ export async function checkSettings(guildId, setNumber) {
 export async function setSettings(guildId, setNumber, state) {
 	if ((await checkSettings(guildId, setNumber)) === state) return false;
 
-	connection.query(`UPDATE guilds SET settings = settings ${state ? '+' : '-'} ? WHERE guildId = ?`, [
-		this.settings[setNumber],
-		guildId,
-	]);
+	await Guild.increment({ settings: (state ? 1 : -1) * settingsList[setNumber] }, { where: { id: guildId } });
 	return true;
 }

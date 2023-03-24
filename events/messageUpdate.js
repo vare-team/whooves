@@ -1,32 +1,31 @@
 import { ChannelType } from 'discord.js';
-import badWords from '../models/badwords.js';
-import { sendLogChannel } from '../utils/modules/guildLog.js';
-import { checkSettings } from '../utils/modules/settingsController.js';
+import badWords from '../configs/badwords.js';
+import { sendLogChannel } from '../services/guild-log.js';
+import { checkSettings } from '../utils/settings-сontroller.js';
+import mentionDetectRegexp from '../configs/mention-detect-regexp.js';
+import autoWarn from '../services/auto-warn.js';
 
 export default async function (oldMessage, newMessage) {
 	if (oldMessage.author.bot || newMessage.author.bot) return;
 
-	if (
-		newMessage.channel.type !== ChannelType.DM &&
-		!client.userLib.checkPerm(-1, { ownerID: newMessage.guild.ownerID, member: newMessage.member })
-	) {
+	if (newMessage.channel.type !== ChannelType.DM && !newMessage.member.hasPermission('MANAGE_MESSAGES')) {
+		const badWordsCheck = newMessage.content
+			.toLowerCase()
+			.replace(/[^a-zа-яЁё ]/g, '')
+			.replace('ё', 'е')
+			.trim()
+			.split(/ +/g);
+
 		if (
-			(await checkSettings(newMessage.guild.id, 'badwords')) &&
-			badWords.some(w =>
-				newMessage.content
-					.toLowerCase()
-					.replace(/[^a-zа-яЁё ]/g, '')
-					.replace('ё', 'е')
-					.trim()
-					.split(/ +/g)
-					.includes(w)
-			)
+			(await checkSettings(newMessage.guild.id, 'chatAutoModeration')) &&
+			badWords.some(w => badWordsCheck.includes(w))
 		) {
-			client.userLib.autowarn(newMessage.author, newMessage.guild, newMessage.channel, 'Ненормативная лексика');
+			await autoWarn(newMessage.author, newMessage.guild, newMessage.channel, 'Ненормативная лексика');
 			newMessage.delete();
 		}
 	}
 
+	//TODO add command execution
 	if (newMessage.content.endsWith('w.l')) {
 		client.commands.get('lang').run(client, newMessage, oldMessage.content.trim().split(/ +/g));
 	}
@@ -35,12 +34,8 @@ export default async function (oldMessage, newMessage) {
 
 	await sendLogChannel('messageUpdate', oldMessage.guild, {
 		user: { tag: oldMessage.author.tag, id: oldMessage.member.id, avatar: oldMessage.member.user.displayAvatarURL() },
-		oldContent: oldMessage.cleanContent
-			? oldMessage.cleanContent.replace(client.userLib.mentionDetect, '**@**🏓')
-			: 'Что-то',
-		newContent: newMessage.cleanContent
-			? newMessage.cleanContent.replace(client.userLib.mentionDetect, '**@**🏓')
-			: 'Что-то',
+		oldContent: oldMessage.cleanContent?.replace(mentionDetectRegexp, '**@**🏓') ?? 'Что-то',
+		newContent: newMessage.cleanContent?.replace(mentionDetectRegexp, '**@**🏓') ?? 'Что-то',
 		channel: { id: oldMessage.channel.id },
 	});
 }

@@ -1,7 +1,7 @@
-import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { contrastYiq, hexToRgb, rgbToCmyk, rgbToHsl } from '../../utils/modules/colorConverters.js';
-import Command from '../../models/Command.js';
+import { contrastYiq, hexToRgb, rgbToCmyk, rgbToHsl } from '../../utils/color-converters.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandSubcommandBuilder()

@@ -6,12 +6,12 @@ const BLUE = 2;
 const BORDER_ENERGY = 1000;
 
 /** Seam carver removes low energy seams in an image from HTML5 canvas. */
-class Seamcarver {
+export class Seamcarver {
 	/**
 	 *
 	 * Init seam carver
 	 *
-	 * @param {HMLT5 canvas} canvas canvas with image on it.
+	 * @param {HTMLCanvasElement} canvas canvas with image on it.
 	 *
 	 */
 	constructor(canvas) {
@@ -130,7 +130,6 @@ class Seamcarver {
 			energy_cell.minx = x;
 		} else {
 			let cursum = 0;
-			const curminx = 0;
 
 			// below left
 			if (x - 1 >= 0) {
@@ -230,21 +229,21 @@ class Seamcarver {
 			const deletedCol = vseam[row];
 
 			// copy across pixels before seam col
-			for (var col = 0; col < deletedCol; col++) {
+			for (let col = 0; col < deletedCol; col++) {
 				const oldPos = this.pixelToIndex(col, row);
-				var pos = oldPos - row * 4;
-				for (var i = 0; i < 4; i++) {
+				const pos = oldPos - row * 4;
+				for (let i = 0; i < 4; i++) {
 					this.imageData.data[pos + i] = this.picture[oldPos + i];
 				}
 			}
 
 			// Start at deleted col
 			// Can ignore last column as we will delete it
-			for (var col = deletedCol; col < this.width - 1; col++) {
+			for (let col = deletedCol; col < this.width - 1; col++) {
 				// copy across pixels after seam col
-				var pos = this.pixelToIndex(col, row) - row * 4;
+				const pos = this.pixelToIndex(col, row) - row * 4;
 				const pos_right = this.pixelToIndex(col + 1, row);
-				for (var i = 0; i < 4; i++) {
+				for (let i = 0; i < 4; i++) {
 					this.imageData.data[pos + i] = this.picture[pos_right + i];
 				}
 
@@ -305,7 +304,6 @@ class Seamcarver {
 	recalculateVminsumForAffectedPixels(queue) {
 		const marked = {};
 		const enqueued = {};
-		const maxRow = -1;
 		// start at second to last row
 		let row = this.height - 2;
 		let enqueuedCols = queue[row];
@@ -346,7 +344,7 @@ class Seamcarver {
 			if (oldVminsum === this.minsumMatrix[col][row]) continue;
 
 			// enqueue three affected children from row above
-			for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i++) {
+			for (let i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i++) {
 				const childIndex = this.pixelToIndex(i, row - 1);
 				if (!enqueued[childIndex]) {
 					enqueued[childIndex] = true;
@@ -374,7 +372,6 @@ class Seamcarver {
 	 */
 	reDrawImage(options) {
 		const field = options.field;
-		const actualSize = options.actualSize;
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.canvas.width = this.imageData.width;
 		this.canvas.height = this.imageData.height;
@@ -386,16 +383,14 @@ class Seamcarver {
 			for (let row = 0; row < this.height; row++) {
 				for (let col = 0; col < this.width; col++) {
 					const pos = this.pixelToIndex(col, row);
+					let normalizedVal;
 
 					if (field === 'energy') {
-						var val = this.energyMatrix[col][row];
-						var normalizedVal = Math.min(255, (val / 255) * 255);
+						normalizedVal = Math.min(255, (this.energyMatrix[col][row] / 255) * 255);
 					} else if (field === 'minsum') {
-						var val = this.minsumMatrix[col][row];
-						var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255;
+						normalizedVal = ((this.minsumMatrix[col][row] - 1000) / (this.maxVminsum - 1000)) * 255;
 					} else if (field === 'minx') {
-						var val = this.minxMatrix[col][row];
-						const direction = val - col + 1;
+						const direction = this.minxMatrix[col][row] - col + 1;
 						for (var i = 0; i < 3; i++) {
 							this.imageData.data[pos + i] = 0;
 						}
@@ -406,13 +401,13 @@ class Seamcarver {
 						continue;
 					} else {
 						// rgb
-						for (var i = 0; i < 4; i++) {
+						for (let i = 0; i < 4; i++) {
 							this.imageData.data[pos + i] = this.picture[pos + i];
 						}
 						continue;
 					}
 
-					for (var i = 0; i < 3; i++) {
+					for (let i = 0; i < 3; i++) {
 						this.imageData.data[pos + i] = normalizedVal;
 					}
 					// make opaque
@@ -438,8 +433,8 @@ class Seamcarver {
 		field = field || 'rgb';
 		let lines = '';
 		if (field === 'rgb') {
-			for (var y = 0; y < this.height; y++) {
-				for (var x = 0; x < this.width; x++) {
+			for (let y = 0; y < this.height; y++) {
+				for (let x = 0; x < this.width; x++) {
 					const pos = this.pixelToIndex(x, y);
 					const rgb = Array.prototype.slice.call(this.picture, pos, pos + 3);
 					lines += `${(this.rgbToNum(rgb[0], rgb[1], rgb[2]) / 100000).toFixed(2)}\t`;
@@ -447,8 +442,8 @@ class Seamcarver {
 				lines += '\n';
 			}
 		} else {
-			for (var y = 0; y < this.height; y++) {
-				for (var x = 0; x < this.width; x++) {
+			for (let y = 0; y < this.height; y++) {
+				for (let x = 0; x < this.width; x++) {
 					let val;
 
 					if (field === 'energy') {
@@ -471,5 +466,3 @@ class Seamcarver {
 		return lines;
 	}
 }
-
-module.exports = Seamcarver;

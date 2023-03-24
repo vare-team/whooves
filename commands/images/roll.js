@@ -3,8 +3,8 @@ import { AttachmentBuilder, EmbedBuilder, SlashCommandSubcommandBuilder } from '
 import { createCanvas, loadImage } from 'canvas';
 
 import GifEncoder from 'gif-encoder';
-import { respondSuccess } from '../../utils/modules/respondMessages.js';
-import Command from '../../models/Command.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandSubcommandBuilder()
@@ -18,18 +18,10 @@ export default new Command(
 				.setDescription('rotate direction')
 				.setNameLocalization('ru', 'направление')
 				.setDescriptionLocalization('ru', 'направление поворота')
-				.setChoices([
-					{
-						name: 'Clockwise',
-						name_localizations: { ru: 'По часовой' },
-						value: 'right',
-					},
-					{
-						name: 'Counterclockwise',
-						name_localizations: { ru: 'Против часовой' },
-						value: 'left',
-					},
-				])
+				.setChoices(
+					{ name: 'Clockwise', name_localizations: { ru: 'По часовой' }, value: 'right' },
+					{ name: 'Counterclockwise', name_localizations: { ru: 'Против часовой' }, value: 'left' }
+				)
 				.setRequired(true)
 		)
 		.addUserOption(option =>

@@ -42,12 +42,10 @@ export function rgbToHsl(r, g, b) {
 	g /= 255;
 	b /= 255;
 
-	let cmin = Math.min(r, g, b),
+	let h, s, l;
+	const cmin = Math.min(r, g, b),
 		cmax = Math.max(r, g, b),
-		delta = cmax - cmin,
-		h = 0,
-		s = 0,
-		l = 0;
+		delta = cmax - cmin;
 
 	if (!delta) h = 0;
 	else if (cmax === r) h = ((g - b) / delta) % 6;

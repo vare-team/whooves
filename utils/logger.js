@@ -1,18 +1,19 @@
-import { decrypt } from './modules/AESCryptor.js';
+import { decrypt } from './cryptor.js';
 
 /**
  * @function
  * @param {string} log
  * @param {string} type
  * @param {string} emitter
+ * @param {number} shardId
  */
-export default function (log = 'Clap one hand', emitter = 'unknown', type = 'Log') {
+export default function (log = 'Clap one hand', emitter = 'unknown', type = 'Log', shardId = 0) {
 	const time = new Date(),
 		text = `${`${`00${time.getDate()}`.slice(-2)}.${`00${time.getMonth() + 1}`.slice(
 			-2
 		)} ${`00${time.getHours()}`.slice(-2)}:${`00${time.getMinutes()}`.slice(-2)}:${`00${time.getSeconds()}`.slice(
 			-2
-		)}`} | Shard[${0}] | {${emitter}} : ${log}`;
+		)}`} | Shard[${discordClient?.shard.ids[0] ?? shardId}] | {${emitter.toUpperCase()}} : ${log}`;
 
 	if (type === 'Error') return console.error(text);
 	if (type === 'Warning') return console.warn(text);

@@ -1,6 +1,6 @@
 import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
-import { crypt } from '../../utils/modules/AESCryptor.js';
+import colors from '../../configs/colors.js';
+import { crypt } from '../../utils/cryptor.js';
 
 export const help = {
 	name: 'man',

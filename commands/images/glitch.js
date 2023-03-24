@@ -1,9 +1,9 @@
 import { MessageAttachment, MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
+import colors from '../../configs/colors.js';
 
 import { createCanvas, loadImage } from 'canvas';
 
-import { randomIntInc } from '../../utils/functions.js';
+import randomIntInc from '../../utils/random-int-inc.js';
 import GifEncoder from 'gif-encoder';
 
 export const help = {

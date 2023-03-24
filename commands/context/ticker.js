@@ -1,7 +1,7 @@
-import { respondError } from '../../utils/modules/respondMessages.js';
+import { respondError } from '../../utils/respond-messages.js';
 import GifEncoder from 'gif-encoder';
 import { MessageAttachment, MessageEmbed } from 'discord.js';
-import colors from '../../models/colors.js';
+import colors from '../../configs/colors.js';
 import { createCanvas } from 'canvas';
 
 export const help = {

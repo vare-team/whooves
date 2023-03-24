@@ -23,6 +23,35 @@ export default class Commands {
 
 		return new Commands(builders, runners, autocompletes);
 	}
+
+	/**
+	 *
+	 * @param commands {[Command]}
+	 * @return {Object<string, (function(): Promise<*>)>}
+	 */
+	static mapRunners(commands) {
+		return commands.reduce((data, command) => ({ ...data, [command.builder.name]: command.run }), {});
+	}
+
+	/**
+	 *
+	 * @param commands {[Command]}
+	 * @return {Object<string, (function(): Promise<*>)>}
+	 */
+	static mapAutocomplete(commands) {
+		return commands.reduce((data, command) => ({ ...data, [command.builder.name]: command.autocomplete }), {});
+	}
+
+	/**
+	 *
+	 * @param baseBuilder {SlashCommandBuilder}
+	 * @param commands {[SlashCommandSubcommandBuilder]}
+	 * @returns {SlashCommandBuilder}
+	 */
+	static mapSubcommands(baseBuilder, commands) {
+		for (const command of commands) baseBuilder.addSubcommand(command);
+		return baseBuilder;
+	}
 }
 
 /**

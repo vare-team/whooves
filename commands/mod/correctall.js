@@ -1,7 +1,7 @@
 import { codeBlock, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
-import { getClearNickname, isNicknameClear } from '../../utils/modules/nickname.js';
-import { emoji, respondSuccess } from '../../utils/modules/respondMessages.js';
-import Command from '../../models/Command.js';
+import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
+import { emoji, respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandBuilder()

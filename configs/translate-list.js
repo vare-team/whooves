@@ -1,5 +1,4 @@
 // noinspection NonAsciiCharacters
-
 export default {
 	en2ru: {
 		q: 'й',

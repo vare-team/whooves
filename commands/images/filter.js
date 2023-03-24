@@ -1,9 +1,9 @@
 import { createCanvas, loadImage } from 'canvas';
 
 import { AttachmentBuilder, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { contrast, distort, greyscale, invert, sepia, glitch } from '../../utils/modules/canvasFilters.js';
-import { respondSuccess } from '../../utils/modules/respondMessages.js';
-import Command from '../../models/Command.js';
+import { contrast, distort, greyscale, invert, sepia, glitch } from '../../utils/canvas-filters.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandSubcommandBuilder()
@@ -17,38 +17,14 @@ export default new Command(
 				.setDescription('filter name')
 				.setNameLocalization('ru', 'фильтр')
 				.setDescriptionLocalization('ru', 'название фильтра')
-				.setChoices([
-					{
-						name: 'Inversion',
-						name_localizations: { ru: 'Инверсия' },
-						value: 'invert',
-					},
-					{
-						name: 'Black & White',
-						name_localizations: { ru: 'Чёрно-белое' },
-						value: 'bw',
-					},
-					{
-						name: 'Sepia',
-						name_localizations: { ru: 'Сепия' },
-						value: 'sepia',
-					},
-					{
-						name: 'Higher contrast',
-						name_localizations: { ru: 'Повышенный контраст' },
-						value: 'contrast',
-					},
-					{
-						name: 'Distortion',
-						name_localizations: { ru: 'Искажения' },
-						value: 'distortion',
-					},
-					{
-						name: 'Glitch',
-						name_localizations: { ru: 'Глитч' },
-						value: 'glitch',
-					},
-				])
+				.setChoices(
+					{ name: 'Inversion', name_localizations: { ru: 'Инверсия' }, value: 'invert' },
+					{ name: 'Black & White', name_localizations: { ru: 'Чёрно-белое' }, value: 'bw' },
+					{ name: 'Sepia', name_localizations: { ru: 'Сепия' }, value: 'sepia' },
+					{ name: 'Higher contrast', name_localizations: { ru: 'Повышенный контраст' }, value: 'contrast' },
+					{ name: 'Distortion', name_localizations: { ru: 'Искажения' }, value: 'distortion' },
+					{ name: 'Glitch', name_localizations: { ru: 'Глитч' }, value: 'glitch' }
+				)
 				.setRequired(true)
 		)
 		.addUserOption(option =>

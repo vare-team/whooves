@@ -1,8 +1,7 @@
-import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
-import promise from '../../utils/promise.js';
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
-import Command from '../../models/Command.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -42,18 +41,10 @@ export default new Command(
 				.setDescription('force ban ignore warns count')
 				.setNameLocalization('ru', 'принудительно')
 				.setDescriptionLocalization('ru', 'принудительный бан игнорируя кол-во варнов')
-				.addChoices([
-					{
-						name: 'True',
-						name_localizations: { ru: 'Да' },
-						value: 'true',
-					},
-					{
-						name: 'False',
-						name_localizations: { ru: 'Нет' },
-						value: 'false',
-					},
-				])
+				.setChoices(
+					{ name: 'True', name_localizations: { ru: 'Да' }, value: 'true' },
+					{ name: 'False', name_localizations: { ru: 'Нет' }, value: 'false' }
+				)
 				.setRequired(false)
 		)
 		.setDMPermission(false)

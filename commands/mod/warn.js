@@ -1,8 +1,7 @@
 import { bold, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
-import { respondSuccess } from '../../utils/modules/respondMessages.js';
-import promise from '../../utils/promise.js';
-import Command from '../../models/Command.js';
-import { sendLogChannel } from '../../utils/modules/guildLog.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
+import { sendLogChannel } from '../../services/guild-log.js';
 
 export default new Command(
 	new SlashCommandBuilder()

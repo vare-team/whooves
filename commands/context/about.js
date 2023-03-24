@@ -1,6 +1,6 @@
 import { codeBlock, ContextMenuCommandBuilder, EmbedBuilder, ApplicationCommandType } from 'discord.js';
-import { respondSuccess } from '../../utils/modules/respondMessages.js';
-import Command from '../../models/Command.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new ContextMenuCommandBuilder()
@@ -11,7 +11,7 @@ export default new Command(
 );
 
 function run(interaction) {
-	const member = interaction.targetMember ? interaction.targetMember : interaction.targetUser;
+	const member = interaction.targetMember ?? interaction.targetUser;
 	const targetUserAvatar = member.displayAvatarURL({ dynamic: true });
 	const embed = new EmbedBuilder().setTimestamp();
 	const fields = [
@@ -35,12 +35,9 @@ function run(interaction) {
 
 	embed
 		.setTitle(member.bot ? 'Бот' : 'Пользователь')
-		.setAuthor({
-			name: member.tag,
-			iconURL: targetUserAvatar,
-		})
+		.setAuthor({ name: member.tag, iconURL: targetUserAvatar })
 		.addFields(fields)
 		.setThumbnail(targetUserAvatar);
 
-	return respondSuccess(interaction, embed, true);
+	respondSuccess(interaction, embed, true);
 }

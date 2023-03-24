@@ -1,33 +1,25 @@
 import { EmbedBuilder, codeBlock, SlashCommandSubcommandBuilder } from 'discord.js';
-import { respondSuccess } from '../../utils/modules/respondMessages.js';
-import Command from '../../models/Command.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandSubcommandBuilder()
 		.setName('cryptor')
 		.setDescription('message cipher tool')
 		.setNameLocalization('ru', 'криптор')
-		.setDescriptionLocalization('ru', 'Простенький шифратор сообщений.')
-		.addStringOption(option => {
+		.setDescriptionLocalization('ru', 'Простенький шифратор сообщений')
+		.addStringOption(option =>
 			option
 				.setName('mode')
 				.setDescription('cryptor mode')
 				.setNameLocalization('ru', 'режим')
 				.setDescriptionLocalization('ru', 'режим работы')
-				.setChoices([
-					{
-						name: 'Crypt',
-						name_localizations: { ru: 'Зашифровать' },
-						value: 'crypt',
-					},
-					{
-						name: 'Decrypt',
-						name_localizations: { ru: 'Дешифровать' },
-						value: 'decrypt',
-					},
-				])
-				.setRequired(true);
-		})
+				.setChoices(
+					{ name: 'Crypt', name_localizations: { ru: 'Зашифровать' }, value: 'crypt' },
+					{ name: 'Decrypt', name_localizations: { ru: 'Дешифровать' }, value: 'decrypt' }
+				)
+				.setRequired(true)
+		)
 		.addStringOption(option =>
 			option
 				.setName('text')

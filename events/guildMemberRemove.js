@@ -1,7 +1,7 @@
-import { sendLogChannel } from '../utils/modules/guildLog.js';
+import { sendLogChannel } from '../services/guild-log.js';
 
-export default function (member) {
-	return sendLogChannel('memberRemove', member.guild, {
+export default async function (member) {
+	await sendLogChannel('memberRemove', member.guild, {
 		user: { tag: member.user.tag, id: member.id, avatar: member.user.displayAvatarURL(), joinedAt: member.joinedAt },
 	});
 }

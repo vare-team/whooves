@@ -1,11 +1,10 @@
-import { sendLogChannel } from '../utils/modules/guildLog.js';
-import { getClearNickname, isNicknameClear } from '../utils/modules/nickname.js';
-import { checkSettings } from '../utils/modules/settingsController.js';
+import { sendLogChannel } from '../services/guild-log.js';
+import { getClearNickname, isNicknameClear } from '../utils/nickname.js';
+import { checkSettings } from '../utils/settings-сontroller.js';
 
 export default async function (member) {
 	if (
-		//TODO: бдшка
-		(await checkSettings(member.guild.id, 'usernamechecker')) &&
+		(await checkSettings(member.guild.id, 'nicknameAutoModeration')) &&
 		member.manageable &&
 		!isNicknameClear(member.displayName)
 	) {

@@ -1,11 +1,13 @@
 import logger from '../utils/logger.js';
+import Guild from '../models/guild.js';
 
-export default function (guild) {
+export default async function (guild) {
 	if (!guild.available) return;
-	//TODO: бдшка
-	client.userLib.db.delete(`guilds`, { guildId: guild.id }, () => {});
+
+	await Guild.destroy({ where: { id: guild.id } });
+
 	logger(
 		`Cервер удалил бота. "${guild.name}", владелец "${guild.owner.user.tag}", всего там "${guild.memberCount}" участников.`,
-		'guildDelete.js'
+		'core'
 	);
 }

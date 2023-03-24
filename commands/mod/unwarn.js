@@ -1,9 +1,8 @@
-import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { PermissionsBitField, SlashCommandBuilder } from 'discord.js';
-import promise from '../../utils/promise.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
-import { sendLogChannel } from '../../utils/modules/guildLog.js';
-import Command from '../../models/Command.js';
+import { sendLogChannel } from '../../services/guild-log.js';
+import Command from '../../utils/Command.js';
 
 const warnsCollection = {};
 const warnsClears = {};

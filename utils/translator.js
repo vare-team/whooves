@@ -1,4 +1,4 @@
-import keyList from '../../models/keyList.js';
+import keyList from '../configs/translate-list.js';
 
 /**
  * @function
@@ -8,6 +8,7 @@ import keyList from '../../models/keyList.js';
  */
 export default function (str = '', mode = 'en2ru') {
 	if (mode === 'en2ru') {
+		// eslint-disable-next-line
 		return str.replace(/[A-z/,.;?&'`~}{\]\[]/g, x => {
 			return x === x.toLowerCase() ? keyList.en2ru[x] : keyList.en2ru[x.toLowerCase()].toUpperCase();
 		});

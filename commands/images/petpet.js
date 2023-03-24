@@ -3,14 +3,14 @@ import { AttachmentBuilder, EmbedBuilder, SlashCommandSubcommandBuilder } from '
 import { createCanvas, loadImage } from 'canvas';
 
 import GifEncoder from 'gif-encoder';
-import { respondSuccess } from '../../utils/modules/respondMessages.js';
-import Command from '../../models/Command.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandSubcommandBuilder()
 		.setName('pet')
 		.setDescription('pet something')
-		.setNameLocalization('ru', 'погладить что-нибудь')
+		.setNameLocalization('ru', 'погладить')
 		.setDescriptionLocalization('ru', 'Погладить что-нибудь')
 		.addUserOption(option =>
 			option

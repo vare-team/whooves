@@ -1,5 +1,5 @@
-import corrector from '../../models/nickNameCorrectorList.js';
-import { randomIntInc } from '../functions.js';
+import corrector from '../configs/nickname-corrector-list.js';
+import randomIntInc from '../utils/random-int-inc.js';
 
 export const nicknameParts = {
 	prefixes: ['A', 'Ex', 'Im', 'Il', 'In', 'Ret', 'Un', 'De', 'Int'],

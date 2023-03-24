@@ -1,7 +1,7 @@
-import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { bold, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import { generateErrLog } from '../../utils/logger.js';
-import Command from '../../models/Command.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandBuilder()

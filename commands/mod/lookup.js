@@ -1,6 +1,6 @@
-import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, Invite, SlashCommandBuilder } from 'discord.js';
-import Command from '../../models/Command.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandBuilder()

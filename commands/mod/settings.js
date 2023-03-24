@@ -1,27 +1,19 @@
-import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { ChannelType, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
-import { sendLogChannel } from '../../utils/modules/guildLog.js';
-import Command from '../../models/Command.js';
-import { setSettings } from '../../utils/modules/settingsController.js';
+import { sendLogChannel } from '../../services/guild-log.js';
+import Command from '../../utils/Command.js';
+import { setSettings } from '../../utils/settings-сontroller.js';
 
 const states = [
-	{
-		name: 'On',
-		name_localizations: { ru: 'Вкл' },
-		value: 'true',
-	},
-	{
-		name: 'Off',
-		name_localizations: { ru: 'Откл' },
-		value: 'false',
-	},
+	{ name: 'On', name_localizations: { ru: 'Вкл' }, value: 'true' },
+	{ name: 'Off', name_localizations: { ru: 'Откл' }, value: 'false' },
 ];
 
 export default new Command(
 	new SlashCommandBuilder()
 		.setName('settings')
 		.setDescription('bot setting')
-		.setNameLocalization('ru', 'настройк')
+		.setNameLocalization('ru', 'настройки')
 		.setDescriptionLocalization('ru', 'настройки бота')
 		.addChannelOption(option =>
 			option
@@ -38,7 +30,7 @@ export default new Command(
 				.setDescription('filter of bad words')
 				.setNameLocalization('ru', 'фильтр_слов')
 				.setDescriptionLocalization('ru', 'Фильтр плохих слов в чате')
-				.addChoices(states)
+				.setChoices(...states)
 				.setRequired(false)
 		)
 		.addStringOption(option =>
@@ -47,7 +39,7 @@ export default new Command(
 				.setDescription('user nickname autocorrector')
 				.setNameLocalization('ru', 'корректор_ников')
 				.setDescriptionLocalization('ru', 'Проверка никнейма участнкиа при его заходе')
-				.addChoices(states)
+				.setChoices(...states)
 				.setRequired(false)
 		)
 		.setDMPermission(false)

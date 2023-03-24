@@ -1,4 +1,4 @@
-import SeamCarver from '../../utils/seamcarver.js';
+import SeamCarver from '../../utils/Seamcarver.js';
 
 //TODO: Seamcarver
 

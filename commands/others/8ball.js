@@ -1,7 +1,7 @@
-import { respondError, respondSuccess } from '../../utils/modules/respondMessages.js';
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { randomIntInc } from '../../utils/functions.js';
-import Command from '../../models/Command.js';
+import randomIntInc from '../../utils/random-int-inc.js';
+import Command from '../../utils/Command.js';
 
 export default new Command(
 	new SlashCommandSubcommandBuilder()

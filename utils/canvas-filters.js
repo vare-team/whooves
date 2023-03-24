@@ -1,5 +1,5 @@
-import { randomIntInc } from '../functions.js';
-import { respondError } from './respondMessages.js';
+import randomIntInc from '../utils/random-int-inc.js';
+import { respondError } from './respond-messages.js';
 
 export function greyscale(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
@@ -70,7 +70,7 @@ export function distort(ctx, x = 0, y = 0, width = 0, height = 0, amplitude = 60
 
 export function glitch(ava, canvas, ctx, interaction) {
 	ava.src = canvas.toDataURL('image/jpeg');
-	for (let i = 0; i < 5; i++) ava.src = ava.src.replaceAt(randomIntInc(50, ava.src.length - 50), '0');
+	for (let i = 0; i < 5; i++) ava.src = replaceAt(ava.src, randomIntInc(50, ava.src.length - 50), '0');
 	try {
 		ctx.drawImage(ava, 0, 0);
 	} catch (e) {
@@ -81,5 +81,6 @@ export function glitch(ava, canvas, ctx, interaction) {
 	}
 }
 
-String.prototype.replaceAt = (index, replacement) =>
-	this.substr(0, index) + replacement + this.substr(index + replacement.length);
+function replaceAt(str, index, replacement) {
+	return str.slice(0, index) + replacement + str.slice(index + replacement.length);
+}

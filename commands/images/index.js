@@ -2,15 +2,14 @@ import filter from './filter.js';
 import petpet from './petpet.js';
 import roll from './roll.js';
 import { SlashCommandBuilder } from 'discord.js';
-import { mapAutocomplete, mapRunners, mapSubcommands } from '../../utils/functions.js';
-import Commands from '../../models/Commands.js';
+import Commands from '../../utils/Commands.js';
 
 export default function () {
 	const commands = [filter, petpet, roll];
 
 	return new Commands(
 		[
-			mapSubcommands(
+			Commands.mapSubcommands(
 				new SlashCommandBuilder()
 					.setName('images')
 					.setDescription('images manipulation commands')
@@ -19,7 +18,7 @@ export default function () {
 				commands.map(c => c.builder)
 			),
 		],
-		mapRunners(commands),
-		mapAutocomplete(commands)
+		Commands.mapRunners(commands),
+		Commands.mapAutocomplete(commands)
 	);
 }

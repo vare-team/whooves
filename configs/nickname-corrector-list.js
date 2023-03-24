@@ -1,5 +1,4 @@
 // noinspection NonAsciiCharacters
-
 export default {
 	'𝕬': 'A',
 	'𝖆': 'a',

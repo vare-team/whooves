@@ -9,15 +9,14 @@ import unban from './unban.js';
 import unwarn from './unwarn.js';
 import warn from './warn.js';
 import warns from './warns.js';
-import { mapAutocomplete, mapRunners } from '../../utils/functions.js';
-import Commands from '../../models/Commands.js';
+import Commands from '../../utils/Commands.js';
 
 export default function () {
 	const commands = [ban, clearmsg, correctall, govoice, kick, lookup, settings, unban, unwarn, warn, warns];
 
 	return new Commands(
 		commands.map(x => x.builder),
-		mapRunners(commands),
-		mapAutocomplete(commands)
+		Commands.mapRunners(commands),
+		Commands.mapAutocomplete(commands)
 	);
 }

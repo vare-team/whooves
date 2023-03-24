@@ -1,11 +1,11 @@
 import { codeBlock } from 'discord.js';
-import promise from '../promise.js';
+import Guild from '../models/guild.js';
 
 /**
  * Send Guild custom log
  * @function
  * @param {string} type - Type of log
- * @param guild
+ * @param guildDiscord
  * @param {object} data - Nedded data
 // * @param {object} data.user - User data
 // * @param {*} data.user.id - User id
@@ -19,22 +19,19 @@ import promise from '../promise.js';
 // * @param {string} data.oldContent - Old Message
 // * @param {string} data.newContent - New Message
  */
-export async function sendLogChannel(type, guild, data) {
-	const logchannel = (
-		await promise(connection, connection.queryValue, 'SELECT logchannel FROM guilds WHERE guildId = ?', [guild.id])
-	).res;
-	if (!logchannel) return;
-	const channel = guild.channels.cache.get(logchannel);
+export async function sendLogChannel(type, guildDiscord, data) {
+	const guild = await Guild.findByPk(guildDiscord.id);
+	if (!guild.logChannel) return;
+	const channel = guildDiscord.channels.fetch(guild.logChannel);
 
-	if (!channel || !channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
-		connection.update('guilds', { guildId: guild.id, logchannel: null }, () => {});
+	if (!channel || !channel.permissionsFor(discordClient.user).has('SEND_MESSAGES')) {
+		await guild.update({ logChannel: null });
 		return;
 	}
 
 	const now = new Date();
 	let text = `[<t:${Math.floor(now / 1000)}:R>] `;
 
-	if (!type) return console.warn('Error! Тип не указан');
 	switch (type) {
 		case 'memberAdd':
 			text += `📈 **Заход участника** ${data.user.tag} (ID: ${data.user.id});\nАккаунт зарегистрирован <t:${data.user.createdAt}:R>;`;

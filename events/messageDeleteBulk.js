@@ -1,13 +1,13 @@
-import { sendLogChannel } from '../utils/modules/guildLog.js';
+import { sendLogChannel } from '../services/guild-log.js';
 
 /**
  *
  * @param messages {Collection<Snowflake, Message>}
  * @return {Promise<undefined|*>}
  */
-export default function (messages) {
+export default async function (messages) {
 	const first = messages.first();
-	return sendLogChannel('messageDeleteBulk', first.guild, {
+	await sendLogChannel('messageDeleteBulk', first.guild, {
 		user: {
 			tag: 'NullPony#0000',
 			id: '',

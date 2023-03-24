@@ -1,7 +1,6 @@
-import admins from '../../models/admins.js';
-import dataBase from '../../services/dataBase.js';
-import emojis from '../../models/emojis.js';
-import settings from '../../models/settings.js';
+import admins from '../../configs/admins.js';
+import emojis from '../../configs/emojis.js';
+import settings from '../../configs/settings.js';
 import { createRequire } from 'module';
 import {
 	ActionRowBuilder,
@@ -12,8 +11,8 @@ import {
 	bold,
 	EmbedBuilder,
 } from 'discord.js';
-import { respondSuccess } from '../../utils/modules/respondMessages.js';
-import Command from '../../models/Command.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');

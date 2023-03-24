@@ -1,5 +1,6 @@
-import colors from '../../models/colors.js';
+import colors from '../configs/colors.js';
 import { EmbedBuilder } from 'discord.js';
+import permissionsArrayTranslator from '../configs/permissions-array-translator.js';
 
 export const emoji = {
 	load: '<a:load:793027778554888202>',
@@ -41,9 +42,18 @@ export async function respondSuccess(
 	color = null,
 	files = null
 ) {
-	embed = embed.setColor(color || colors.success);
+	embed = embed.setColor(color ?? colors.success);
 	const options = { embeds: [embed], components, files: files, ephemeral: ephemeral };
 
-	if (interaction.deferred) return interaction.editReply(options);
-	return interaction.reply(options);
+	if (interaction.deferred) await interaction.editReply(options);
+	else await interaction.reply(options);
+}
+
+/**
+ * @function
+ * @param {Array} array
+ * @returns {Array}
+ */
+export function permissionsArrayToString(array) {
+	return array.map(el => permissionsArrayTranslator[el]);
 }

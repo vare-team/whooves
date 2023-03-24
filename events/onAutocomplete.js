@@ -9,8 +9,6 @@ const autocompletes = commands.autocompletes;
  */
 export default async function (interaction) {
 	const autocomplete = autocompletes[interaction.commandName];
-
 	if (!autocomplete) return console.log(interaction.commandName);
-
 	await autocomplete(interaction);
 }
