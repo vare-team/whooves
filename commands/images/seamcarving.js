@@ -1,4 +1,4 @@
-import SeamCarver from '../../utils/Seamcarver.js';
+import Seamcarver from '../../utils/Seamcarver.js';
 
 //TODO: Seamcarver
 
@@ -21,7 +21,7 @@ export const command = {
 
 export async function run(interaction) {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
-	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
+	use = use.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
 	await interaction.deferReply();
 
@@ -32,7 +32,7 @@ export async function run(interaction) {
 		config = { field: 'rgb' };
 	ctx.drawImage(ava, 0, 0, canvas.width, canvas.height);
 
-	let seamCarver = new SeamCarver(canvas);
+	let seamCarver = new Seamcarver(canvas);
 	seamCarver.reDrawImage(config);
 
 	function findSeam() {
@@ -73,7 +73,7 @@ export async function run(interaction) {
 
 	drawRotated(90);
 
-	seamCarver = new SeamCarver(canvas);
+	seamCarver = new Seamcarver(canvas);
 
 	for (let i = 0; i < ava.height / 3; i++) {
 		await doIterate();

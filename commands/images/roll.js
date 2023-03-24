@@ -48,7 +48,7 @@ export async function run(interaction) {
 	const direction = interaction.options.getString('direction') === 'right' ? 10 : -10;
 	const user = interaction.options.getUser('user') || interaction.member || interaction.user;
 	const attachment = attachmentOption ? attachmentOption.url : null;
-	const imageRaw = attachment || user.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
+	const imageRaw = attachment || user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
 	await interaction.deferReply();
 

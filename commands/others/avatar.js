@@ -20,14 +20,13 @@ export default new Command(
 );
 
 async function run(interaction) {
-	const user = interaction.options.getUser('user') || interaction.user || interaction.user;
+	const user = interaction.options.getMember('user') || interaction.options.getUser('user') || interaction.user;
 
 	const embed = new EmbedBuilder()
 		.setDescription(`Аватар ${user}`)
-		.setImage(user.displayAvatarURL({ dynamic: true, size: 2048 }))
+		.setImage(user.displayAvatarURL({ forceStatic: false, size: 2048 }))
 		.setTimestamp();
 
-	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter('GIF');
-
+	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter({ text: 'GIF' });
 	await respondSuccess(interaction, embed);
 }

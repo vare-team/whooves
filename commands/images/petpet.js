@@ -35,14 +35,14 @@ async function run(interaction) {
 	const attachmentOption = interaction.options.getAttachment('attachment');
 	const user = interaction.options.getUser('user') || interaction.member || interaction.user;
 	const attachment = attachmentOption ? attachmentOption.url : null;
-	const imageRaw = attachment || user.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
+	const imageRaw = attachment || user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
 	await interaction.deferReply();
 
 	const image = await loadImage(imageRaw),
 		canvas = createCanvas(image.width, image.height),
 		ctx = canvas.getContext('2d'),
-		hand = await loadImage('./assets/hand.png');
+		hand = await loadImage('./assets/images/hand.png');
 
 	const gif = new GifEncoder(image.width, image.width, { highWaterMark: 8 * 1024 * 1024 });
 	gif.setFrameRate(16);

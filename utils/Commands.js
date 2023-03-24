@@ -60,10 +60,7 @@ export default class Commands {
  * @return {[SlashCommandBuilder | ContextMenuCommandBuilder | SlashCommandSubcommandBuilder]}
  */
 function mapBuilders(commands) {
-	const builders = [];
-	builders.push(...commands.map(c => c.builders));
-
-	return builders;
+	return commands.map(c => c.builders).flat(2);
 }
 
 /**
@@ -72,10 +69,7 @@ function mapBuilders(commands) {
  * @return {Object<string, (function(*): Promise<*>)>}
  */
 function mapRunners(commands) {
-	const runnersArray = [];
-	runnersArray.push(commands.map(c => c.runners));
-
-	return Object.assign({}, ...runnersArray);
+	return commands.reduce((a, c) => ({ ...a, ...c.runners }), {});
 }
 
 /**
@@ -84,8 +78,5 @@ function mapRunners(commands) {
  * @return {Object<string, (function(*): Promise<*>)>}
  */
 function mapAutocompletes(commands) {
-	const autocompletesArray = [];
-	autocompletesArray.push(commands.map(c => c.autocompletes));
-
-	return Object.assign({}, ...autocompletesArray);
+	return commands.reduce((a, c) => ({ ...a, ...c.autocompletes }), {});
 }

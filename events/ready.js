@@ -11,13 +11,15 @@ import messageDelete from './messageDelete.js';
 import messageDeleteBulk from './messageDeleteBulk.js';
 import messageUpdate from './messageUpdate.js';
 import voiceStateUpdate from './voiceStateUpdate.js';
+import commands from '../commands/index.js';
 
 /**
  *
  * @param client {Client}
  */
 export default async function (client) {
-	client.on('error', error);
+	if (process.env.NODE_ENV === 'production') client.on('error', error);
+
 	client.on('guildCreate', guildCreate);
 	client.on('guildDelete', guildDelete);
 	client.on('guildMemberAdd', guildMemberAdd);
@@ -28,6 +30,8 @@ export default async function (client) {
 	client.on('messageDeleteBulk', messageDeleteBulk);
 	client.on('messageUpdate', messageUpdate);
 	client.on('voiceStateUpdate', voiceStateUpdate);
+
+	await client.application.commands.set(commands.builders);
 
 	logger(`Shard ready!`, 'ShardingManager');
 	await send('Shard ready!');

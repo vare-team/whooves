@@ -41,18 +41,16 @@ async function run(interaction) {
 		.addFields([
 			{
 				name: 'RGB:',
-				value: codeBlock(
+				value:
 					codeBlock(`Red:   ${rgb.r}\nGreen: ${rgb.g}\nBlue:  ${rgb.b}\n`) +
-						codeBlock('css', `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)
-				),
+					codeBlock('css', `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`),
 				inline: true,
 			},
 			{
 				name: 'HSL:',
-				value: codeBlock(
+				value:
 					codeBlock(`Hue:        ${hsl.h}\nSaturation: ${hsl.s}%\nLightness:  ${hsl.l}%\n`) +
-						codeBlock('css', `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)
-				),
+					codeBlock('css', `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`),
 				inline: true,
 			},
 			{

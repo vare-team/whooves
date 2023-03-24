@@ -26,7 +26,6 @@ export default function (log = 'Clap one hand', emitter = 'unknown', type = 'Log
  * @return {string}
  */
 export function generateUseLog(interaction) {
-	console.log(interaction);
 	if (interaction.isCommand()) {
 		return `Use: ${interaction.commandName}, By: @${interaction.user.username}#${interaction.user.discriminator}(${
 			interaction.user.id

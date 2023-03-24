@@ -14,6 +14,7 @@ export const command = {
 	type: 3,
 };
 
+//TODO upgrade
 export async function run(interaction) {
 	if (interaction.options.getMessage('message').content.length < 1)
 		return respondError(interaction, 'Для использования этой команды сообщение должно содержать текст!');

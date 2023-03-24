@@ -46,11 +46,12 @@ export const command = {
 	],
 };
 
+//TODO move to filter
 export async function run(interaction) {
 	let use = interaction.options.getUser('пользователь') || interaction.user;
 	const size = interaction.options.getInteger('качество') ? interaction.options.getInteger('качество') : 128;
 
-	use = use.displayAvatarURL({ format: 'png', dynamic: false, size: size });
+	use = use.displayAvatarURL({ extension: 'png', forceStatic: true, size: size });
 
 	await interaction.deferReply();
 

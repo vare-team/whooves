@@ -50,9 +50,9 @@ async function run(interaction) {
 	const attachmentOption = interaction.options.getAttachment('attachment');
 	const filterOption = interaction.options.getString('filter');
 
-	const user = interaction.options.getUser('user') || interaction.member || interaction.user;
-	const attachment = attachmentOption ? attachmentOption.url : null;
-	const imageRaw = attachment || user.displayAvatarURL({ format: 'png', dynamic: false, size: 256 });
+	const user = interaction.options.getUser('user') ?? interaction.member ?? interaction.user;
+	const attachment = attachmentOption?.url ?? null;
+	const imageRaw = attachment ?? user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
 	await interaction.deferReply();
 
@@ -79,6 +79,7 @@ async function run(interaction) {
 			distort(ctx, 0, 0, image.width, image.height);
 			break;
 		case 'glitch':
+			//TODO fix send error and success
 			await glitch(image, canvas, ctx, interaction);
 			break;
 	}

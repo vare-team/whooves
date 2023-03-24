@@ -1,4 +1,4 @@
-import { ChannelType } from 'discord.js';
+import { ChannelType, PermissionFlagsBits } from 'discord.js';
 import badWords from '../configs/badwords.js';
 import { sendLogChannel } from '../services/guild-log.js';
 import { checkSettings } from '../utils/settings-сontroller.js';
@@ -8,7 +8,10 @@ import autoWarn from '../services/auto-warn.js';
 export default async function (oldMessage, newMessage) {
 	if (oldMessage.author.bot || newMessage.author.bot) return;
 
-	if (newMessage.channel.type !== ChannelType.DM && !newMessage.member.hasPermission('MANAGE_MESSAGES')) {
+	if (
+		newMessage.channel.type !== ChannelType.DM &&
+		!newMessage.member.permissions.has(PermissionFlagsBits.ManageMessages)
+	) {
 		const badWordsCheck = newMessage.content
 			.toLowerCase()
 			.replace(/[^a-zа-яЁё ]/g, '')
@@ -23,11 +26,6 @@ export default async function (oldMessage, newMessage) {
 			await autoWarn(newMessage.author, newMessage.guild, newMessage.channel, 'Ненормативная лексика');
 			newMessage.delete();
 		}
-	}
-
-	//TODO add command execution
-	if (newMessage.content.endsWith('w.l')) {
-		client.commands.get('lang').run(client, newMessage, oldMessage.content.trim().split(/ +/g));
 	}
 
 	if (oldMessage.content === newMessage.content) return;

@@ -26,7 +26,8 @@ function run(interaction) {
 		else if (point > 1039 && point < 1104) rus++;
 	}
 
-	return respondSuccess(interaction, [
-		new EmbedBuilder().setDescription(keyTranslator(message.content, eng >= rus ? 'en2ru' : 'ru2en')),
-	]);
+	return respondSuccess(
+		interaction,
+		new EmbedBuilder().setDescription(keyTranslator(message.content, eng >= rus ? 'en2ru' : 'ru2en'))
+	);
 }

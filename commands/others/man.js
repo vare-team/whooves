@@ -72,6 +72,7 @@ readdir('./assets/docs/', (err, files) => {
 });
 //PARSE DOCS
 
+//TODO upgrade
 export function run(interaction) {
 	if (interaction.options._subcommand === 'все') {
 		const embed = new MessageEmbed()

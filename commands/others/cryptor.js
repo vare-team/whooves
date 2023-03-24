@@ -35,7 +35,7 @@ export default new Command(
 
 function run(interaction) {
 	const mode = interaction.options.getString('mode');
-	const text = interaction.options.getString('текст');
+	const text = interaction.options.getString('text');
 	const embed = new EmbedBuilder().setTitle('🔐 Encryptor');
 
 	switch (mode) {

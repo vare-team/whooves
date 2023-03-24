@@ -12,12 +12,12 @@ export default new Command(
 
 function run(interaction) {
 	const member = interaction.targetMember ?? interaction.targetUser;
-	const targetUserAvatar = member.displayAvatarURL({ dynamic: true });
+	const targetUserAvatar = member.displayAvatarURL({ forceStatic: false });
 	const embed = new EmbedBuilder().setTimestamp();
 	const fields = [
 		{
 			name: 'Дата регистрации:',
-			value: `<t:${Math.floor(member.createdAt / 1000)}:R>`,
+			value: `<t:${Math.floor(member.user.createdTimestamp / 1000)}:R>`,
 			inline: true,
 		},
 		{
@@ -27,15 +27,15 @@ function run(interaction) {
 		},
 	];
 
-	if (member.flags.bitfield)
+	if (member.user.flags.bitfield)
 		fields.push({
 			name: 'Значки',
-			value: codeBlock(member.flags.toArray().toString()),
+			value: codeBlock(member.user.flags.toArray().toString()),
 		});
 
 	embed
-		.setTitle(member.bot ? 'Бот' : 'Пользователь')
-		.setAuthor({ name: member.tag, iconURL: targetUserAvatar })
+		.setTitle(member.user.bot ? 'Бот' : 'Пользователь')
+		.setAuthor({ name: member.user.tag, iconURL: targetUserAvatar })
 		.addFields(fields)
 		.setThumbnail(targetUserAvatar);
 

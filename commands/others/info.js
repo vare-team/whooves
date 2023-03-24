@@ -13,6 +13,7 @@ import {
 } from 'discord.js';
 import { respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
+import Guild from '../../models/guild.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');
@@ -25,16 +26,6 @@ export default new Command(
 		.setDescriptionLocalization('ru', 'информация о боте'),
 	run
 );
-
-export const help = {
-	name: 'info',
-	description: 'Информация о боте',
-};
-
-export const command = {
-	name: 'info',
-	description: 'Информация о боте',
-};
 
 export async function run(interaction) {
 	const client = interaction.client;
@@ -51,13 +42,14 @@ export async function run(interaction) {
 			.setEmoji('💬'),
 	]);
 
-	const devs = Object.keys(admins).map(async x => client.users.cache.get(x) || (await client.users.fetch(x)));
+	const devs = await Promise.all(admins.map(x => client.users.fetch(x)));
 
 	const fields = [
 		{
 			name: 'Статистика:',
 			value: codeBlock(
 				'c',
+				//TODO add statistics
 				`Пинг:             ${Math.round(client.ws.ping)} ms\nКоманд исполнено: ${0}\nИз них ошибок:    ${0}`
 			),
 			inline: true,
@@ -74,7 +66,7 @@ export async function run(interaction) {
 		},
 		{
 			name: 'Разработчики:',
-			value: devs.map(x => `${bold(x.tag)}\n`).join('\n'),
+			value: devs.map(x => `${bold(x.tag)}`).join('\n'),
 			inline: false,
 		},
 	];
@@ -84,24 +76,16 @@ export async function run(interaction) {
 	});
 
 	if (interaction.inGuild()) {
-		/*let data = await client.userLib.db
-			.promise()
-			.query('SELECT logchannel, settings FROM guilds WHERE guildId = ?', [interaction.guildId]);*/
+		const guild = await Guild.findByPk(interaction.guildId);
 
-		let data = await dataBase.query('SELECT logchannel, settings FROM guilds WHERE guildId = ?', [interaction.guildId]);
-
-		data = data[0][0];
-		fields.push([
-			{
-				name: 'Настройки:',
-				value:
-					`Канал логирования: ${data.logchannel ? `<#${data.logchannel}>` : emojis.error}` +
-					`Фильтр плохих слов: ${bold(isPresent(data.settings, settings.badwords))`Исправитель никнеймов: `}${bold(
-						isPresent(data.settings, settings.usernamechecker)
-					)}`,
-				inline: true,
-			},
-		]);
+		fields.push({
+			name: 'Настройки:',
+			value:
+				`Канал логирования: ${guild?.logchannel ? `<#${guild.logchannel}>` : emojis.error}\n` +
+				`Фильтр плохих слов: ${bold(isPresent(guild?.settings, settings.badwords))}\n` +
+				`Исправитель никнеймов: ${bold(isPresent(guild?.settings, settings.usernamechecker))}`,
+			inline: true,
+		});
 	}
 
 	embed.addFields(fields);

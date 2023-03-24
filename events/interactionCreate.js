@@ -10,12 +10,16 @@ const runners = commands.runners;
  * @return {Promise<void>}
  */
 export default async function (interaction) {
-	logger(generateUseLog(interaction), 'InteractionCreate');
+	logger(generateUseLog(interaction), 'core');
 
 	if (interaction.isAutocomplete()) return onAutocomplete(interaction);
 	if (!(interaction.isCommand() || interaction.isContextMenuCommand())) return;
 
-	const command = runners[interaction.commandName];
+	const command =
+		runners[interaction.commandName] ??
+		runners[interaction.options.getSubcommandGroup()] ??
+		runners[interaction.options.getSubcommand()];
 	if (!command) return;
-	await command(interaction).catch(e => logger(generateErrLog(interaction.commandName, interaction, e)));
+	await command(interaction);
+	// .catch(e => logger(generateErrLog(interaction.commandName, interaction, e)));
 }

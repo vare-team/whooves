@@ -124,8 +124,8 @@ async function userEmbed(embed, user) {
 
 	embed
 		.setTitle(user.bot ? 'Бот' : 'Пользователь')
-		.setAuthor(user.tag, user.displayAvatarURL({ dynamic: true }))
-		.setThumbnail(user.displayAvatarURL({ dynamic: true }));
+		.setAuthor(user.tag, user.displayAvatarURL({ forceStatic: false }))
+		.setThumbnail(user.displayAvatarURL({ forceStatic: false }));
 
 	if (user.flags.bitfield)
 		fields.push({

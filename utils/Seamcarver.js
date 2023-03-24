@@ -6,7 +6,7 @@ const BLUE = 2;
 const BORDER_ENERGY = 1000;
 
 /** Seam carver removes low energy seams in an image from HTML5 canvas. */
-export class Seamcarver {
+export default class Seamcarver {
 	/**
 	 *
 	 * Init seam carver
