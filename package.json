@@ -29,6 +29,7 @@
 		"eslint": "^8.35.0",
 		"eslint-config-prettier": "^8.7.0",
 		"eslint-plugin-prettier": "^4.2.1",
+		"find-unused-exports": "^5.0.0",
 		"nodemon": "^2.0.21",
 		"prettier": "^2.8.4"
 	},
@@ -41,7 +42,9 @@
 	"scripts": {
 		"start": "node .",
 		"debug": "nodemon .",
-		"lint": "eslint .",
-		"lint:fix": "eslint . --fix"
+		"lint": "npm run lint:js && npm run lint:unused-exports",
+		"lint:js": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"lint:unused-exports": "find-unused-exports"
 	}
 }

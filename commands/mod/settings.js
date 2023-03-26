@@ -52,6 +52,7 @@ const normalizeParametrs = {
 	autocorrector: 'Исправление никнеймов',
 };
 
+//TODO
 export async function run(interaction) {
 	const badWords = interaction.options.getBoolean('bad_words');
 	const autocorrector = interaction.options.getBoolean('autocorrector');

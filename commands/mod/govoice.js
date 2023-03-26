@@ -32,8 +32,8 @@ export default new Command(
 );
 
 export async function run(interaction) {
-	const newChannel = interaction.options.getChannel('to'),
-		oldChannel = interaction.options.getChannel('from') || interaction.member.voice.channel || null;
+	const newChannel = interaction.options.getChannel('to');
+	const oldChannel = interaction.options.getChannel('from') ?? interaction.member.voice.channel ?? null;
 
 	if (!oldChannel)
 		return respondError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');

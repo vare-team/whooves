@@ -1,8 +1,9 @@
 import { respondError, respondSuccess } from '../../utils/respond-messages.js';
-import { PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
 import { sendLogChannel } from '../../services/guild-log.js';
 import Command from '../../utils/Command.js';
+import Warn from '../../models/warn.js';
 
 const warnsCollection = {};
 const warnsClears = {};
@@ -40,27 +41,19 @@ export async function run(interaction) {
 	const user = interaction.options.getUser('user');
 	const id = interaction.options.getInteger('warn_id');
 
-	clearInterval(warnsClears[user.id]);
-	warnsClears[user.id] = setInterval(() => {
-		delete warnsCollection[user.id];
+	clearInterval(warnsClears[interaction.guildId]);
+	warnsClears[interaction.guildId] = setInterval(() => {
+		delete warnsCollection[interaction.guildId];
 	}, 15e3);
 
-	if (!user || !id) return;
+	const warn = await Warn.destroy({ where: { userId: user.id, warnId: id, guildId: interaction.guildId } });
 
-	//TODO: бдшка
-	const warn = await promise(client.userLib.db, client.userLib.db.delete, 'warns', {
-		userId: user.id,
-		guildId: interaction.guildId,
-		warnId: id,
-	});
-
-	if (!warn.res)
+	if (!warn)
 		return respondError(interaction, 'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.');
 
-	if (warn.res > 1) logger(generateErrLog('unwarn', interaction, 'Удаление варнов сломалось!'));
+	if (warn > 1) logger(generateErrLog('unwarn', interaction, 'Удаление варнов сломалось!'));
 
-	await respondSuccess(interaction, `С ${user} **снято предупреждение**.`);
-
+	await respondSuccess(interaction, new EmbedBuilder().setDescription(`С ${user} **снято предупреждение**.`));
 	await sendLogChannel('commandUse', interaction.guild, {
 		user: { tag: interaction.user.tag, id: interaction.user.id },
 		channel: { id: interaction.channelId },
@@ -74,21 +67,31 @@ export async function run(interaction) {
  * @return {Promise<void>}
  */
 async function autocomplete(interaction) {
-	let options = [{ name: '', value: '' }];
+	const target = interaction.options.getUser('user');
 
-	const target = interaction.command.options.getUser('user');
-	if (!target) return await interaction.respond(options);
-
-	//TODO: бдшка
-	let warns = warnsCollection[target];
+	let warns = warnsCollection[interaction.guildId];
+	if (target) warns = warns?.[target.id];
 	if (!warns) {
-		warns = db.getWarns(target);
-		warnsCollection[target] = warns;
+		const warnsInstances = await Warn.findAll({
+			attributes: ['id', 'userId'],
+			where: { ...(target && { userId: target.id }), guildId: interaction.guildId },
+		});
+
+		if (target) {
+			if (!warnsCollection[interaction.guildId]) warnsCollection[interaction.guildId] = {};
+			warnsCollection[interaction.guildId][target.id] = warnsInstances.map(w => w.id);
+		} else {
+			warnsCollection[interaction.guildId] = warnsInstances.reduce(
+				(a, w) => ({ ...a, [w.userId]: [...(a[w.userId] ?? []), w.id] }),
+				{}
+			);
+		}
+
+		warns = warnsCollection[interaction.guildId];
+		if (target) warns = warns[target.id];
 	}
 
-	options = warns.map(w => {
-		return { name: w, value: w };
-	});
-
-	await interaction.respond(options);
+	await interaction.respond(
+		(typeof warns === 'object' ? Object.values(warns).flat() : warns).map(w => ({ name: w, value: w }))
+	);
 }

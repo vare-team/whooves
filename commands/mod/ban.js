@@ -2,6 +2,7 @@ import { respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
 import Command from '../../utils/Command.js';
+import Warn from '../../models/warn.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -55,9 +56,9 @@ export default new Command(
 export async function run(interaction) {
 	const member = interaction.options.getMember('user');
 	const user = interaction.options.getUser('user');
-	const clearmsg = interaction.options.getBoolean('clear_seconds') || 0;
-	const reason = interaction.options.getString('причина') || 'Причина не указана';
-	const force = interaction.options.getString('force') || false;
+	const clearmsg = interaction.options.getBoolean('clear_seconds') ?? 0;
+	const reason = interaction.options.getString('причина') ?? 'Причина не указана';
+	const force = interaction.options.getString('force') ?? false;
 
 	if (member && !member.bannable)
 		return await respondError(
@@ -66,16 +67,17 @@ export async function run(interaction) {
 		);
 
 	if (!force) {
-		//TODO: бдшка
-		const warns = (
-			await promise(client.userLib.db, client.userLib.db.count, 'warns', {
-				userId: member.id,
-				guildId: interaction.guildId,
-			})
-		).res;
+		const warns = await Warn.count({ where: { userId: user.id, guildId: interaction.guildId } });
 
-		if (warns < 5)
-			return respondError(interaction, 'Для выдачи бана необходимо **5** варнов!\nИли используйте аргумент `force`.');
+		if (warns < 5) {
+			await respondError(interaction, 'Для выдачи бана необходимо **5** варнов!\nИли используйте аргумент `force`.');
+			return;
+		}
+	}
+
+	if (force && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+		await respondError(interaction, 'Аргумент ``-force`` доступен только администраторам!');
+		return;
 	}
 
 	await user
@@ -91,5 +93,5 @@ export async function run(interaction) {
 		deleteMessageSeconds: clearmsg,
 	});
 
-	await respondSuccess(interaction, new EmbedBuilder().setDescription(`${member} **был забанен!** ***||*** ${reason}`));
+	await respondSuccess(interaction, new EmbedBuilder().setDescription(`${user} **был забанен!** ***||*** ${reason}`));
 }

@@ -33,6 +33,7 @@ export default new Command(
 	run
 );
 
+//TODO
 export async function run(interaction) {
 	let count = interaction.options.getInteger('count');
 	const message = interaction.options.getString('message_id');
@@ -42,7 +43,7 @@ export async function run(interaction) {
 		return await respondError(interaction, 'Укажите кол-во сообщений или айди сообщения, для очистки');
 
 	if (message && !count) {
-		if (/([0-9]){18,19,20,21}/.test(message)) return await respondError(interaction, 'ID сообщения введено не верно!');
+		if (/([0-9]){18,21}/.test(message)) return await respondError(interaction, 'ID сообщения введено не верно!');
 
 		const currentMsg = await channel.messages.fetch(message).catch(() => 0);
 		if (!currentMsg || currentMsg.channel.id !== channel.id)

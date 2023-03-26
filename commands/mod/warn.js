@@ -2,6 +2,7 @@ import { bold, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'di
 import { respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
 import { sendLogChannel } from '../../services/guild-log.js';
+import Warn from '../../models/warn.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -25,7 +26,7 @@ export default new Command(
 				.setDescriptionLocalization('ru', 'причина варна')
 				.setMinLength(1)
 				.setMaxLength(300)
-				.setRequired(true)
+				.setRequired(false)
 		)
 		.setDMPermission(false)
 		.setDefaultMemberPermissions(PermissionsBitField.Flags.ModerateMembers),
@@ -33,32 +34,26 @@ export default new Command(
 );
 
 export async function run(interaction) {
-	const user = interaction.options.getString('user');
-	const reason = interaction.options.getString('reason') || 'Не указана';
+	const user = interaction.options.getUser('user');
+	const reason = interaction.options.getString('reason') ?? 'Не указана';
 
-	//TODO: бдшка
-	const warn = await promise(client.userLib.db, client.userLib.db.insert, 'warns', {
-			userId: user.id,
-			guildId: interaction.guildId,
-			who: interaction.user.id,
-			reason: reason,
-		}),
-		warnInfo = await promise(
-			client.userLib.db,
-			client.userLib.db.queryValue,
-			'SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?',
-			[user.id, interaction.guildId]
-		);
+	await interaction.deleteReply();
+	const warn = await Warn.create({
+		userId: user.id,
+		guildId: interaction.guildId,
+		whoId: interaction.user.id,
+		reason: reason === 'Не указана' ? null : reason,
+	});
+	const warnCount = await Warn.count({ where: { userId: user.id, guildId: interaction.guildId } });
 
 	const embed = new EmbedBuilder()
 		.setTitle(`${user.tag} выдано предупреждение!`)
 		.setDescription(
-			`Причина: ${bold(reason)}\nВсего предупреждений: ${bold(warnInfo.res)}\nID предупреждения: ${bold(warn.res)}`
+			`Причина: ${bold(reason)}\nВсего предупреждений: ${bold(warnCount)}\nID предупреждения: ${bold(warn.id)}`
 		)
 		.setTimestamp();
 
 	await respondSuccess(interaction, embed);
-
 	await sendLogChannel('commandUse', interaction.guild, {
 		user: { tag: interaction.user.tag, id: interaction.user.id },
 		channel: { id: interaction.channelId },

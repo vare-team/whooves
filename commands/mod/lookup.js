@@ -29,17 +29,20 @@ export default new Command(
 	run
 );
 
+//TODO
 export async function run(interaction) {
 	const client = interaction.client;
 	const id = interaction.options.getString('id');
 	const user = interaction.options.getUser('user');
-	const member = interaction.options.getMember('user') || interaction.options.getUser('user');
+	const member = interaction.options.getMember('user');
 	const embed = new EmbedBuilder().setTimestamp();
 
-	if (!member && !id) return respondError(interaction, 'Укажите пользователя или сервер.');
+	if (!user && !id) return respondError(interaction, 'Укажите пользователя или сервер.');
+	У;
 
-	if (member) await memberEmbed(await userEmbed(embed, user), member);
-	if (!member && id) {
+	if (user) await userEmbed(embed, user);
+	if (member) await memberEmbed(embed, member);
+	if (!user && id) {
 		const inviteData = Invite.InvitesPattern.exec(id);
 		let invite = null;
 		let guild = null;
@@ -50,9 +53,7 @@ export async function run(interaction) {
 			guild = await client.fetchGuildPreview(id).catch(() => 0);
 			await guildEmbed(embed, guild);
 		}
-		if (!guild && !invite) {
-			return respondError(interaction, 'Пользователя/Приглашения/Гильдии с таким ID не найдено.');
-		}
+		if (!guild && !invite) return respondError(interaction, 'Пользователя/Приглашения/Гильдии с таким ID не найдено.');
 	}
 
 	await respondSuccess(interaction, embed, true);
@@ -62,7 +63,7 @@ async function guildEmbed(embed, guild) {
 	embed
 		.setTitle('Публичная гильдия')
 		.setAuthor({ name: guild.name, iconURL: `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg?size=128` })
-		.addFields([
+		.addFields(
 			{
 				name: 'Кол-во участников:',
 				value: codeBlock(guild.approximateMemberCount),
@@ -76,8 +77,8 @@ async function guildEmbed(embed, guild) {
 			{
 				name: 'Опции:',
 				value: codeBlock(guild.features),
-			},
-		]);
+			}
+		);
 
 	return embed;
 }
@@ -85,11 +86,11 @@ async function guildEmbed(embed, guild) {
 async function inviteEmbed(embed, invite) {
 	embed
 		.setTitle('Приглашение')
-		.setAuthor(
-			invite.guild.name,
-			`https://cdn.discordapp.com/icons/${invite.guild.id}/${invite.guild.icon}.jpg?size=128`
-		)
-		.addFields([
+		.setAuthor({
+			name: invite.guild.name,
+			iconURL: `https://cdn.discordapp.com/icons/${invite.guild.id}/${invite.guild.icon}.jpg?size=128`,
+		})
+		.addFields(
 			{
 				name: 'ID гильдии:',
 				value: codeBlock(invite.guild.id),
@@ -107,8 +108,8 @@ async function inviteEmbed(embed, invite) {
 			{
 				name: 'Пригласивший:',
 				value: codeBlock(`${invite.inviter.tag} (ID: ${invite.inviterId})`),
-			},
-		]);
+			}
+		);
 
 	return embed;
 }
@@ -124,7 +125,7 @@ async function userEmbed(embed, user) {
 
 	embed
 		.setTitle(user.bot ? 'Бот' : 'Пользователь')
-		.setAuthor(user.tag, user.displayAvatarURL({ forceStatic: false }))
+		.setAuthor({ name: user.tag, iconURL: user.displayAvatarURL({ forceStatic: false }) })
 		.setThumbnail(user.displayAvatarURL({ forceStatic: false }));
 
 	if (user.flags.bitfield)
@@ -138,12 +139,10 @@ async function userEmbed(embed, user) {
 }
 
 async function memberEmbed(embed, member) {
-	embed.addFields([
-		{
-			name: 'Дата присоединения к этой гильдии:',
-			value: `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>`,
-			inline: true,
-		},
-	]);
+	embed.addFields({
+		name: 'Дата присоединения к этой гильдии:',
+		value: `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>`,
+		inline: true,
+	});
 	return embed;
 }

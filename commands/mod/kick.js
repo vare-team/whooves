@@ -30,6 +30,7 @@ export default new Command(
 	run
 );
 
+//TODO
 export async function run(interaction) {
 	const member = interaction.options.getMember('member');
 	const reason = interaction.options.getString('reason') || 'Причина не указана';

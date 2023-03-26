@@ -22,18 +22,16 @@ export default new Command(
 );
 
 export async function run(interaction) {
+	await interaction.deleteReply();
+
 	const user = interaction.options.getUser('user');
 	const ban = await interaction.guild.bans.resolve(user.id);
-
-	if (!user) return respondError(interaction, 'Пользователь не найден!');
 	if (!ban) return respondError(interaction, 'Пользователь не забанен!');
 
-	await interaction.guild.members
-		.unban(user)
-		.then(async () => {
-			await respondSuccess(interaction, new EmbedBuilder().setDescription(`\`${user.tag}\` **был разбанен!**`));
-		})
-		.catch(async () => {
-			await respondError(interaction, 'Не удалось разбанить!');
-		});
+	try {
+		await interaction.guild.members.unban(user);
+		return respondSuccess(interaction, new EmbedBuilder().setDescription(`\`${user.tag}\` **был разбанен!**`));
+	} catch (error) {
+		return respondError(interaction, 'Не удалось разбанить!');
+	}
 }

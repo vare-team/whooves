@@ -1,6 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
+import Warn from '../../models/warn.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -21,13 +22,10 @@ export default new Command(
 );
 
 export async function run(interaction) {
-	const user = interaction.options.getUser('user') || interaction.member || interaction.user;
+	const user = interaction.options.getUser('user') ?? interaction.user;
 
-	//TODO: бдшка
-	let warns = await client.userLib.db
-		.promise()
-		.query('SELECT * FROM warns WHERE userId = ? AND guildId = ?', [user.id, interaction.guildId]);
-	warns = warns[0];
+	await interaction.deferReply();
+	const warns = await Warn.findAll({ where: { userId: user.id, guildId: interaction.guildId } });
 
 	const embed = new EmbedBuilder()
 		.setAuthor({
@@ -39,7 +37,7 @@ export async function run(interaction) {
 
 	let descGenerator = `Количество предупреждений: **${warns.length}**\n\n`;
 	for (const warn of warns)
-		descGenerator += `(ID: **${warn.warnId}**); <@!${warn.who}>: ${warn.reason ?? 'Не указана'}\n`;
+		descGenerator += `(ID: **${warn.id}**); <@!${warn.whoId}>: ${warn.reason ?? 'Не указана'}\n`;
 	embed.setDescription(descGenerator);
 
 	await respondSuccess(interaction, embed, true);

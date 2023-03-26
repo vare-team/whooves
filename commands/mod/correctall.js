@@ -10,14 +10,13 @@ export default new Command(
 		.setNameLocalization('ru', 'корректировка')
 		.setDescriptionLocalization('ru', 'корректировка никнеймов')
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageNicknames),
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
 	run
 );
 
 export async function run(interaction) {
 	await interaction.deferReply();
 
-	//const members = await interaction.guild.members.fetch({ force: true });
 	const membersRaw = await interaction.guild.members.fetch();
 	const members = membersRaw
 		.filter(m => m.manageable && !isNicknameClear(m.displayName))
@@ -26,24 +25,21 @@ export async function run(interaction) {
 	const embed = new EmbedBuilder().setDescription('');
 	let counter = 0;
 
-	members.forEach(member => {
-		if (counter < 25) {
-			const name = member.displayName;
+	for (const member of members) {
+		const name = member.displayName;
+		const correctName = getClearNickname(name);
 
-			const correctName = getClearNickname(name);
-			member.edit({ nick: correctName }).then();
+		if (checkDescriptionRange(embed, name, correctName)) {
+			await member.edit({ nick: correctName });
+			embed.setDescription(
+				`${embed.description}${codeBlock((counter + 1).toString())}) ${name}#${member.user.discriminator} ${codeBlock(
+					'=>'
+				)} ${correctName}\n`
+			);
 
-			if (checkDescriptionRange(embed, name, correctName)) {
-				embed.setDescription(
-					`${embed.description}${codeBlock((counter + 1).toString())}) ${name}#${member.user.discriminator} ${codeBlock(
-						'=>'
-					)} ${correctName}\n`
-				);
-
-				counter++;
-			}
-		}
-	});
+			counter++;
+		} else break;
+	}
 
 	if (counter) {
 		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`).setDescription(embed.description);
@@ -62,6 +58,6 @@ export async function run(interaction) {
  * @return {boolean}
  */
 function checkDescriptionRange(embed, name, correctName) {
-	const description = embed.data.description ? embed.data.description : '';
+	const description = embed.data.description ?? '';
 	return description.length + name.length + correctName.length + 28 < 2000;
 }
