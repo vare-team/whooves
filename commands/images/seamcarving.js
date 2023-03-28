@@ -1,90 +1,79 @@
 import Seamcarver from '../../utils/Seamcarver.js';
+import { createCanvas, loadImage } from 'canvas';
+import Command from '../../utils/Command.js';
+import { AttachmentBuilder, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import colors from '../../configs/colors.js';
+import { getMemberOrUser, respondSuccess } from '../../utils/respond-messages.js';
 
-//TODO: Seamcarver
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('seamcarving')
+		.setDescription('Image compression without loss of useful data')
+		.setNameLocalization('ru', 'seamcarving')
+		.setDescriptionLocalization('ru', 'Сжатие изображения без потери полезных данных')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user whose avatar will be used')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь чья аватарка будет использована')
+				.setRequired(false)
+		)
+		.addAttachmentOption(option =>
+			option
+				.setName('attachment')
+				.setDescription('image to be used')
+				.setNameLocalization('ru', 'изображение')
+				.setDescriptionLocalization('ru', 'изображение которое будет использовано')
+				.setRequired(false)
+		),
+	run
+);
 
-export const help = {
-	name: 'seamcarving',
-	description: 'Сжатие изображения без потери полезных данных',
-};
+const config = { field: 'rgb' };
 
-export const command = {
-	name: help.name,
-	description: help.description,
-	options: [
-		{
-			name: 'пользователь',
-			description: 'пользователь',
-			type: 6,
-		},
-	],
-};
-
-export async function run(interaction) {
-	let use = interaction.options.getUser('пользователь') || interaction.user;
-	use = use.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
+async function run(interaction) {
+	const attachmentOption = interaction.options.getAttachment('attachment');
+	const user = getMemberOrUser(interaction);
+	const attachment = attachmentOption?.url ?? null;
+	const imageRaw = attachment ?? user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
 	await interaction.deferReply();
 
-	let currentSeam = [],
-		ava = await client.userLib.loadImage(use);
-	const canvas = client.userLib.createCanvas(ava.width, ava.height),
-		ctx = canvas.getContext('2d'),
-		config = { field: 'rgb' };
+	const ava = await loadImage(imageRaw);
+	const canvas = createCanvas(ava.width, ava.height);
+	const ctx = canvas.getContext('2d');
 	ctx.drawImage(ava, 0, 0, canvas.width, canvas.height);
 
 	let seamCarver = new Seamcarver(canvas);
-	seamCarver.reDrawImage(config);
-
-	function findSeam() {
-		currentSeam = seamCarver.findVerticalSeam();
-		return currentSeam;
-	}
-
-	function drawRotated(degrees) {
-		const hiddenCanvas = client.userLib.createCanvas(canvas.height, canvas.width),
-			hiddenCtx = hiddenCanvas.getContext('2d');
-
-		hiddenCtx.save();
-		hiddenCtx.translate(canvas.height / 2, canvas.width / 2);
-		hiddenCtx.rotate(-degrees * (Math.PI / 180));
-		hiddenCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-		hiddenCtx.restore();
-
-		canvas.width = hiddenCanvas.width;
-		canvas.height = hiddenCanvas.height;
-		ctx.drawImage(hiddenCanvas, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
-	}
-
-	function removeSeam() {
-		seamCarver.removeVerticalSeam(currentSeam);
-		seamCarver.reDrawImage(config);
-		currentSeam = [];
-	}
-
-	function doIterate() {
-		findSeam();
-		removeSeam();
-		seamCarver.reDrawImage(config);
-	}
-
-	for (let i = 0; i < ava.width / 3; i++) {
-		await doIterate();
-	}
-
-	drawRotated(90);
+	for (let i = 0; i < ava.width / 3; i++) await doIterate(seamCarver);
+	drawRotated(ctx, canvas, 90);
 
 	seamCarver = new Seamcarver(canvas);
+	for (let i = 0; i < ava.height / 3; i++) await doIterate(seamCarver);
+	drawRotated(ctx, canvas, -90);
 
-	for (let i = 0; i < ava.height / 3; i++) {
-		await doIterate();
-	}
+	const file = new AttachmentBuilder(canvas.toBuffer(), { name: 'img.jpg' });
+	const embed = new EmbedBuilder().setImage('attachment://img.jpg').setColor(colors.information);
+	await respondSuccess(interaction, embed, false, null, null, [file]);
+}
 
-	await drawRotated(-90);
+function drawRotated(ctx, canvas, degrees) {
+	const hiddenCanvas = createCanvas(canvas.height, canvas.width);
+	const hiddenCtx = hiddenCanvas.getContext('2d');
 
-	const file = new client.userLib.discord.MessageAttachment(canvas.toBuffer(), 'img.jpg');
-	const embed = new client.userLib.discord.MessageEmbed()
-		.setImage('attachment://img.jpg')
-		.setColor(client.userLib.colors.inf);
+	hiddenCtx.save();
+	hiddenCtx.translate(canvas.height / 2, canvas.width / 2);
+	hiddenCtx.rotate(-degrees * (Math.PI / 180));
+	hiddenCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+	hiddenCtx.restore();
 
-	interaction.editReply({ embeds: [embed], files: [file] });
+	canvas.width = hiddenCanvas.width;
+	canvas.height = hiddenCanvas.height;
+	ctx.drawImage(hiddenCanvas, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+}
+
+async function doIterate(seamCarver) {
+	seamCarver.removeVerticalSeam(seamCarver.findVerticalSeam());
+	seamCarver.reDrawImage(config);
 }

@@ -31,7 +31,7 @@ export default new Command(
 	run
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	const newChannel = interaction.options.getChannel('to');
 	const oldChannel = interaction.options.getChannel('from') ?? interaction.member.voice.channel ?? null;
 

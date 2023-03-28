@@ -5,27 +5,54 @@ const settingsList = {
 	nicknameAutoModeration: 0x2,
 };
 
+const normalizeParameters = {
+	chatAutoModeration: 'Фильтр плохих слов',
+	nicknameAutoModeration: 'Исправление никнеймов',
+};
+
 /**
  * @function
- * @param {string} guildId
- * @param {string} setNumber
+ * @param {string | Guild} guildId
+ * @param {string} name
  * @returns {Promise<boolean>}
  */
-export async function checkSettings(guildId, setNumber) {
-	const guild = await Guild.findByPk(guildId);
-	return !!(settingsList[setNumber] & guild?.settings);
+export async function checkSettings(guildId, name) {
+	const guild = guildId instanceof Guild ? guildId : await Guild.findByPk(guildId);
+	return !!(settingsList[name] & guild?.settings);
 }
 
 /**
  * @function
- * @param {string} guildId
- * @param {string} setNumber
- * @param {boolean} state
- * @returns {boolean}
+ * @param {Array} fields
+ * @param {Guild} guild
+ * @param {string} name
+ * @param {string|boolean} state
+ * @returns {Promise<number>}
  */
-export async function setSettings(guildId, setNumber, state) {
-	if ((await checkSettings(guildId, setNumber)) === state) return false;
+export async function getSetting(fields, guild, name, state) {
+	state = state === 'true';
+	const oldState = await checkSettings(guild, name);
+	fields.push({ name: normalizeParameters[name], value: getSettingText(oldState, state) });
+	if (oldState !== state) return getSettingValue(name, state);
+	return 0;
+}
 
-	await Guild.increment({ settings: (state ? 1 : -1) * settingsList[setNumber] }, { where: { id: guildId } });
-	return true;
+/**
+ * @function
+ * @param {string} name
+ * @param {boolean} state
+ * @returns {number}
+ */
+function getSettingValue(name, state) {
+	return (state ? 1 : -1) * settingsList[name];
+}
+
+/**
+ * @function
+ * @param {boolean} oldState
+ * @param {boolean} newState
+ * @returns {string}
+ */
+function getSettingText(oldState, newState) {
+	return oldState === newState ? 'Параметр уже находится в этом значении!' : newState ? 'включен' : 'выключен';
 }

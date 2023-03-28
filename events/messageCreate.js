@@ -24,6 +24,6 @@ export default async function (message) {
 		}
 	}
 
-	const user = await User.findOrCreate({ where: { id: message.author.id } });
+	const [user] = await User.findOrCreate({ where: { id: message.author.id } });
 	await user.increment({ xp: randomIntInc(1, 5) });
 }

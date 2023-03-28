@@ -1,9 +1,9 @@
 import { createCanvas, loadImage } from 'canvas';
-
 import { AttachmentBuilder, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { contrast, distort, greyscale, invert, sepia, glitch } from '../../utils/canvas-filters.js';
-import { respondSuccess } from '../../utils/respond-messages.js';
+import { contrast, distort, greyscale, invert, sepia, glitch, glitch_gif } from '../../utils/canvas-filters.js';
+import { getMemberOrUser, respondError, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
+import GifEncoder from 'gif-encoder';
 
 export default new Command(
 	new SlashCommandSubcommandBuilder()
@@ -23,7 +23,8 @@ export default new Command(
 					{ name: 'Sepia', name_localizations: { ru: 'Сепия' }, value: 'sepia' },
 					{ name: 'Higher contrast', name_localizations: { ru: 'Повышенный контраст' }, value: 'contrast' },
 					{ name: 'Distortion', name_localizations: { ru: 'Искажения' }, value: 'distortion' },
-					{ name: 'Glitch', name_localizations: { ru: 'Глитч' }, value: 'glitch' }
+					{ name: 'Glitch', name_localizations: { ru: 'Глитч' }, value: 'glitch' },
+					{ name: 'Glitch GIF', name_localizations: { ru: 'Глитч анимированная' }, value: 'glitch_gif' }
 				)
 				.setRequired(true)
 		)
@@ -49,16 +50,19 @@ export default new Command(
 async function run(interaction) {
 	const attachmentOption = interaction.options.getAttachment('attachment');
 	const filterOption = interaction.options.getString('filter');
-
-	const user = interaction.options.getUser('user') ?? interaction.member ?? interaction.user;
+	const user = getMemberOrUser(interaction);
 	const attachment = attachmentOption?.url ?? null;
 	const imageRaw = attachment ?? user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
 	await interaction.deferReply();
 
-	const image = await loadImage(imageRaw),
-		canvas = createCanvas(image.width, image.height),
-		ctx = canvas.getContext('2d');
+	let gif;
+	const image = await loadImage(imageRaw);
+	const canvas = createCanvas(image.width, image.height);
+	const ctx = canvas.getContext('2d');
+	if (filterOption === 'glitch_gif') {
+		gif = new GifEncoder(image.width, image.height, { highWaterMark: 8 * 1024 * 1024 });
+	}
 
 	ctx.drawImage(image, 0, 0, image.width, image.height);
 
@@ -79,13 +83,21 @@ async function run(interaction) {
 			distort(ctx, 0, 0, image.width, image.height);
 			break;
 		case 'glitch':
-			//TODO fix send error and success
-			await glitch(image, canvas, ctx, interaction);
+			try {
+				await glitch(ctx, canvas.toDataURL('image/jpeg'));
+			} catch (e) {
+				return respondError(
+					interaction,
+					'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.'
+				);
+			}
+			break;
+		case 'glitch_gif':
+			glitch_gif(ctx, gif, image);
 			break;
 	}
 
-	const file = new AttachmentBuilder(canvas.toBuffer(), { name: 'filter.jpeg' });
-	const embed = new EmbedBuilder().setImage('attachment://filter.jpeg');
-
+	const file = new AttachmentBuilder(gif?.read() ?? canvas.toBuffer(), { name: `filter.${gif ? 'gif' : 'jpeg'}` });
+	const embed = new EmbedBuilder().setImage(`attachment://filter.${gif ? 'gif' : 'jpeg'}`);
 	await respondSuccess(interaction, embed, false, null, null, [file]);
 }

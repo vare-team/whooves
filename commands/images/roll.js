@@ -1,9 +1,7 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-
 import { createCanvas, loadImage } from 'canvas';
-
 import GifEncoder from 'gif-encoder';
-import { respondSuccess } from '../../utils/respond-messages.js';
+import { getMemberOrUser, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
 
 export default new Command(
@@ -43,12 +41,12 @@ export default new Command(
 	run
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	const attachmentOption = interaction.options.getAttachment('attachment');
 	const direction = interaction.options.getString('direction') === 'right' ? 10 : -10;
-	const user = interaction.options.getUser('user') || interaction.member || interaction.user;
-	const attachment = attachmentOption ? attachmentOption.url : null;
-	const imageRaw = attachment || user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
+	const user = getMemberOrUser(interaction);
+	const attachment = attachmentOption?.url ?? null;
+	const imageRaw = attachment ?? user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
 	await interaction.deferReply();
 
@@ -83,6 +81,5 @@ export async function run(interaction) {
 
 	const file = new AttachmentBuilder(gif.read(), { name: 'img.gif' });
 	const embed = new EmbedBuilder().setImage('attachment://img.gif');
-
 	await respondSuccess(interaction, embed, false, null, null, [file]);
 }

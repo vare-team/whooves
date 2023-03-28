@@ -10,7 +10,6 @@ export default class Guild extends Model {
 				currency: { type: DataTypes.INTEGER.UNSIGNED, defaultValue: 0 },
 
 				logChannel: { type: DataTypes.STRING },
-				mutedRole: { type: DataTypes.STRING },
 			},
 			{
 				sequelize,

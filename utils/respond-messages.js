@@ -49,6 +49,15 @@ export async function respondSuccess(
 	else await interaction.reply(options);
 }
 
+export function getMemberOrUser(interaction) {
+	return (
+		interaction.options.getMember('user') ??
+		interaction.options.getUser('user') ??
+		interaction.member ??
+		interaction.user
+	);
+}
+
 /**
  * @function
  * @param {Array} array

@@ -27,7 +27,7 @@ export default new Command(
 	run
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	const client = interaction.client;
 	const components = new ActionRowBuilder().setComponents([
 		new ButtonBuilder()
@@ -43,7 +43,6 @@ export async function run(interaction) {
 	]);
 
 	const devs = await Promise.all(admins.map(x => client.users.fetch(x)));
-
 	const fields = [
 		{
 			name: 'Статистика:',
@@ -70,6 +69,7 @@ export async function run(interaction) {
 			inline: false,
 		},
 	];
+
 	const embed = new EmbedBuilder().setAuthor({
 		name: `${client.user.username} - информация о боте`,
 		iconURL: client.user.displayAvatarURL(),

@@ -1,13 +1,13 @@
 import corrector from '../configs/nickname-corrector-list.js';
 import randomIntInc from '../utils/random-int-inc.js';
 
-export const nicknameParts = {
+const nicknameParts = {
 	prefixes: ['A', 'Ex', 'Im', 'Il', 'In', 'Ret', 'Un', 'De', 'Int'],
 	root: ['bler', 'ses', 'wis', 'let', 'ger', 'mon', 'lot', 'far'],
 	suffixes: ['er', 'or', 'an', 'ian', 'ist', 'ant', 'ee', 'ess', 'ent', 'ity', 'ance', 'ion', 'dom', 'th'],
 };
-export const nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
-export const nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё .|-]/g;
+const nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
+const nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё .|-]/g;
 
 /**
  * @function
@@ -24,7 +24,7 @@ export function getClearNickname(nickname) {
 		else corrected += nickname[char];
 	}
 
-	return corrected.replace(this.nicknameReplacerFirst, '').replace(this.nicknameReplacer, '') || getRandomNickname();
+	return corrected.replace(nicknameReplacerFirst, '').replace(nicknameReplacer, '') || getRandomNickname();
 }
 
 /**
@@ -33,14 +33,14 @@ export function getClearNickname(nickname) {
  * @returns {boolean}
  */
 export function isNicknameClear(nickname) {
-	return !(this.nicknameReplacerFirst.test(nickname) || this.nicknameReplacer.test(nickname));
+	return !(nicknameReplacerFirst.test(nickname) || nicknameReplacer.test(nickname));
 }
 
 /**
  * @function
  * @returns {string}
  */
-export function getRandomNickname() {
+function getRandomNickname() {
 	return (
 		nicknameParts.prefixes[randomIntInc(0, nicknameParts.prefixes.length - 1)] +
 		nicknameParts.root[randomIntInc(0, nicknameParts.root.length - 1)] +

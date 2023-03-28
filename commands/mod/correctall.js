@@ -14,7 +14,7 @@ export default new Command(
 	run
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	await interaction.deferReply();
 
 	const membersRaw = await interaction.guild.members.fetch();

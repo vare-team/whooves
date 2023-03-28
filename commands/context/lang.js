@@ -13,7 +13,7 @@ export default new Command(
 
 function run(interaction) {
 	const message = interaction.targetMessage;
-	if (message.content.length < 1)
+	if (!message.content.length)
 		return respondError(interaction, 'Для использования этой команды сообщение должно содержать текст!');
 
 	let rus = 0,

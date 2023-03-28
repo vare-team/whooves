@@ -1,8 +1,9 @@
 import commands from '../commands/index.js';
 import logger, { generateErrLog, generateUseLog } from '../utils/logger.js';
-import onAutocomplete from './onAutocomplete.js';
 
 const runners = commands.runners;
+const autocompletes = commands.autocompletes;
+const components = commands.components;
 
 /**
  *
@@ -10,16 +11,13 @@ const runners = commands.runners;
  * @return {Promise<void>}
  */
 export default async function (interaction) {
-	logger(generateUseLog(interaction), 'core');
+	if (interaction.isAutocomplete()) return commands.execute(interaction, autocompletes);
 
-	if (interaction.isAutocomplete()) return onAutocomplete(interaction);
+	logger(generateUseLog(interaction), 'core');
+	if (interaction.isMessageComponent()) return commands.execute(interaction, components);
 	if (!(interaction.isCommand() || interaction.isContextMenuCommand())) return;
 
-	const command =
-		runners[interaction.commandName] ??
-		runners[interaction.options.getSubcommandGroup()] ??
-		runners[interaction.options.getSubcommand()];
-	if (!command) return;
-	await command(interaction);
-	// .catch(e => logger(generateErrLog(interaction.commandName, interaction, e)));
+	if (process.env.NODE_ENV === 'production')
+		commands.execute(interaction, runners).catch(e => logger(generateErrLog(interaction.commandName, interaction, e)));
+	else commands.execute(interaction, runners);
 }

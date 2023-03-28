@@ -3,9 +3,10 @@ import petpet from './petpet.js';
 import roll from './roll.js';
 import { SlashCommandBuilder } from 'discord.js';
 import Commands from '../../utils/Commands.js';
+import seamcarving from './seamcarving.js';
 
 export default function () {
-	const commands = [filter, petpet, roll];
+	const commands = [filter, petpet, roll, seamcarving];
 
 	return new Commands(
 		[

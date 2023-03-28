@@ -21,7 +21,7 @@ export default new Command(
 	run
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	await interaction.deleteReply();
 
 	const user = interaction.options.getUser('user');

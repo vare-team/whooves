@@ -1,8 +1,9 @@
-import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
 import { ChannelType, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import { sendLogChannel } from '../../services/guild-log.js';
 import Command from '../../utils/Command.js';
-import { setSettings } from '../../utils/settings-сontroller.js';
+import { getSetting } from '../../utils/settings-сontroller.js';
+import Guild from '../../models/guild.js';
 
 const states = [
 	{ name: 'On', name_localizations: { ru: 'Вкл' }, value: 'true' },
@@ -18,9 +19,9 @@ export default new Command(
 		.addChannelOption(option =>
 			option
 				.setName('logs')
-				.setDescription('channel for logs')
+				.setDescription('channel for logs (send current for off)')
 				.setNameLocalization('ru', 'логи')
-				.setDescriptionLocalization('ru', 'канал для логов')
+				.setDescriptionLocalization('ru', 'канал для логов (указать текущий для отключения)')
 				.addChannelTypes(ChannelType.GuildText)
 				.setRequired(false)
 		)
@@ -47,58 +48,38 @@ export default new Command(
 	run
 );
 
-const normalizeParametrs = {
-	bad_words: 'Фильтр плохих слов',
-	autocorrector: 'Исправление никнеймов',
-};
-
-//TODO
-export async function run(interaction) {
-	const badWords = interaction.options.getBoolean('bad_words');
-	const autocorrector = interaction.options.getBoolean('autocorrector');
+async function run(interaction) {
+	const badWords = interaction.options.getString('bad_words');
+	const autocorrector = interaction.options.getString('autocorrector');
 	const logs = interaction.options.getChannel('logs');
-	const embed = new EmbedBuilder();
+	const embed = new EmbedBuilder().setTitle('🔧 Настройки');
 	const fields = [];
 
-	if (badWords) {
-		const [name, value] = await changeState('bad_words', badWords, interaction);
-		if (!name && !value) return;
+	const guild = await Guild.findByPk(interaction.guildId);
+	const settings = { id: interaction.guildId, settings: guild?.settings ?? 0, logChannel: guild?.logChannel ?? null };
 
-		fields.push({ name: name, value: value });
+	if (badWords !== null) settings.settings += await getSetting(fields, guild, 'chatAutoModeration', badWords);
+	if (autocorrector !== null)
+		settings.settings += await getSetting(fields, guild, 'nicknameAutoModeration', autocorrector);
+
+	if (logs !== null) {
+		const isCurrent = logs.id === guild?.logChannel;
+		settings.logChannel = isCurrent ? null : logs.id;
+
+		if (isCurrent) {
+			await sendLogChannel('commandUse', interaction.guild, {
+				user: { tag: interaction.user.tag, id: interaction.user.id },
+				channel: { id: interaction.channel.id },
+				content: 'отключение лог-канала',
+			});
+		}
+
+		fields.push({
+			name: 'Лог канал',
+			value: isCurrent ? `**отключен**!` : `<#${logs.id}> **установлен как канал для логов!**`,
+		});
 	}
 
-	if (autocorrector) {
-		const [name, value] = await changeState('autocorrector', autocorrector, interaction);
-		if (!name && !value) return;
-
-		fields.push({ name: name, value: value });
-	}
-
-	if (!logs) return respondSuccess(interaction, embed.addFields(fields));
-	await sendLogChannel('commandUse', interaction.guild, {
-		user: { tag: interaction.user.tag, id: interaction.user.id },
-		channel: { id: interaction.channel.id },
-		content: 'отключение лог-канала',
-	});
-
-	//TODO: бдшка
-	//TODO: если сервака нет в бд, то над бы закинуть туда пустой
-	//TODO: currentChannel - над бы взять из бд, какой сейчас установлен
-	const state = logs.id !== currentChannel;
-	client.userLib.db.update(`guilds`, { guildId: interaction.guildId, logchannel: state ? logs.id : null }, () => {});
-	fields.push({
-		name: 'Лог канал',
-		value: !state ? `**отключен**!` : `<#${logs.id}> **установлен как канал для логов!**`,
-	});
-
+	await Guild.upsert(settings);
 	return respondSuccess(interaction, embed.addFields(fields));
-}
-
-async function changeState(parameter, state, interaction) {
-	//TODO: бдшка
-	if (!(await setSettings(interaction.guildId, parameter, state))) {
-		await respondError(interaction, 'Параметр уже находится в этом значении!');
-		return [null, null];
-	}
-	return [normalizeParametrs[parameter], state ? 'включен' : 'выключен'];
 }

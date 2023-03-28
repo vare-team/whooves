@@ -1,5 +1,3 @@
-import { decrypt } from './cryptor.js';
-
 /**
  * @function
  * @param {string} log
@@ -15,9 +13,11 @@ export default function (log = 'Clap one hand', emitter = 'unknown', type = 'Log
 			-2
 		)}`} | Shard[${discordClient?.shard.ids[0] ?? shardId}] | {${emitter.toUpperCase()}} : ${log}`;
 
+	/* eslint-disable */
 	if (type === 'Error') return console.error(text);
 	if (type === 'Warning') return console.warn(text);
 	console.log(text);
+	/* eslint-enable */
 }
 
 /**
@@ -29,15 +29,15 @@ export function generateUseLog(interaction) {
 	if (interaction.isCommand()) {
 		return `Use: ${interaction.commandName}, By: @${interaction.user.username}#${interaction.user.discriminator}(${
 			interaction.user.id
-		}), ${interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'} => #${interaction.channelId}`;
+		}), ${interaction.guildId ? `Guild ID: ${interaction.guildId}` : 'DM'} => #${interaction.channelId}`;
 	}
 
 	if (interaction.isMessageComponent()) {
-		return `Interaction: ${interaction.commandName}, By: @${interaction.user.username}#${
+		return `Interaction: ${interaction.message.interaction.commandName}, By: @${interaction.user.username}#${
 			interaction.user.discriminator
-		}(${interaction.user.id}), ${interaction.guildId !== undefined ? `Guild ID: ${interaction.guildId}` : 'DM'} => ${
+		}(${interaction.user.id}), ${interaction.guildId ? `Guild ID: ${interaction.guildId}` : 'DM'} => ${
 			interaction.channelId
-		}, custom_id: "${interaction['customId']}"(${decrypt(interaction['customId'])})`;
+		}, custom_id: "${interaction.customId}"`;
 	}
 }
 

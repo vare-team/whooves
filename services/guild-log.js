@@ -21,8 +21,8 @@ import Guild from '../models/guild.js';
  */
 export async function sendLogChannel(type, guildDiscord, data) {
 	const guild = await Guild.findByPk(guildDiscord.id);
-	if (!guild.logChannel) return;
-	const channel = guildDiscord.channels.fetch(guild.logChannel);
+	if (!guild?.logChannel) return;
+	const channel = await guildDiscord.channels.fetch(guild.logChannel);
 
 	if (!channel || !channel.permissionsFor(discordClient.user).has('SEND_MESSAGES')) {
 		await guild.update({ logChannel: null });
@@ -79,5 +79,6 @@ export async function sendLogChannel(type, guildDiscord, data) {
 			text += `Страшно. Очень страшно. Мы не знаем что это такое. Если бы мы знали что это такое, но мы не знаем что это такое.;`;
 	}
 
+	// eslint-disable-next-line
 	channel.send(text).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
 }

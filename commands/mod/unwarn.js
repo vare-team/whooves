@@ -37,7 +37,7 @@ export default new Command(
 	autocomplete
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	const user = interaction.options.getUser('user');
 	const id = interaction.options.getInteger('warn_id');
 

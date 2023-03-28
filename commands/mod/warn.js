@@ -33,7 +33,7 @@ export default new Command(
 	run
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	const user = interaction.options.getUser('user');
 	const reason = interaction.options.getString('reason') ?? 'Не указана';
 

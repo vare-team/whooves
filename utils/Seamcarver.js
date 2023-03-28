@@ -11,7 +11,7 @@ export default class Seamcarver {
 	 *
 	 * Init seam carver
 	 *
-	 * @param {HTMLCanvasElement} canvas canvas with image on it.
+	 * @param {Canvas} canvas canvas with image on it.
 	 *
 	 */
 	constructor(canvas) {
@@ -102,7 +102,6 @@ export default class Seamcarver {
 
 		const p = this.picture; // Just to make it more readable ...
 
-		// TODO: Could include self in this calculation
 		const score = Math.sqrt(
 			(p[pos_xpost + RED] - p[pos_xant + RED]) * (p[pos_xpost + RED] - p[pos_xant + RED]) +
 				(p[pos_xpost + GREEN] - p[pos_xant + GREEN]) * (p[pos_xpost + GREEN] - p[pos_xant + GREEN]) +
@@ -423,6 +422,7 @@ export default class Seamcarver {
 	 * Prints one of the values of the energy_matrix. Useful for debugging.
 	 */
 	printMatrix(field) {
+		// eslint-disable-next-line
 		console.log(this.toString(field));
 	}
 

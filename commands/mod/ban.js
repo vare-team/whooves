@@ -53,12 +53,12 @@ export default new Command(
 	run
 );
 
-export async function run(interaction) {
+async function run(interaction) {
 	const member = interaction.options.getMember('user');
 	const user = interaction.options.getUser('user');
 	const clearmsg = interaction.options.getBoolean('clear_seconds') ?? 0;
 	const reason = interaction.options.getString('причина') ?? 'Причина не указана';
-	const force = interaction.options.getString('force') ?? false;
+	const force = interaction.options.getString('force') === 'true';
 
 	if (member && !member.bannable)
 		return await respondError(

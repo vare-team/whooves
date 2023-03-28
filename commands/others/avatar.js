@@ -1,5 +1,5 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { respondSuccess } from '../../utils/respond-messages.js';
+import { getMemberOrUser, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
 
 export default new Command(
@@ -20,13 +20,13 @@ export default new Command(
 );
 
 async function run(interaction) {
-	const user = interaction.options.getMember('user') || interaction.options.getUser('user') || interaction.user;
+	const member = getMemberOrUser(interaction);
 
 	const embed = new EmbedBuilder()
-		.setDescription(`Аватар ${user}`)
-		.setImage(user.displayAvatarURL({ forceStatic: false, size: 2048 }))
+		.setDescription(`Аватар ${member}`)
+		.setImage(member.displayAvatarURL({ forceStatic: false, size: 2048 }))
 		.setTimestamp();
 
-	if (user.avatar && user.avatar.startsWith('a_')) embed.setFooter({ text: 'GIF' });
+	if (member.avatar?.startsWith('a_') || member.user.avatar?.startsWith('a_')) embed.setFooter({ text: 'GIF' });
 	await respondSuccess(interaction, embed);
 }

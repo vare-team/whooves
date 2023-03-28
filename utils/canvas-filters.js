@@ -1,5 +1,5 @@
+import { Image } from 'canvas';
 import randomIntInc from '../utils/random-int-inc.js';
-import { respondError } from './respond-messages.js';
 
 export function greyscale(ctx, x, y, width, height) {
 	const data = ctx.getImageData(x, y, width, height);
@@ -68,17 +68,71 @@ export function distort(ctx, x = 0, y = 0, width = 0, height = 0, amplitude = 60
 	return ctx;
 }
 
-export function glitch(ava, canvas, ctx, interaction) {
-	ava.src = canvas.toDataURL('image/jpeg');
-	for (let i = 0; i < 5; i++) ava.src = replaceAt(ava.src, randomIntInc(50, ava.src.length - 50), '0');
-	try {
-		ctx.drawImage(ava, 0, 0);
-	} catch (e) {
-		return respondError(
-			interaction,
-			'При компиляции файл был повреждён слишком сильно.\nПопробуйте снова через время.'
+export function glitch_gif(ctx, gif, image) {
+	const width = image.width;
+	const height = image.height;
+
+	gif.setFrameRate(24);
+	gif.setQuality(30);
+	gif.setRepeat(0);
+	gif.setTransparent(0x000000);
+
+	gif.writeHeader();
+
+	for (let frame = 1; frame < 37; frame++) {
+		ctx.drawImage(
+			image,
+			randomIntInc(-15, 15),
+			randomIntInc(-15, 15),
+			randomIntInc(width - width / 1.8, width + width * 1.3),
+			randomIntInc(height - height / 1.8, height + height * 1.3)
 		);
+
+		let glitch = ctx.getImageData(
+			randomIntInc(1, width - 1),
+			randomIntInc(1, height - 1),
+			randomIntInc(1, width - 1),
+			randomIntInc(1, height - 1)
+		);
+		for (let i = 0; i < glitch.data.length; i += 4) {
+			glitch.data[i] = 255 - glitch.data[i];
+			glitch.data[i + 1] = 255 - glitch.data[i + 1];
+			glitch.data[i + 2] = 255 - glitch.data[i + 2];
+		}
+		ctx.putImageData(glitch, randomIntInc(1, width - width / 1.5), randomIntInc(1, height - height / 1.6));
+
+		glitch = ctx.getImageData(
+			randomIntInc(1, width - 1),
+			randomIntInc(1, height - 1),
+			randomIntInc(1, width - 1),
+			randomIntInc(1, height - 1)
+		);
+		for (let i = 0; i < glitch.data.length; i += 4) {
+			glitch.data[i] = glitch.data[i] * 3.59 + -331.52;
+			glitch.data[i + 1] = glitch.data[i + 1] * 3.59 + -331.52;
+			glitch.data[i + 2] = glitch.data[i + 2] * 3.59 + -331.52;
+		}
+		ctx.putImageData(glitch, randomIntInc(1, width - width / 1.4), randomIntInc(1, height - height / 1.8));
+
+		glitch = ctx.getImageData(
+			randomIntInc(1, width - 1),
+			randomIntInc(1, height - 1),
+			randomIntInc(1, width - 1),
+			randomIntInc(1, height - 1)
+		);
+		ctx.putImageData(glitch, randomIntInc(1, width - width / 1.3), randomIntInc(1, height - height / 2));
+
+		gif.addFrame(ctx.getImageData(0, 0, width, height).data);
 	}
+
+	gif.finish();
+}
+
+export function glitch(ctx, image) {
+	const ava = new Image();
+	ava.src = image;
+	for (let i = 0; i < 5; i++) ava.src = replaceAt(ava.src, randomIntInc(50, ava.src.length - 50), '0');
+	ctx.drawImage(ava, 0, 0);
 }
 
 function replaceAt(str, index, replacement) {

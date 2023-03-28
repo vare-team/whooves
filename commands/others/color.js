@@ -24,14 +24,12 @@ export default new Command(
 
 async function run(interaction) {
 	const colorRaw = interaction.options.getString('color').match(/(#|)[0-9A-Fa-f]{6}/g);
-
 	if (colorRaw === null) return respondError(interaction, 'Вы указали некорректный цвет!');
 
 	const color = colorRaw[0].replace('#', '');
-
-	const rgb = hexToRgb(color),
-		cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b),
-		hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+	const rgb = hexToRgb(color);
+	const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
+	const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
 	const embed = new EmbedBuilder()
 		.setColor(`#${color}`)

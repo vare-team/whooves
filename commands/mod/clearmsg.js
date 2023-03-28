@@ -8,41 +8,51 @@ export default new Command(
 		.setDescription('clear messages')
 		.setNameLocalization('ru', 'очистка')
 		.setDescriptionLocalization('ru', 'очищает сообщения')
-		.addIntegerOption(option =>
-			option
+		.addSubcommand(command =>
+			command
 				.setName('count')
 				.setDescription('message count to clear')
 				.setNameLocalization('ru', 'количество')
 				.setDescriptionLocalization('ru', 'кол-во сообщений для очистки')
-				.setMinValue(1)
-				.setMaxValue(100)
-				.setRequired(false)
+				.addIntegerOption(option =>
+					option
+						.setName('count')
+						.setDescription('message count to clear')
+						.setNameLocalization('ru', 'количество')
+						.setDescriptionLocalization('ru', 'кол-во сообщений для очистки')
+						.setMinValue(1)
+						.setMaxValue(100)
+						.setRequired(true)
+				)
 		)
-		.addStringOption(option =>
-			option
+		.addSubcommand(command =>
+			command
 				.setName('message_id')
 				.setDescription('message id, after which you need to clear the chat')
 				.setNameLocalization('ru', 'айди_сообщения')
 				.setDescriptionLocalization('ru', 'айди сообщения до которого нужно очистить чат')
-				.setMinLength(18)
-				.setMinLength(21)
-				.setRequired(false)
+				.addStringOption(option =>
+					option
+						.setName('message_id')
+						.setDescription('message id, after which you need to clear the chat')
+						.setNameLocalization('ru', 'айди_сообщения')
+						.setDescriptionLocalization('ru', 'айди сообщения до которого нужно очистить чат')
+						.setMinLength(18)
+						.setMinLength(21)
+						.setRequired(true)
+				)
 		)
 		.setDMPermission(false)
 		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 	run
 );
 
-//TODO
-export async function run(interaction) {
+async function run(interaction) {
 	let count = interaction.options.getInteger('count');
 	const message = interaction.options.getString('message_id');
 	const channel = interaction.channel;
 
-	if (!count && !message)
-		return await respondError(interaction, 'Укажите кол-во сообщений или айди сообщения, для очистки');
-
-	if (message && !count) {
+	if (message) {
 		if (/([0-9]){18,21}/.test(message)) return await respondError(interaction, 'ID сообщения введено не верно!');
 
 		const currentMsg = await channel.messages.fetch(message).catch(() => 0);
@@ -53,7 +63,6 @@ export async function run(interaction) {
 	}
 
 	const dmsg = await channel.bulkDelete(count, true);
-
 	const embed = new EmbedBuilder()
 		.setTitle('Удаление сообщений')
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)

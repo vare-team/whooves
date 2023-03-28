@@ -11,9 +11,8 @@ export default new Command(
 );
 
 function run(interaction) {
-	const member = interaction.targetMember ?? interaction.targetUser;
+	const member = interaction.targetMember;
 	const targetUserAvatar = member.displayAvatarURL({ forceStatic: false });
-	const embed = new EmbedBuilder().setTimestamp();
 	const fields = [
 		{
 			name: 'Дата регистрации:',
@@ -33,7 +32,8 @@ function run(interaction) {
 			value: codeBlock(member.user.flags.toArray().toString()),
 		});
 
-	embed
+	const embed = new EmbedBuilder()
+		.setTimestamp()
 		.setTitle(member.user.bot ? 'Бот' : 'Пользователь')
 		.setAuthor({ name: member.user.tag, iconURL: targetUserAvatar })
 		.addFields(fields)

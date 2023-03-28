@@ -1,4 +1,4 @@
-import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import randomIntInc from '../../utils/random-int-inc.js';
 import Command from '../../utils/Command.js';
@@ -53,13 +53,9 @@ const questions = {
 	'когда v3?': 'Завтра',
 };
 
-export async function run(interaction) {
+async function run(interaction) {
 	const question = interaction.options.getString('question');
-	if (question.trim().length < 2)
-		return respondError(interaction, `Количество символов в вопросе должно быть не менее 2х !`);
-
-	const embed = new EmbedBuilder().setTitle('Магический шар');
-	embed.addFields([
+	const embed = new EmbedBuilder().setTitle('Магический шар').addFields([
 		{ name: 'Твой вопрос', value: codeBlock(question) },
 		{
 			name: 'Ответ шара',

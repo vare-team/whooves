@@ -11,8 +11,10 @@ import { initializeDbModels } from './utils/db.js';
 		await initializeDbModels();
 	} catch (e) {
 		if (process.env.NODE_ENV !== 'test') {
+			/* eslint-disable */
 			console.log(e);
 			console.log('COULD NOT CONNECT TO THE DB, retrying in 5 seconds');
+			/* eslint-enable */
 		}
 		setTimeout(initDb, 5000);
 	}
