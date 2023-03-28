@@ -28,7 +28,7 @@ const client = new Client({
 		GatewayIntentBits.GuildBans,
 		GatewayIntentBits.GuildVoiceStates,
 		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent,
+		// GatewayIntentBits.MessageContent,
 	],
 });
 

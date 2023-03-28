@@ -5,6 +5,10 @@ export default class Warn extends Model {
 		Warn.init(
 			{
 				reason: { type: DataTypes.TEXT },
+
+				userId: { type: DataTypes.STRING },
+				guildId: { type: DataTypes.STRING },
+				whoId: { type: DataTypes.STRING },
 			},
 			{
 				sequelize,
