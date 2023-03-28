@@ -1,7 +1,8 @@
-import { codeBlock, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { codeBlock, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
-import { emoji, permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { emoji, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
+import checkPermissions from '../../utils/checkPermissions.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -10,19 +11,13 @@ export default new Command(
 		.setNameLocalization('ru', 'корректировка')
 		.setDescriptionLocalization('ru', 'корректировка никнеймов')
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 	run
 );
 
 async function run(interaction) {
-	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-		return respondError(
-			interaction,
-			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
-				['MANAGE_NICKNAMES']
-			)}`
-		);
-	}
+	const check = checkPermissions(interaction, PermissionFlagsBits.ManageNicknames);
+	if (check) return check;
 
 	await interaction.deferReply();
 
