@@ -1,53 +1,95 @@
-exports.help = {
-	name: 'kick',
-	description: 'Кикнуть участника.',
-	aliases: ['kc'],
-	usage: [
-		{ type: 'user', opt: 0 },
-		{ type: 'text', opt: 1, name: 'причина' },
-		{ type: 'text', opt: 1, name: '-force' },
-	],
-	dm: 0,
-	tier: -1,
-	cooldown: 5,
-};
+import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { bold, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { generateErrLog } from '../../utils/logger.js';
+import Command from '../../utils/Command.js';
+import Warn from '../../models/warn.js';
 
-exports.run = async (client, msg, args) => {
-	if (!msg.magicMention.kickable) {
-		client.userLib.retError(msg, 'Я не могу кикнуть этого участника!\nЕго защитная магия превосходит мои умения!');
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('kick')
+		.setDescription('kick member')
+		.setNameLocalization('ru', 'кик')
+		.setDescriptionLocalization('ru', 'кикает участника')
+		.addUserOption(option =>
+			option
+				.setName('member')
+				.setDescription('member to kick')
+				.setNameLocalization('ru', 'участник')
+				.setDescriptionLocalization('ru', 'участник которого нужно кикнуть')
+				.setRequired(true)
+		)
+		.addStringOption(option =>
+			option
+				.setName('reason')
+				.setDescription('reason to kick')
+				.setNameLocalization('ru', 'причина')
+				.setDescriptionLocalization('ru', 'причина для кика')
+				.setRequired(false)
+		)
+		.addStringOption(option =>
+			option
+				.setName('force')
+				.setDescription('force ban ignore warns count')
+				.setNameLocalization('ru', 'принудительно')
+				.setDescriptionLocalization('ru', 'принудительный бан игнорируя кол-во варнов')
+				.setChoices(
+					{ name: 'True', name_localizations: { ru: 'Да' }, value: 'true' },
+					{ name: 'False', name_localizations: { ru: 'Нет' }, value: 'false' }
+				)
+				.setRequired(false)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+	run
+);
+
+async function run(interaction) {
+	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+		return respondError(
+			interaction,
+			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
+				['KICK_MEMBERS']
+			)}`
+		);
+	}
+
+	const member = interaction.options.getMember('member');
+	const reason = interaction.options.getString('reason') || 'Причина не указана';
+	const force = interaction.options.getString('force') === 'true';
+
+	if (!member?.kickable)
+		return respondError(interaction, 'Я не могу кикнуть этого участника!\nЕго защитная магия превосходит мои умения!');
+
+	if (!force) {
+		const warns = await Warn.count({ where: { userId: member.id, guildId: interaction.guildId } });
+
+		if (warns < 3)
+			return await respondError(
+				interaction,
+				'Чтоб выгнать участника необходимо **3** предупреждения!\nИли используйте аргумент `force`.'
+			);
+	}
+
+	if (force && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+		await respondError(interaction, 'Аргумент ``-force`` доступен только администраторам!');
 		return;
 	}
 
-	let force = args.indexOf('-force');
-	if (force != -1) args.splice(force, 1);
+	await interaction.deferReply();
+	await member
+		.send(
+			`Вы были кикнуты с сервера ${bold(interaction.guild.name)}, модератором ${bold(
+				interaction.user.tag
+			)}, по причине: ${reason}`
+		)
+		.catch(() =>
+			generateErrLog(
+				'kick',
+				interaction,
+				`DM Send catch! Guild ${interaction.guild.name} (ID:${interaction.guildId}), @${member.tag} (ID:${member.id})`
+			)
+		);
 
-	if (force != -1 && !client.userLib.checkPerm(-2, { ownerID: msg.guild.ownerID, member: msg.member })) {
-		client.userLib.retError(msg, 'Аргумент ``-force`` доступен только администраторам!');
-		return;
-	}
-
-	let warns = await client.userLib.promise(client.userLib.db, client.userLib.db.count, 'warns', {
-		userId: msg.magicMention.id,
-		guildId: msg.guild.id,
-	});
-	warns = warns.res;
-
-	if (warns < 3 && force == -1) {
-		client.userLib.retError(msg, 'Для выдачи кика необходимо 3 варнов!\nИспользуй аргумент ``-force`` для кика.');
-		return;
-	}
-
-	let reason = args.slice(1).join(' ') || 'Причина не указана';
-
-	await msg.magicMention.user.send(
-		`Вы были кикнуты с сервера \`\`${msg.guild.name}\`\`, модератором \`\`${msg.author.tag}\`\`, по причине: ${reason}`
-	);
-	msg.magicMention.kick(reason);
-
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
-		.setDescription(`${msg.magicMention} был кикнут!\nПричина: ${reason}`)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-	msg.channel.send(embed);
-};
+	await member.kick(`${interaction.user.tag}: ${reason}`);
+	await respondSuccess(interaction, new EmbedBuilder().setDescription(`${member} **был кикнут!** ***||*** ${reason}`));
+}

@@ -1,178 +1,132 @@
-exports.help = {
-	name: 'man',
-	description: 'Различные важные документы.',
-	aliases: ['m', 'doc'],
-	usage: [
-		{ type: 'text', opt: 0, name: '"ls"/имя документа' },
-		{ type: 'text', opt: 1, name: 'en/ru' },
-	],
-	dm: 1,
-	tier: 0,
-	cooldown: 5,
-	interactions: 1,
-};
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, SlashCommandSubcommandBuilder, ButtonStyle } from 'discord.js';
+import colors from '../../configs/colors.js';
+import bronystuff from '../../assets/docs/bronystuff.js';
+import fullrules from '../../assets/docs/fullrules.js';
+import rules from '../../assets/docs/rules.js';
+import shortcuts from '../../assets/docs/shortcuts.js';
+import Command from '../../utils/Command.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
 
-const { readdir } = require('fs'),
-	docs = {};
-//PARSE DOCS
-readdir('./docs/', (err, files) => {
-	if (err) throw err;
-	files
-		.filter(e => e.endsWith('.js'))
-		.forEach(el => {
-			try {
-				docs[el.slice(0, -3)] = require(`../../docs/${el}`);
-				delete require.cache[require.resolve(`../../docs/${el}`)];
-			} catch (e) {
-				console.warn(e);
-			}
-		});
-	// console.log(Object.keys(docs));
-});
-//PARSE DOCS
+const docs = { bronystuff, fullrules, rules, shortcuts };
 
-exports.run = (client, msg, args) => {
-	if (!['en', 'ru'].includes(args[1])) args[1] = '';
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('man')
+		.setDescription('Various important documents')
+		.setNameLocalization('ru', 'справка')
+		.setDescriptionLocalization('ru', 'Различные важные документы')
+		.addStringOption(option =>
+			option
+				.setName('name')
+				.setDescription('document name')
+				.setNameLocalization('ru', 'название')
+				.setDescriptionLocalization('ru', 'название документа')
+				.setRequired(true)
+				.setAutocomplete(true)
+		)
+		.addStringOption(option =>
+			option
+				.setName('language')
+				.setDescription('language of document')
+				.setNameLocalization('ru', 'язык')
+				.setDescriptionLocalization('ru', 'язык документа')
+				.setChoices(
+					{ name: 'Russian', name_localizations: { ru: 'Русский' }, value: 'ru' },
+					{ name: 'English', name_localizations: { ru: 'Английский' }, value: 'en' }
+				)
+				.setRequired(false)
+		),
+	run,
+	autocomplete,
+	interaction
+);
 
-	if (args[0] != 'ls' && !docs[args[0]]) {
-		client.userLib.retError(msg, 'Документ не найден.');
-		return;
-	}
-
-	if (args[0] == 'ls') {
-		let embed = new client.userLib.discord.MessageEmbed()
-			.setColor(client.userLib.colors.inf)
+function run(interaction) {
+	const name = interaction.options.getString('name');
+	if (name === 'all') {
+		const embed = new EmbedBuilder()
+			.setColor(colors.information)
 			.setTitle(':paperclip: Список документов:')
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL())
 			.setDescription(
 				Object.keys(docs).reduce((pr, cr, ind) => (pr += `\`\`${ind + 1}.:\`\` ${cr}\n${docs[cr].description}\n\n`), '')
 			);
-		msg.channel.send(embed);
-		return;
+
+		return respondSuccess(interaction, embed, true);
 	}
 
-	let doc = docs[args[0]];
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.inf)
-		.setTitle(':mag_right: Документ: ' + args[0])
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-	if (doc.source) embed.setURL(doc.source.link).setAuthor(doc.source.name);
+	const doc = docs[name];
+	const language = interaction.options.getString('language') ?? 'ru';
+	const embed = new EmbedBuilder().setColor(colors.information).setTitle(`:mag_right: Документ: ${name}`);
+	if (doc.source) embed.setURL(doc.source.link).setAuthor({ name: doc.source.name });
 
-	let text = doc.text[args[1]] ? doc.text[args[1]] : Object.values(doc.text)[0],
-		page = 0,
-		message = new client.userLib.discord.APIMessage(msg.author, {}),
-		components = [];
+	let text = doc.text[language] ?? Object.values(doc.text)[0];
 
-	if (!msg.author.id || !embed || !msg.channel) return;
-
-	if (typeof text == 'string' && text.length < 2048) {
+	if (typeof text === 'string' && text.length < 2048) {
 		embed.setDescription(text);
-		msg.channel.send(embed);
-		return;
+		return respondSuccess(interaction, embed, true);
 	}
-	if (typeof text == 'string') {
-		text = text.match(/[\s\S]{1,2048}/g);
-	}
+
+	if (typeof text === 'string') text = text.match(/[\s\S]{1,2048}/g);
+	const page = 0;
 
 	embed.setDescription(text[page]);
 
-	components.push({
-		type: 2,
-		label: 'Назад',
-		style: 1,
-		disabled: page == 0,
-		custom_id: client.userLib.AEScrypt([
-			exports.help.name,
-			msg.author.id,
-			embed.title.split(' ')[2],
-			page,
-			'back',
-			args[1],
-		]),
-	});
-	components.push({
-		type: 2,
-		label: `${page + 1} из ${text.length}`,
-		style: 2,
-		disabled: true,
-		custom_id: 'disabled',
-	});
-	components.push({
-		type: 2,
-		label: 'Вперёд',
-		style: 1,
-		disabled: page == text.length - 1,
-		custom_id: client.userLib.AEScrypt([
-			exports.help.name,
-			msg.author.id,
-			embed.title.split(' ')[2],
-			page,
-			'next',
-			args[1],
-		]),
-	});
+	const row = new ActionRowBuilder().addComponents(
+		new ButtonBuilder()
+			.setCustomId([interaction.user.id, name, page, 'back', language].join(':'))
+			.setLabel('Назад')
+			.setStyle(ButtonStyle.Primary)
+			.setDisabled(page === 0),
+		new ButtonBuilder()
+			.setCustomId('counter')
+			.setLabel(`${page + 1} из ${text.length}`)
+			.setStyle(ButtonStyle.Secondary)
+			.setDisabled(true),
+		new ButtonBuilder()
+			.setCustomId([interaction.user.id, name, page, 'next', language].join(':'))
+			.setLabel('Вперёд')
+			.setStyle(ButtonStyle.Primary)
+			.setDisabled(page === text.length - 1)
+	);
 
-	message.data = {
-		embed: embed,
-		components: [
-			{
-				type: 1,
-				components: components,
-			},
-		],
-	};
+	return respondSuccess(interaction, embed, true, [row]);
+}
 
-	msg.channel.send(message);
-};
+async function interaction(interaction) {
+	const args = interaction.customId.split(':');
+	const [userId, name, , action, language] = args;
+	const embed = new EmbedBuilder().setColor(colors.information).setTitle(`:mag_right: Документ: ${name}`);
+	let text = docs[name].text[userId] ? docs[language].text[language] : Object.values(docs[name].text)[0];
+	let page = +args[2];
 
-exports.interaction = async (client, interaction, args) => {
-	let oldEmbed = interaction.message.embeds[0],
-		components = [],
-		page = +args[3],
-		text = docs[args[2]].text[args[1]] ? docs[args[5]].text[args[5]] : Object.values(docs[args[2]].text)[0];
-
-	if (!oldEmbed) return;
-
-	page = args[4] === 'next' ? page + 1 : page - 1;
-
+	page = action === 'next' ? page + 1 : page - 1;
 	text = text.match(/[\s\S]{1,2048}/g);
+	embed.setDescription(text[page]);
+	const row = new ActionRowBuilder().addComponents(
+		new ButtonBuilder()
+			.setCustomId([userId, name, page, 'back', language].join(':'))
+			.setLabel('Назад')
+			.setStyle(ButtonStyle.Primary)
+			.setDisabled(page === 0),
+		new ButtonBuilder()
+			.setCustomId('counter')
+			.setLabel(`${page + 1} из ${text.length}`)
+			.setStyle(ButtonStyle.Secondary)
+			.setDisabled(true),
+		new ButtonBuilder()
+			.setCustomId([userId, name, page, 'next', language].join(':'))
+			.setLabel('Вперёд')
+			.setStyle(ButtonStyle.Primary)
+			.setDisabled(page === text.length - 1)
+	);
 
-	oldEmbed.description = text[page];
+	interaction.update({ embeds: [embed], ephemeral: true, components: [row] });
+}
 
-	components.push({
-		type: 2,
-		label: 'Назад',
-		style: 1,
-		disabled: page == 0,
-		custom_id: client.userLib.AEScrypt([exports.help.name, args[1], args[2], page, 'back', args[5]]),
-	});
-	components.push({
-		type: 2,
-		label: `${page + 1} из ${text.length}`,
-		style: 2,
-		disabled: true,
-		custom_id: 'disabled',
-	});
-	components.push({
-		type: 2,
-		label: 'Вперёд',
-		style: 1,
-		disabled: page == text.length - 1,
-		custom_id: client.userLib.AEScrypt([exports.help.name, args[1], args[2], page, 'next', args[5]]),
-	});
+async function autocomplete(interaction) {
+	const name = interaction.options.getString('name');
+	const documents = ['all', ...Object.keys(docs)];
 
-	client.api.interactions(interaction.id, interaction.token).callback.post({
-		data: {
-			type: 7,
-			data: {
-				embeds: [oldEmbed],
-				components: [
-					{
-						type: 1,
-						components: components,
-					},
-				],
-			},
-		},
-	});
-};
+	if (name.length) interaction.respond(documents.filter(el => el.includes(name)).map(el => ({ name: el, value: el })));
+	else interaction.respond(documents.map(el => ({ name: el, value: el })));
+}

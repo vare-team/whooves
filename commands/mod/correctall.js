@@ -1,54 +1,72 @@
-exports.help = {
-	name: 'correctall',
-	description: 'Исправляет все никнеймы участников на сервере.',
-	aliases: ['ca'],
-	usage: [],
-	dm: 0,
-	tier: -2,
-	cooldown: 300,
-};
+import { codeBlock, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
+import { emoji, permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
-exports.run = async (client, msg) => {
-	if (!msg.member.guild.me.hasPermission('MANAGE_NICKNAMES'))
-		return client.userLib.retError(msg, 'Для этой команды необходимо право «Управление никнеймами»!');
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('correctall')
+		.setDescription('nicknames correction')
+		.setNameLocalization('ru', 'корректировка')
+		.setDescriptionLocalization('ru', 'корректировка никнеймов')
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+	run
+);
 
-	const embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.inf)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
-		.setTitle(client.userLib.emoji.load + ' Исправление никнеймов...');
+async function run(interaction) {
+	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+		return respondError(
+			interaction,
+			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
+				['MANAGE_NICKNAMES']
+			)}`
+		);
+	}
 
-	const msgEdit = await msg.channel.send(embed);
+	await interaction.deferReply();
 
-	await msg.guild.members.fetch();
-	embed.setColor(client.userLib.colors.suc).setDescription('');
-
+	const membersRaw = await interaction.guild.members.fetch();
+	const members = membersRaw
+		.filter(m => m.manageable && !isNicknameClear(m.displayName))
+		.map(v => v)
+		.slice(0, 24);
+	const embed = new EmbedBuilder().setDescription('');
 	let counter = 0;
 
-	for (let member of msg.guild.members.cache.array()) {
+	for (const member of members) {
 		const name = member.displayName;
+		const correctName = getClearNickname(name);
 
-		if (member.manageable && !client.userLib.isUsernameCorrect(name) && counter < 25) {
-			const correctName = client.userLib.getUsernameCorrect(name);
+		if (checkDescriptionRange(embed, name, correctName)) {
 			await member.edit({ nick: correctName });
-
-			if (embed.description.length + name.length + correctName.length + 28 < 2000)
-				embed.setDescription(
-					embed.description + `\`\`${counter + 1})\`\` ${name}#${member.user.discriminator} \`\`=>\`\` ${correctName}\n`
-				);
-			else break;
+			embed.setDescription(
+				`${embed.description}${codeBlock((counter + 1).toString())}) ${name}#${member.user.discriminator} ${codeBlock(
+					'=>'
+				)} ${correctName}\n`
+			);
 
 			counter++;
-			await client.userLib.delay(1000);
-		}
+		} else break;
 	}
 
 	if (counter) {
-		embed.setDescription(embed.description);
-		embed.setTitle(client.userLib.emoji.ready + ' Отредактировано: ' + counter + '/' + msg.guild.memberCount);
+		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`).setDescription(embed.description);
 	} else {
-		embed.setDescription('');
-		embed.setTitle(client.userLib.emoji.ready + ' Изменений нет!');
+		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription('');
 	}
 
-	msgEdit.edit(embed);
-};
+	await respondSuccess(interaction, embed);
+}
+
+/**
+ *
+ * @param embed {EmbedBuilder}
+ * @param name
+ * @param correctName
+ * @return {boolean}
+ */
+function checkDescriptionRange(embed, name, correctName) {
+	const description = embed.data.description ?? '';
+	return description.length + name.length + correctName.length + 28 < 2000;
+}

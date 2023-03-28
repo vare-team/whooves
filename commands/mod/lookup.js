@@ -1,79 +1,156 @@
-exports.help = {
-	name: 'lookup',
-	description: 'Получить информацию о пользователе или приглашении по ID.',
-	aliases: ['lu', 'lk'],
-	usage: [{ type: 'text', opt: 0, name: 'id' }],
-	dm: 1,
-	tier: 0,
-	cooldown: 5,
-};
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { codeBlock, EmbedBuilder, GuildMember, Invite, SlashCommandBuilder } from 'discord.js';
+import Command from '../../utils/Command.js';
 
-exports.run = async (client, msg, args) => {
-	let object;
-	if (/([0-9]){17,18}/.test(args[0])) object = await client.users.fetch(args[0]).catch(() => 0);
-	else object = await client.fetchInvite(args[0]).catch(() => 0);
-
-	if (!object) {
-		client.userLib.retError(msg, 'Пользователя/Приглашения с таким ID не найдено.');
-		return;
-	}
-
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.inf)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-
-	switch (object.constructor.name) {
-		case 'User':
-			let date = new Date(object.createdAt),
-				member = msg.guild.members.cache.get(object.id);
-			embed
-				.setTitle('Пользователь')
-				.setDescription(
-					`Имя: ${object.tag}\nБот: ${object.bot ? 'да' : 'нет'}\nАккаунт зарегистрирован: ${client.userLib
-						.moment(object.createdAt, 'WWW MMM DD YYYY HH:mm:ss')
-						.fromNow()}\nТочная дата: ${
-						('00' + date.getDate()).slice(-2) +
-						'.' +
-						('00' + (date.getMonth() + 1)).slice(-2) +
-						'.' +
-						date.getFullYear() +
-						' ' +
-						('00' + date.getHours()).slice(-2) +
-						':' +
-						('00' + date.getMinutes()).slice(-2) +
-						':' +
-						('00' + date.getSeconds()).slice(-2)
-					}\n${
-						member
-							? `Дата присоединения к этой гильдии: ${
-									('00' + member.joinedAt.getDate()).slice(-2) +
-									'.' +
-									('00' + (member.joinedAt.getMonth() + 1)).slice(-2) +
-									'.' +
-									member.joinedAt.getFullYear() +
-									' ' +
-									('00' + member.joinedAt.getHours()).slice(-2) +
-									':' +
-									('00' + member.joinedAt.getMinutes()).slice(-2) +
-									':' +
-									('00' + member.joinedAt.getSeconds()).slice(-2)
-							  }`
-							: ''
-					}`
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('lookup')
+		.setDescription('info about guild ot user')
+		.setNameLocalization('ru', 'поиск')
+		.setDescriptionLocalization('ru', 'Информация о пользователе, гильдии или приглашении')
+		.addSubcommand(command =>
+			command
+				.setName('user')
+				.setDescription('user to find')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь которого нужно найти')
+				.addUserOption(option =>
+					option
+						.setName('user')
+						.setDescription('user to find')
+						.setNameLocalization('ru', 'пользователь')
+						.setDescriptionLocalization('ru', 'пользователь которого нужно найти')
+						.setRequired(true)
 				)
-				.setThumbnail(object.displayAvatarURL({ dynamic: true }));
-			break;
-		case 'Invite':
-			embed
-				.setTitle('Приглашение')
-				.setDescription(
-					`Название гильдии: ${object.guild.name}\nID гильдии: ${object.guild.id}\nКанал: #${object.channel.name}${
-						object.inviter ? `\nПригласивший: ${object.inviter.tag}(ID: ${object.inviter.id})` : ''
-					}`
-				);
-			break;
+		)
+		.addSubcommand(command =>
+			command
+				.setName('guild')
+				.setDescription('guild id or invite code')
+				.setNameLocalization('ru', 'сервер')
+				.setDescriptionLocalization('ru', 'айди сервера или его код приглашения')
+				.addStringOption(option =>
+					option
+						.setName('guild')
+						.setDescription('guild id or invite code')
+						.setNameLocalization('ru', 'сервер')
+						.setDescriptionLocalization('ru', 'айди сервера или его код приглашения')
+						.setMinLength(3)
+						.setMaxLength(30)
+						.setRequired(true)
+				)
+		),
+	run
+);
+
+async function run(interaction) {
+	const client = interaction.client;
+	const id = interaction.options.getString('guild');
+	const member = interaction.options.getMember('user') ?? interaction.options.getUser('user');
+	const embed = new EmbedBuilder().setTimestamp();
+
+	await interaction.deferReply({ ephemeral: true });
+	if (member) {
+		userEmbed(embed, member);
+		if (member instanceof GuildMember) memberEmbed(embed, member);
+		return await respondSuccess(interaction, embed, true);
 	}
 
-	msg.channel.send(embed);
-};
+	const inviteData = Invite.InvitesPattern.exec(id);
+	if (inviteData) {
+		const invite = await client.fetchInvite(inviteData[0]).catch(() => 0);
+		inviteEmbed(embed, invite);
+	} else {
+		const guild = await client.fetchGuildPreview(id).catch(() => 0);
+		if (!guild) return respondError(interaction, 'Приглашения/Гильдии с таким ID не найдено.');
+		guildEmbed(embed, guild);
+	}
+
+	await respondSuccess(interaction, embed, true);
+}
+
+function guildEmbed(embed, guild) {
+	embed
+		.setTitle('Публичная гильдия')
+		.setAuthor({ name: guild.name, iconURL: `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg?size=128` })
+		.addFields(
+			{
+				name: 'Кол-во участников:',
+				value: codeBlock(guild.approximateMemberCount),
+				inline: true,
+			},
+			{
+				name: 'Кол-во эмоджи:',
+				value: codeBlock(guild.emojis.size.toString()),
+				inline: true,
+			},
+			{
+				name: 'Опции:',
+				value: codeBlock(guild.features),
+			}
+		);
+
+	return embed;
+}
+
+function inviteEmbed(embed, invite) {
+	embed
+		.setTitle('Приглашение')
+		.setAuthor({
+			name: invite.guild.name,
+			iconURL: `https://cdn.discordapp.com/icons/${invite.guild.id}/${invite.guild.icon}.jpg?size=128`,
+		})
+		.addFields(
+			{
+				name: 'ID гильдии:',
+				value: codeBlock(invite.guild.id),
+				inline: true,
+			},
+			{
+				name: 'Канал:',
+				value: `<#${invite.channelId}>`,
+				inline: true,
+			},
+			{
+				name: 'Кол-во участников:',
+				value: codeBlock(invite.memberCount),
+			},
+			{
+				name: 'Пригласивший:',
+				value: codeBlock(`${invite.inviter.tag} (ID: ${invite.inviterId})`),
+			}
+		);
+
+	return embed;
+}
+
+function userEmbed(embed, user) {
+	const fields = [
+		{
+			name: 'Дата регистрации:',
+			value: `<t:${Math.floor(user.createdAt / 1000)}:R>`,
+			inline: true,
+		},
+	];
+
+	embed
+		.setTitle(user.bot ? 'Бот' : 'Пользователь')
+		.setAuthor({ name: user.tag, iconURL: user.displayAvatarURL({ forceStatic: false }) })
+		.setThumbnail(user.displayAvatarURL({ forceStatic: false }));
+
+	if (user.flags.bitfield)
+		fields.push({
+			name: 'Значки:',
+			value: codeBlock(user.flags.toArray().toString()),
+		});
+
+	embed.addFields(fields);
+}
+
+function memberEmbed(embed, member) {
+	embed.addFields({
+		name: 'Дата присоединения к этой гильдии:',
+		value: `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>`,
+		inline: true,
+	});
+}

@@ -1,44 +1,62 @@
-exports.help = {
-	name: 'color',
-	description: 'Ифнормация о цвете',
-	aliases: ['colour'],
-	usage: [{ type: 'text', opt: 0, name: '#HEX' }],
-	dm: 1,
-	tier: 0,
-	cooldown: 5,
-};
+import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { codeBlock, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { contrastYiq, hexToRgb, rgbToCmyk, rgbToHsl } from '../../utils/color-converters.js';
+import Command from '../../utils/Command.js';
 
-exports.run = async (client, msg, args) => {
-	let embed = new client.userLib.discord.MessageEmbed();
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('color')
+		.setDescription('hex color converter')
+		.setNameLocalization('ru', 'цвет')
+		.setDescriptionLocalization('ru', 'Конвертор 16-ричного цвета')
+		.addStringOption(option =>
+			option
+				.setName('color')
+				.setDescription('color in hex format (#FFFFFF)')
+				.setNameLocalization('ru', 'цвет')
+				.setDescriptionLocalization('ru', 'Цвет в шестнадцатиричном формате (#FFFFFF)')
+				.setMinLength(6)
+				.setMaxLength(7)
+				.setRequired(true)
+		),
+	run
+);
 
-	if (!/(#|)[0-9A-Fa-f]{6}/g.test(args[0])) {
-		client.userLib.retError(msg, 'Вы указали некорректный цвет!');
-		return;
-	}
+async function run(interaction) {
+	const colorRaw = interaction.options.getString('color').match(/(#|)[0-9A-Fa-f]{6}/g);
+	if (colorRaw === null) return respondError(interaction, 'Вы указали некорректный цвет!');
 
-	let color = parseInt(args[0].replace('#', ''), 16);
+	const color = colorRaw[0].replace('#', '');
+	const rgb = hexToRgb(color);
+	const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
+	const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
-	if (!color || 16777215 < color || 0 > color) {
-		client.userLib.retError(msg, 'Вы указали некорректный цвет!');
-		return;
-	}
+	const embed = new EmbedBuilder()
+		.setColor(`#${color}`)
+		.setTitle(`Цвет #${color.toUpperCase()}`)
+		.setDescription(`Контрастный цвет: ${codeBlock(contrastYiq(rgb.r, rgb.g, rgb.b) ? 'Белый' : 'Чёрный')}`)
+		.setImage(`https://singlecolorimage.com/get/${color}/280x80`)
+		.addFields([
+			{
+				name: 'RGB:',
+				value:
+					codeBlock(`Red:   ${rgb.r}\nGreen: ${rgb.g}\nBlue:  ${rgb.b}\n`) +
+					codeBlock('css', `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`),
+				inline: true,
+			},
+			{
+				name: 'HSL:',
+				value:
+					codeBlock(`Hue:        ${hsl.h}\nSaturation: ${hsl.s}%\nLightness:  ${hsl.l}%\n`) +
+					codeBlock('css', `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`),
+				inline: true,
+			},
+			{
+				name: 'CMYK:',
+				value: codeBlock(`Cyan:    ${cmyk.c}%\nMagenta: ${cmyk.m}%\nYellow:  ${cmyk.y}%\nBlack:   ${cmyk.k}%\n`),
+				inline: true,
+			},
+		]);
 
-	let body = await client.userLib.request('https://www.thecolorapi.com/id?hex=' + args[0], { json: true });
-
-	if (!body) return client.userLib.retError(msg, 'Ошибка API.');
-
-	embed
-		.setColor(color)
-		.setTitle('Цвет ' + body.name.value)
-		.addField('RGB', `Red: **${body.rgb.r}**\nGreen: **${body.rgb.g}**\nBlued: **${body.rgb.b}**\n`, true)
-		.addField('HSV', `Hue: **${body.hsv.h}**\nSaturation: **${body.hsv.s}**\nValue: **${body.hsv.v}**\n`, true)
-		.addField('HSL', `Hue: **${body.hsl.h}**\nSaturation: **${body.hsl.s}**\nLightness: **${body.hsl.l}**\n`, true)
-		.addField(
-			'CMYK',
-			`Cyan: **${body.cmyk.c}**\nMagenta: **${body.cmyk.m}**\nYellow: **${body.cmyk.y}**\nBlack: **${body.cmyk.k}**\n`,
-			true
-		)
-		.addField('Util', `${body.rgb.value}\n${body.hsv.value}\n${body.hsl.value}\n${body.cmyk.value}`, true)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-	msg.channel.send(embed);
-};
+	await respondSuccess(interaction, embed, false, null, color);
+}

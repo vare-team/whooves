@@ -1,86 +1,85 @@
-exports.help = {
-	name: 'settings',
-	description:
-		'Настройки бота.\n``prefix [prefix] - префикс бота\nlog [#channel/off] - лог канал\nbadwords [on/off] - фильтр мата\nusernamechecker [on/off] - антиюникод в никах``',
-	aliases: ['set'],
-	usage: [
-		{ type: 'text', opt: 0, name: 'параметр' },
-		{ type: 'text', opt: 0, name: 'состояние' },
-	],
-	dm: 0,
-	tier: -2,
-	cooldown: 5,
-};
+import { respondSuccess } from '../../utils/respond-messages.js';
+import { ChannelType, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { sendLogChannel } from '../../services/guild-log.js';
+import Command from '../../utils/Command.js';
+import { getSetting } from '../../utils/settings-сontroller.js';
+import Guild from '../../models/guild.js';
 
-const parametrs = ['prefix', 'log', 'badwords', 'usernamechecker'],
-	status = ['on', 'off'],
-	normalizeParametrs = {
-		badwords: 'Фильтр плохих слов',
-		usernamechecker: 'Исправление никнеймов',
-	};
+const states = [
+	{ name: 'On', name_localizations: { ru: 'Вкл' }, value: 'true' },
+	{ name: 'Off', name_localizations: { ru: 'Откл' }, value: 'false' },
+];
 
-exports.run = async (client, msg, args) => {
-	if (parametrs.indexOf(args[0]) == -1) {
-		client.userLib.retError(msg, 'Такого параметра не существует. Доступные параметры: ' + parametrs.join(', '));
-		return;
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('settings')
+		.setDescription('bot setting')
+		.setNameLocalization('ru', 'настройки')
+		.setDescriptionLocalization('ru', 'настройки бота')
+		.addChannelOption(option =>
+			option
+				.setName('logs')
+				.setDescription('channel for logs (send current for off)')
+				.setNameLocalization('ru', 'логи')
+				.setDescriptionLocalization('ru', 'канал для логов (указать текущий для отключения)')
+				.addChannelTypes(ChannelType.GuildText)
+				.setRequired(false)
+		)
+		.addStringOption(option =>
+			option
+				.setName('bad_words')
+				.setDescription('filter of bad words')
+				.setNameLocalization('ru', 'фильтр_слов')
+				.setDescriptionLocalization('ru', 'Фильтр плохих слов в чате')
+				.setChoices(...states)
+				.setRequired(false)
+		)
+		.addStringOption(option =>
+			option
+				.setName('autocorrector')
+				.setDescription('user nickname autocorrector')
+				.setNameLocalization('ru', 'корректор_ников')
+				.setDescriptionLocalization('ru', 'Проверка никнейма участнкиа при его заходе')
+				.setChoices(...states)
+				.setRequired(false)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+	run
+);
+
+async function run(interaction) {
+	const badWords = interaction.options.getString('bad_words');
+	const autocorrector = interaction.options.getString('autocorrector');
+	const logs = interaction.options.getChannel('logs');
+	const embed = new EmbedBuilder().setTitle('🔧 Настройки');
+	const fields = [];
+
+	const guild = await Guild.findByPk(interaction.guildId);
+	const settings = { id: interaction.guildId, settings: guild?.settings ?? 0, logChannel: guild?.logChannel ?? null };
+
+	if (badWords !== null) settings.settings += await getSetting(fields, guild, 'chatAutoModeration', badWords);
+	if (autocorrector !== null)
+		settings.settings += await getSetting(fields, guild, 'nicknameAutoModeration', autocorrector);
+
+	if (logs !== null) {
+		const isCurrent = logs.id === guild?.logChannel;
+		settings.logChannel = isCurrent ? null : logs.id;
+
+		if (isCurrent) {
+			await sendLogChannel('commandUse', interaction.guild, {
+				user: { tag: interaction.user.tag, id: interaction.user.id },
+				channel: { id: interaction.channel.id },
+				content: 'отключение лог-канала',
+			});
+		}
+
+		fields.push({
+			name: 'Лог канал',
+			value: isCurrent ? `**отключен**!` : `<#${logs.id}> **установлен как канал для логов!**`,
+		});
 	}
 
-	if (args[0] === 'prefix' && args[1].length > 5) {
-		client.userLib.retError(msg, 'Префикс бота должен быть не более 5 символов!');
-		return;
-	}
-
-	if (args[0] === 'log' && args[1] !== 'off' && !msg.mentions.channels.first()) {
-		client.userLib.retError(msg, 'Вы должны упомянуть канал или написать ``off``!');
-		return;
-	}
-
-	if (parametrs.slice(2).indexOf(args[0]) != -1 && status.indexOf(args[1]) == -1) {
-		client.userLib.retError(msg, 'Статус параметра введён не верно. Доступные статусы: ' + status.join(', '));
-		return;
-	}
-
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
-		.setAuthor('🔧 Настройки')
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-
-	switch (args[0]) {
-		case 'prefix':
-			client.userLib.db.update(`guilds`, { guildId: msg.guild.id, prefix: args[1] == 'w.' ? null : args[1] }, () => {});
-			embed.setDescription(`Теперь префикс для вашего сервера это **${args[1]}**`).setTitle('Префикс бота');
-			break;
-		case 'log':
-			if (args[1] === 'off')
-				client.userLib.sendLogChannel('commandUse', msg.guild, {
-					user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() },
-					channel: { id: msg.channel.id },
-					content: 'отключение лог канала',
-				});
-
-			client.userLib.db.update(
-				`guilds`,
-				{ guildId: msg.guild.id, logchannel: args[1] === 'off' ? null : msg.mentions.channels.first().id },
-				() => {}
-			);
-			embed
-				.setTitle('Лог канал')
-				.setDescription(
-					args[1] === 'off' ? `Лог канал отключён.` : `Лог канал теперь ${msg.mentions.channels.first()}`
-				);
-			break;
-		default:
-			if (!(await client.userLib.setSettings(msg.guild.id, args[0], args[1] === 'on'))) {
-				client.userLib.retError(msg, 'Параметр уже находится в текущем значении!');
-				return;
-			}
-
-			embed
-				.setDescription(`${normalizeParametrs[args[0]]} **${args[1] === 'on' ? 'включен' : 'выключен'}**!`)
-				.setTitle(normalizeParametrs[args[0]]);
-			break;
-	}
-
-	msg.channel.send(embed);
-};
+	await Guild.upsert(settings);
+	return respondSuccess(interaction, embed.addFields(fields));
+}

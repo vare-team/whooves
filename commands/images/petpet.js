@@ -1,47 +1,52 @@
-exports.help = {
-	name: 'petpet',
-	description: 'Погладить что-нибудь.\n\n*Основано на [PetPet Generator](https://benisland.neocities.org/petpet/)*',
-	aliases: ['pet', 'pat'],
-	usage: [
-		{ type: 'user', opt: 1 },
-		{ type: 'attach', opt: 1 },
-	],
-	dm: 1,
-	tier: 0,
-	cooldown: 10,
-};
+import { AttachmentBuilder, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { createCanvas, loadImage } from 'canvas';
+import GifEncoder from 'gif-encoder';
+import { getMemberOrUser, respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
 
-const GifEncoder = require('gif-encoder');
-const { createWriteStream } = require('fs');
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('pet')
+		.setDescription('pet something')
+		.setNameLocalization('ru', 'погладить')
+		.setDescriptionLocalization('ru', 'Погладить что-нибудь')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user whose avatar will be used')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь чья аватарка будет использована')
+				.setRequired(false)
+		)
+		.addAttachmentOption(option =>
+			option
+				.setName('attachment')
+				.setDescription('image to be used')
+				.setNameLocalization('ru', 'изображение')
+				.setDescriptionLocalization('ru', 'изображение которое будет использовано')
+				.setRequired(false)
+		),
+	run
+);
 
-exports.run = async (client, msg, args) => {
-	if (msg.attachments.first() && !msg.attachments.first().width) {
-		client.userLib.retError(msg, 'Файл должен быть изображением.');
-		return;
-	}
+async function run(interaction) {
+	const attachmentOption = interaction.options.getAttachment('attachment');
+	const user = getMemberOrUser(interaction);
+	const attachment = attachmentOption?.url ?? null;
+	const imageRaw = attachment ?? user.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
-	if (msg.attachments.first() && msg.attachments.first().size > 8 * 1024 * 1024) {
-		client.userLib.retError(msg, 'Файл слишком большой. Он должен быть меньше 8 Мбайт.');
-		return;
-	}
+	await interaction.deferReply();
 
-	let use = msg.magicMention.user || msg.author;
-	use = msg.attachments.first()
-		? msg.attachments.first().url
-		: use.displayAvatarURL({ format: 'jpg', dynamic: false, size: 256 });
+	const image = await loadImage(imageRaw),
+		canvas = createCanvas(image.width, image.height),
+		ctx = canvas.getContext('2d'),
+		hand = await loadImage('./assets/images/hand.png');
 
-	const ava = await client.userLib.loadImage(use),
-		canvas = client.userLib.createCanvas(256, 256),
-		ctx = canvas.getContext('2d');
-	const hand = await client.userLib.loadImage('./images/hand.png');
-
-	const gif = new GifEncoder(256, 256, { highWaterMark: 8 * 1024 * 1024 });
+	const gif = new GifEncoder(image.width, image.width, { highWaterMark: 8 * 1024 * 1024 });
 	gif.setFrameRate(16);
 	gif.setQuality(20);
 	gif.setRepeat(0);
 	gif.setTransparent(0x000000);
-
-	gif.pipe(createWriteStream('img.gif'));
 
 	gif.writeHeader();
 
@@ -50,19 +55,19 @@ exports.run = async (client, msg, args) => {
 
 		switch (frame) {
 			case 0:
-				ctx.drawImage(ava, 41, 50, 207, 213);
+				ctx.drawImage(image, 41, 50, 207, 213);
 				break;
 			case 1:
-				ctx.drawImage(ava, 37, 77, 213, 189);
+				ctx.drawImage(image, 37, 77, 213, 189);
 				break;
 			case 2:
-				ctx.drawImage(ava, 33, 97, 229, 171);
+				ctx.drawImage(image, 33, 97, 229, 171);
 				break;
 			case 3:
-				ctx.drawImage(ava, 33, 85, 212, 177);
+				ctx.drawImage(image, 33, 85, 212, 177);
 				break;
 			case 4:
-				ctx.drawImage(ava, 38, 48, 201, 216);
+				ctx.drawImage(image, 38, 48, 201, 216);
 				break;
 		}
 		ctx.drawImage(hand, 112 * frame, 0, 111, 112, 0, 0, canvas.width, canvas.height);
@@ -72,16 +77,7 @@ exports.run = async (client, msg, args) => {
 
 	gif.finish();
 
-	gif.on('end', () => {
-		const embed = new client.userLib.discord.MessageEmbed()
-			.attachFiles({
-				attachment: 'img.gif',
-				name: `img.gif`,
-			})
-			.setImage('attachment://img.gif')
-			.setColor(client.userLib.colors.inf)
-			.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-
-		msg.channel.send(embed);
-	});
-};
+	const file = new AttachmentBuilder(gif.read(), { name: 'img.gif' });
+	const embed = new EmbedBuilder().setImage('attachment://img.gif');
+	await respondSuccess(interaction, embed, false, null, null, [file]);
+}

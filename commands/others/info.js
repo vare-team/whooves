@@ -1,81 +1,103 @@
-exports.help = {
-	name: 'info',
-	description: 'Информация о боте',
-	aliases: ['i', 'invite'],
-	usage: [],
-	dm: 1,
-	tier: 0,
-	cooldown: 5,
-};
+import admins from '../../configs/admins.js';
+import emojis from '../../configs/emojis.js';
+import settings from '../../configs/settings.js';
+import { createRequire } from 'module';
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	SlashCommandSubcommandBuilder,
+	ButtonStyle,
+	codeBlock,
+	bold,
+	EmbedBuilder,
+} from 'discord.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
+import Guild from '../../models/guild.js';
 
-const { uptime } = require('os'),
-	{ version } = require('../../package');
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json');
 
-exports.run = async (client, msg) => {
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setAuthor(client.user.username + ' - информация о боте', client.user.displayAvatarURL())
-		.setColor(client.userLib.colors.inf)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
-		.setTitle('Техническая информация')
-		.setDescription(
-			`\`\`\`asciidoc\n
-• Пинг          :: ${Math.round(client.ws.ping)} мс
-• ОЗУ исп.      :: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} МБ
-• Бот запустился:: ${client.userLib.moment(client.readyAt, 'WWW MMM DD YYYY hh:mm:ss').format('Do MMMM,в HH:mm')}
-• Аптайм бота   :: ${Math.round(process.uptime() / 3600)} ч.
-• Аптайм сервера:: ${Math.round(uptime() / 3600)} ч.
+export default new Command(
+	new SlashCommandSubcommandBuilder()
+		.setName('info')
+		.setDescription('bot info')
+		.setNameLocalization('ru', 'инфо')
+		.setDescriptionLocalization('ru', 'информация о боте'),
+	run
+);
 
-• Discord.js    :: v${client.userLib.discord.version}
-• Версия Node   :: ${process.version}
-• Версия бота   :: v${version}\`\`\``
-		)
-		.addField(
-			'Разработчики',
-			`**${
-				client.users.cache.get('166610390581641217')
-					? client.users.cache.get('166610390581641217').tag
-					: 'Dellyare#0720'
-			}** \n **${
-				client.users.cache.get('321705723216134154')
-					? client.users.cache.get('321705723216134154').tag
-					: 'MegaVasiliy007#3301'
-			}**`,
-			true
-		)
-		.addField('Команда помощи', `**w.help**`, true)
-		.addField('Префикс', `**w.**`, true)
-		.addField(
-			'Статистика',
-			`Команд исполнено: **${client.statistic.executedcmd}**\nИз них ошибок: **${client.statistic.erroredcmd}**`,
-			true
-		);
+async function run(interaction) {
+	const client = interaction.client;
+	const components = new ActionRowBuilder().setComponents([
+		new ButtonBuilder()
+			.setLabel('Github')
+			.setStyle(ButtonStyle.Link)
+			.setURL('https://github.com/vare-team/whooves')
+			.setEmoji('🌀'),
+		new ButtonBuilder()
+			.setLabel('Сервер поддержки')
+			.setStyle(ButtonStyle.Link)
+			.setURL('https://discordapp.com/invite/8KKVhTU')
+			.setEmoji('💬'),
+	]);
 
-	if (msg.flags.prefix != 'w.') embed.addField('Префикс сервера', `**${msg.flags.prefix}**`, true);
+	const devs = await Promise.all(admins.map(x => client.users.fetch(x)));
+	const fields = [
+		{
+			name: 'Статистика:',
+			value: codeBlock(
+				'c',
+				//TODO add statistics
+				`Пинг:             ${Math.round(client.ws.ping)} ms\nКоманд исполнено: ${0}\nИз них ошибок:    ${0}`
+			),
+			inline: true,
+		},
+		{
+			name: 'Зависимости:',
+			value: codeBlock(
+				'c',
+				`Версия бота:    ${pkg.version}\n` +
+					`Discord.js:     ${pkg.dependencies['discord.js']}\n` +
+					`Версия Node:    ${process.version.replace("'v'", " ''")}`
+			),
+			inline: true,
+		},
+		{
+			name: 'Разработчики:',
+			value: devs.map(x => `${bold(x.tag)}`).join('\n'),
+			inline: false,
+		},
+	];
 
-	embed.addField(
-		'Ссылки',
-		`[Пригласить бота](https://discordapp.com/api/oauth2/authorize?client_id=531094088695414804&permissions=8&scope=bot)\n[Сервер](https://discord.gg/8KKVhTU)`,
-		true
-	);
+	const embed = new EmbedBuilder().setAuthor({
+		name: `${client.user.username} - информация о боте`,
+		iconURL: client.user.displayAvatarURL(),
+	});
 
-	if (msg.channel.type !== 'dm') {
-		let data = await client.userLib.db
-			.promise()
-			.query('SELECT logchannel, settings FROM guilds WHERE guildId = ?', [msg.guild.id]);
-		data = data[0][0];
-		embed.addField(
-			'Настройки',
-			`Канал логирования: ${data.logchannel ? `<#${data.logchannel}>` : client.userLib.emoji.err}
-Фильтр плохих слов: **${
-				data.settings & client.userLib.settings.badwords ? client.userLib.emoji.ready : client.userLib.emoji.err
-			}**
-Исправитель никнеймов: **${
-				data.settings & client.userLib.settings.usernamechecker ? client.userLib.emoji.ready : client.userLib.emoji.err
-			}**`,
-			true
-		);
+	if (interaction.inGuild()) {
+		const guild = await Guild.findByPk(interaction.guildId);
+
+		fields.push({
+			name: 'Настройки:',
+			value:
+				`Канал логирования: ${guild?.logchannel ? `<#${guild.logchannel}>` : emojis.error}\n` +
+				`Фильтр плохих слов: ${bold(isPresent(guild?.settings, settings.badwords))}\n` +
+				`Исправитель никнеймов: ${bold(isPresent(guild?.settings, settings.usernamechecker))}`,
+			inline: true,
+		});
 	}
 
-	msg.channel.send(embed);
-};
+	embed.addFields(fields);
+
+	await respondSuccess(interaction, embed, false, [components]);
+}
+
+/**
+ * @param settings {number}
+ * @param parameter {number}
+ * @returns {string}
+ */
+function isPresent(settings, parameter) {
+	return settings & parameter ? emojis.ready : emojis.error;
+}

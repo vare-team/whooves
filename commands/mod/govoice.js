@@ -1,36 +1,67 @@
-exports.help = {
-	name: 'govoice',
-	description: 'Переместить всех в вашем голосовом канале в указанный канал.',
-	aliases: ['gv', 'merge'],
-	usage: [{ type: 'text', opt: 0, name: 'ID Канала' }, { type: 'voice' }],
-	dm: 0,
-	tier: -1,
-	cooldown: 15,
-};
+import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { PermissionsBitField, SlashCommandBuilder, ChannelType, EmbedBuilder } from 'discord.js';
+import Command from '../../utils/Command.js';
 
-exports.run = async (client, msg, args) => {
-	let govoice = msg.guild.channels.cache.get(args[0]);
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('govoice')
+		.setDescription('move all members from voice channel to another voice channel')
+		.setNameLocalization('ru', 'перейти_в_голосовой')
+		.setDescriptionLocalization('ru', 'Переместить всех в вашем голосовом канале в указанный канал')
+		.addChannelOption(option =>
+			option
+				.setName('to')
+				.setDescription('move TO channel')
+				.setNameLocalization('ru', 'в')
+				.setDescriptionLocalization('ru', 'канал В который переместить')
+				.setRequired(true)
+				.addChannelTypes(ChannelType.GuildVoice)
+		)
+		.addChannelOption(option =>
+			option
+				.setName('from')
+				.setDescription('move FROM channel')
+				.setNameLocalization('ru', 'с')
+				.setDescriptionLocalization('ru', 'канал С которого переместить')
+				.setRequired(false)
+				.addChannelTypes(ChannelType.GuildVoice)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.MoveMembers),
+	run
+);
 
-	if (!govoice || govoice.type != 'voice') {
-		client.userLib.retError(msg, 'Вы указали не корректный ID голосового канала!');
-		return;
+async function run(interaction) {
+	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+		return respondError(
+			interaction,
+			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
+				['MOVE_MEMBERS']
+			)}`
+		);
 	}
 
-	let count = msg.member.voice.channel.members.size,
-		error = '';
+	const newChannel = interaction.options.getChannel('to');
+	const oldChannel = interaction.options.getChannel('from') ?? interaction.member.voice.channel ?? null;
 
-	for (let m of msg.member.voice.channel.members.array())
-		await m.voice.setChannel(govoice).catch(() => {
-			count--;
-			error += m.user.tag + ', ';
-		});
+	if (!oldChannel)
+		return respondError(interaction, 'Вы должны находиться в голосовом канале или указать его в аргументе!');
 
-	client.userLib.retError(msg, 'Недостаточно прав для перемещения пользователя(ей): ' + error.slice(0, -2));
+	if (oldChannel.id === newChannel.id) return respondError(interaction, 'Новый канал совпадает со старым!');
 
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setDescription(`Было перемещено участников: **${count}**, в канал "**${govoice.name}**"`)
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL())
-		.setColor(client.userLib.colors.suc);
+	if (!oldChannel.viewable || !oldChannel.manageable || !newChannel.viewable || !newChannel.manageable)
+		return respondError(interaction, 'У меня не хватает прав для взаимодействия с этими каналами!');
 
-	msg.channel.send(embed);
-};
+	if (oldChannel.members.size === 0) return respondError(interaction, 'В указанном канале пусто!');
+
+	await interaction.deferReply();
+
+	for (const [, member] of oldChannel.members) {
+		await member.voice.setChannel(newChannel);
+	}
+
+	await respondSuccess(
+		interaction,
+		new EmbedBuilder().setDescription(`из <#${oldChannel}> перемещенны в <#${newChannel}>`)
+	);
+}

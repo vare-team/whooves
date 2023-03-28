@@ -1,3 +1,5 @@
-module.exports = (client, error) => {
-	client.userLib.sendLog(`Ошибка - ${error.message}`);
-};
+import logger from '../utils/logger.js';
+
+export default function (error) {
+	logger(`Ошибка - ${error.message}`, 'core');
+}

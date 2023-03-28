@@ -1,56 +1,62 @@
-exports.help = {
-	name: 'warn',
-	description: 'Выдать предупреждение участнику',
-	aliases: ['w'],
-	usage: [
-		{ type: 'user', opt: 0 },
-		{ type: 'text', opt: 1, name: 'причина' },
-	],
-	dm: 0,
-	tier: -1,
-	cooldown: 5,
-};
+import { bold, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { respondSuccess } from '../../utils/respond-messages.js';
+import Command from '../../utils/Command.js';
+import { sendLogChannel } from '../../services/guild-log.js';
+import Warn from '../../models/warn.js';
 
-exports.run = (client, msg, args) => {
-	if (args.slice(1).join(' ').length > 300) {
-		client.userLib.retError(msg, 'Причина не может содержать в себе более 300 символов!');
-		return;
-	}
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('warn')
+		.setDescription('add warn to user')
+		.setNameLocalization('ru', 'выдать_варн')
+		.setDescriptionLocalization('ru', 'Выдать варн пользователю')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user to warn')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь которому надо выдать')
+				.setRequired(true)
+		)
+		.addStringOption(option =>
+			option
+				.setName('reason')
+				.setDescription('reason of warning')
+				.setNameLocalization('ru', 'причина')
+				.setDescriptionLocalization('ru', 'причина варна')
+				.setMinLength(1)
+				.setMaxLength(300)
+				.setRequired(false)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+	run
+);
 
-	client.userLib.db.insert(
-		'warns',
-		{
-			userId: msg.magicMention.id,
-			guildId: msg.guild.id,
-			who: msg.author.id,
-			reason: args.slice(1).join(' '),
-		},
-		(err, id) => {
-			client.userLib.db.query(
-				'SELECT COUNT(*) FROM warns WHERE userId = ? AND guildId = ?',
-				[msg.magicMention.id, msg.guild.id],
-				(err, count) => {
-					let embed = new client.userLib.discord.MessageEmbed()
-						.setColor(client.userLib.colors.war)
-						.setTitle(`${msg.magicMention.user.tag} выдано предупреждение!`)
-						.setDescription(
-							`Причина: **${
-								args.slice(1).join(' ') ? args.slice(1).join(' ') : 'Не указана'
-							}**\nВсего предупреждений: **${count[0]['COUNT(*)']}**\nID предупреждения: **${id}**`
-						)
-						.setTimestamp()
-						.setFooter(msg.author.tag, msg.author.displayAvatarURL());
+async function run(interaction) {
+	const user = interaction.options.getUser('user');
+	const reason = interaction.options.getString('reason') ?? 'Не указана';
 
-					msg.channel.send(embed);
-					client.userLib.sendLogChannel('commandUse', msg.guild, {
-						user: { tag: msg.author.tag, id: msg.author.id, avatar: msg.author.displayAvatarURL() },
-						channel: { id: msg.channel.id },
-						content: `выдача предупреждения (ID: ${id}) ${msg.magicMention.user} по причине: ${args
-							.slice(1)
-							.join(' ')}`,
-					});
-				}
-			);
-		}
-	);
-};
+	await interaction.deleteReply();
+	const warn = await Warn.create({
+		userId: user.id,
+		guildId: interaction.guildId,
+		whoId: interaction.user.id,
+		reason: reason === 'Не указана' ? null : reason,
+	});
+	const warnCount = await Warn.count({ where: { userId: user.id, guildId: interaction.guildId } });
+
+	const embed = new EmbedBuilder()
+		.setTitle(`${user.tag} выдано предупреждение!`)
+		.setDescription(
+			`Причина: ${bold(reason)}\nВсего предупреждений: ${bold(warnCount)}\nID предупреждения: ${bold(warn.id)}`
+		)
+		.setTimestamp();
+
+	await respondSuccess(interaction, embed);
+	await sendLogChannel('commandUse', interaction.guild, {
+		user: { tag: interaction.user.tag, id: interaction.user.id },
+		channel: { id: interaction.channelId },
+		content: `выдача предупреждения (ID: ${warn.res}) ${user.id} по причине: ${reason}`,
+	});
+}

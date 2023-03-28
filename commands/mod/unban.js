@@ -1,25 +1,46 @@
-exports.help = {
-	name: 'unban',
-	description: 'Разбанить учасника.',
-	aliases: ['ubn'],
-	usage: [
-		{ type: 'text', opt: 0, name: 'ID кто' },
-		{ type: 'text', opt: 1, name: 'причина' },
-	],
-	dm: 0,
-	tier: -1,
-	cooldown: 5,
-};
+import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import Command from '../../utils/Command.js';
 
-exports.run = async (client, msg, args) => {
-	let reason = args.slice(1).join(' ') || 'Причина не указана';
+export default new Command(
+	new SlashCommandBuilder()
+		.setName('unban')
+		.setDescription('unbans user')
+		.setNameLocalization('ru', 'снять_бан')
+		.setDescriptionLocalization('ru', 'снимает бан с пользователя')
+		.addUserOption(option =>
+			option
+				.setName('user')
+				.setDescription('user to unban')
+				.setNameLocalization('ru', 'пользователь')
+				.setDescriptionLocalization('ru', 'пользователь которого надо разбанить')
+				.setRequired(true)
+		)
+		.setDMPermission(false)
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+	run
+);
 
-	msg.guild.members.unban(args[0], msg.author.tag + ': ' + reason).catch(() => {});
+async function run(interaction) {
+	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+		return respondError(
+			interaction,
+			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
+				['BAN_MEMBERS']
+			)}`
+		);
+	}
 
-	let embed = new client.userLib.discord.MessageEmbed()
-		.setColor(client.userLib.colors.suc)
-		.setDescription(`Бан ${args[0]} снят!\nПричина: ${reason}`)
-		.setTimestamp()
-		.setFooter(msg.author.tag, msg.author.displayAvatarURL());
-	msg.channel.send(embed);
-};
+	await interaction.deleteReply();
+
+	const user = interaction.options.getUser('user');
+	const ban = await interaction.guild.bans.resolve(user.id);
+	if (!ban) return respondError(interaction, 'Пользователь не забанен!');
+
+	try {
+		await interaction.guild.members.unban(user);
+		return respondSuccess(interaction, new EmbedBuilder().setDescription(`\`${user.tag}\` **был разбанен!**`));
+	} catch (error) {
+		return respondError(interaction, 'Не удалось разбанить!');
+	}
+}

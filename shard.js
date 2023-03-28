@@ -1,28 +1,22 @@
-// require('http').createServer().listen(1500);
+import { ShardingManager, fetchRecommendedShardCount } from 'discord.js';
+import logger from './utils/logger.js';
 
-const { ShardingManager } = require('discord.js');
-const manager = new ShardingManager('./whooves.js', { token: process.env.token });
+const manager = new ShardingManager('./whooves.js', { token: process.env.TOKEN });
+global.discordClient = null;
 
-manager.spawn();
+manager.on('shardCreate', shard => logger('Shard spawned!', 'ShardingManager', 'Log', shard.id));
 
-manager.on('shardCreate', shard => {
-	const now = new Date();
-	console.log(
-		`${
-			('00' + now.getDate()).slice(-2) +
-			'.' +
-			('00' + (now.getMonth() + 1)).slice(-2) +
-			' ' +
-			('00' + now.getHours()).slice(-2) +
-			':' +
-			('00' + now.getMinutes()).slice(-2) +
-			':' +
-			('00' + now.getSeconds()).slice(-2)
-		} | Shard[${shard.id}] | {ShardingManager} : Launched!`
-	);
-});
+(async () => {
+	const amount = await fetchRecommendedShardCount(process.env.TOKEN, { guildsPerShard: 1000 });
+	logger(`Shards count: ${amount}`, 'ShardingManager');
 
-// manager.on('message', (shard, message) => {
-// 	let messageNow = new Date();
-// 	console.log(`${('00' + messageNow.getHours()).slice(-2) + ':' + ('00' + messageNow.getMinutes()).slice(-2) + ':' + ('00' + messageNow.getSeconds()).slice(-2)} | Shard[${shard.id}] : {Info} ${message._result}`);
-// });
+	manager.shardList = [...Array(amount).keys()];
+	manager.totalShards = amount;
+
+	// Spawn the shards
+	const promises = [];
+	for (let i = 0; i < amount; i++) promises.push(manager.createShard(i).spawn(5 * 60e3));
+	const shards = await Promise.all(promises);
+
+	for (const shard of shards) shard.send('startPresence');
+})();

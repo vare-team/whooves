@@ -1,89 +1,51 @@
-const Discord = require('discord.js'),
-	client = new Discord.Client(),
-	{ readdir, lstatSync } = require('fs'),
-	func = require('./func');
-let con = require('mysql2').createConnection({
-	user: process.env.dblogin,
-	password: process.env.dbpass,
-	database: 'Whooves',
-	host: process.env.dbhost,
-	charset: 'utf8mb4',
-});
-con.on('error', err => {
-	console.warn(err);
-});
-con.connect(() => {
-	client.userLib.sendLog(`{DB Connected} (ID:${con.threadId})`);
-});
-let util = require('mysql-utilities');
-util.upgrade(con);
-util.introspection(con);
+import { Client, GatewayIntentBits } from 'discord.js';
+import ready from './events/ready.js';
+import logger from './utils/logger.js';
+import sendSdc from './services/send-sdc.js';
+import presenceController from './services/presence-controller.js';
+import { initializeDbModels } from './utils/db.js';
 
-client.userLib = new func(Discord, client, con);
-client.statistic = { executedcmd: 0, erroredcmd: 0 };
-
-readdir('./events/', (err, files) => {
-	if (err) return console.error(err);
-	files
-		.filter(file => file.endsWith('.js'))
-		.forEach(file => {
-			try {
-				const event = require(`./events/${file}`);
-				client.on(file.split('.')[0], event.bind(null, client));
-				delete require.cache[require.resolve(`./events/${file}`)];
-				client.userLib.sendLog(`[EVENT] "${file}" loaded.`, 'START');
-			} catch (e) {
-				console.warn(e);
-				client.userLib.sendLog(`[EVENT] Loading failed "${file}".`, 'START');
-			}
-		});
-});
-
-client.ws.on('INTERACTION_CREATE', async interaction => {
-	const args = client.userLib.AESdecrypt(interaction.data['custom_id']).split(':');
-
-	if (!interaction.member) {
-		interaction.member = {};
-		interaction.member.user = interaction.user;
+// ==== on server start functions
+(async function initDb() {
+	try {
+		await initializeDbModels();
+	} catch (e) {
+		if (process.env.NODE_ENV !== 'test') {
+			/* eslint-disable */
+			console.log(e);
+			console.log('COULD NOT CONNECT TO THE DB, retrying in 5 seconds');
+			/* eslint-enable */
+		}
+		setTimeout(initDb, 5000);
 	}
+})();
+// ====
 
-	if (args[1] !== interaction.member.user.id) return;
-
-	const command = args[0];
-	const cmd = client.commands.get(command);
-	if (!cmd || !cmd.help.interactions) return;
-
-	cmd.interaction(client, interaction, args);
-	client.userLib.sendLog(client.userLib.generateUseLog('interaction', cmd.help.name, interaction), 'Info');
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.GuildBans,
+		GatewayIntentBits.GuildVoiceStates,
+		GatewayIntentBits.GuildMessages,
+		// GatewayIntentBits.MessageContent,
+	],
 });
 
-client.commands = new Discord.Collection();
+global.discordClient = client;
 
-readdir('./commands/', (error, directories) => {
-	if (error) return console.warn(error);
-	directories
-		.filter(dir => lstatSync(`./commands/${dir}`).isDirectory())
-		.forEach(module => {
-			client.userLib.sendLog(`[MODULE] "${module}" module found.`, 'START');
-			readdir(`./commands/${module}/`, (err, files) => {
-				if (err) return console.error(err);
-				files
-					.filter(file => file.endsWith('.js'))
-					.forEach(file => {
-						try {
-							const props = require(`./commands/${module}/${file}`);
-							if (!props.help.hide) {
-								props.help.module = module;
-								client.commands.set(file.split('.')[0], props);
-							}
-							client.userLib.sendLog(`[COMMAND] "${module}/${file}" loaded.`, 'START');
-						} catch (e) {
-							console.warn(e);
-							client.userLib.sendLog(`[COMMAND] Loading failed "${file}".`, 'START');
-						}
-					});
-			});
-		});
+process.on('message', m => {
+	if (m === 'startPresence') {
+		presenceController();
+		setInterval(presenceController, 30e3);
+
+		if (client.shard.ids[0] === 0 && process.env.SDC) {
+			sendSdc();
+			setInterval(sendSdc, 30 * 60e3);
+		}
+	}
 });
 
-client.login(process.env.token);
+client.once('ready', ready);
+
+client.login().then(() => logger('Bot Authorized', 'core'));
