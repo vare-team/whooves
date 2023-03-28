@@ -1,4 +1,4 @@
-import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { PermissionsBitField, SlashCommandBuilder, ChannelType, EmbedBuilder } from 'discord.js';
 import Command from '../../utils/Command.js';
 
@@ -32,6 +32,15 @@ export default new Command(
 );
 
 async function run(interaction) {
+	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+		return respondError(
+			interaction,
+			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
+				['MOVE_MEMBERS']
+			)}`
+		);
+	}
+
 	const newChannel = interaction.options.getChannel('to');
 	const oldChannel = interaction.options.getChannel('from') ?? interaction.member.voice.channel ?? null;
 

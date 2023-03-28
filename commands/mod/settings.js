@@ -44,7 +44,7 @@ export default new Command(
 				.setRequired(false)
 		)
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
 	run
 );
 

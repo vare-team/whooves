@@ -60,8 +60,8 @@ export function getMemberOrUser(interaction) {
 
 /**
  * @function
- * @param {Array} array
- * @returns {Array}
+ * @param {Array<string>} array
+ * @returns {Array<string>}
  */
 export function permissionsArrayToString(array) {
 	return array.map(el => permissionsArrayTranslator[el]);

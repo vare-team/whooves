@@ -1,4 +1,4 @@
-import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
 import Command from '../../utils/Command.js';
@@ -49,11 +49,20 @@ export default new Command(
 				.setRequired(false)
 		)
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers),
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 	run
 );
 
 async function run(interaction) {
+	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+		return respondError(
+			interaction,
+			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
+				['BAN_MEMBERS']
+			)}`
+		);
+	}
+
 	const member = interaction.options.getMember('user');
 	const user = interaction.options.getUser('user');
 	const clearmsg = interaction.options.getBoolean('clear_seconds') ?? 0;

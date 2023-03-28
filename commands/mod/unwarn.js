@@ -32,7 +32,7 @@ export default new Command(
 				.setRequired(true)
 		)
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.ModerateMembers),
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 	run,
 	autocomplete
 );

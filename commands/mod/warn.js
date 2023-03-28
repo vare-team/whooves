@@ -29,7 +29,7 @@ export default new Command(
 				.setRequired(false)
 		)
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.ModerateMembers),
+		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
 	run
 );
 
