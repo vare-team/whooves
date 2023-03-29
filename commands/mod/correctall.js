@@ -1,4 +1,4 @@
-import { codeBlock, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import { inlineCode, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
 import { checkPermissions, emoji, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
@@ -25,7 +25,7 @@ async function run(interaction) {
 		.filter(m => m.manageable && !isNicknameClear(m.displayName))
 		.map(v => v)
 		.slice(0, 24);
-	const embed = new EmbedBuilder().setDescription('');
+	const embed = new EmbedBuilder();
 	let counter = 0;
 
 	for (const member of members) {
@@ -35,9 +35,9 @@ async function run(interaction) {
 		if (checkDescriptionRange(embed, name, correctName)) {
 			await member.edit({ nick: correctName });
 			embed.setDescription(
-				`${embed.description}${codeBlock((counter + 1).toString())}) ${name}#${member.user.discriminator} ${codeBlock(
-					'=>'
-				)} ${correctName}\n`
+				`${embed.data.description ?? ''}${inlineCode((counter + 1).toString())} ${name}#${
+					member.user.discriminator
+				} ${inlineCode('=>')} ${correctName}\n`
 			);
 
 			counter++;
@@ -45,9 +45,9 @@ async function run(interaction) {
 	}
 
 	if (counter) {
-		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`).setDescription(embed.description);
+		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`);
 	} else {
-		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription('');
+		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
 	}
 
 	await respondSuccess(interaction, embed);
