@@ -53,7 +53,7 @@ async function run(interaction) {
 		)
 		.setTimestamp();
 
-	await respondSuccess(interaction, embed);
+	await respondSuccess(interaction, [embed]);
 	await sendLogChannel('commandUse', interaction.guild, {
 		user: { tag: interaction.user.tag, id: interaction.user.id },
 		channel: { id: interaction.channelId },

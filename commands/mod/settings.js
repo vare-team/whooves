@@ -81,5 +81,5 @@ async function run(interaction) {
 	}
 
 	await Guild.upsert(settings);
-	return respondSuccess(interaction, embed.addFields(fields));
+	return respondSuccess(interaction, [embed.addFields(fields)]);
 }

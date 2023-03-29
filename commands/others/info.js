@@ -90,7 +90,7 @@ async function run(interaction) {
 
 	embed.addFields(fields);
 
-	await respondSuccess(interaction, embed, false, [components]);
+	await respondSuccess(interaction, [embed], false, [components]);
 }
 
 /**

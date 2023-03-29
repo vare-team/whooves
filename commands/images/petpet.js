@@ -79,5 +79,5 @@ async function run(interaction) {
 
 	const file = new AttachmentBuilder(gif.read(), { name: 'img.gif' });
 	const embed = new EmbedBuilder().setImage('attachment://img.gif');
-	await respondSuccess(interaction, embed, false, null, null, [file]);
+	await respondSuccess(interaction, [embed], false, null, null, [file]);
 }

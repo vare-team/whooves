@@ -99,5 +99,5 @@ async function run(interaction) {
 
 	const file = new AttachmentBuilder(gif?.read() ?? canvas.toBuffer(), { name: `filter.${gif ? 'gif' : 'jpeg'}` });
 	const embed = new EmbedBuilder().setImage(`attachment://filter.${gif ? 'gif' : 'jpeg'}`);
-	await respondSuccess(interaction, embed, false, null, null, [file]);
+	await respondSuccess(interaction, [embed], false, null, null, [file]);
 }

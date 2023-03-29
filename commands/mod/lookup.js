@@ -53,7 +53,7 @@ async function run(interaction) {
 	if (member) {
 		userEmbed(embed, member);
 		if (member instanceof GuildMember) memberEmbed(embed, member);
-		return await respondSuccess(interaction, embed, true);
+		return await respondSuccess(interaction, [embed], true);
 	}
 
 	const inviteData = Invite.InvitesPattern.exec(id);
@@ -66,7 +66,7 @@ async function run(interaction) {
 		guildEmbed(embed, guild);
 	}
 
-	await respondSuccess(interaction, embed, true);
+	await respondSuccess(interaction, [embed], true);
 }
 
 function guildEmbed(embed, guild) {

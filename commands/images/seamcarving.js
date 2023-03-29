@@ -55,7 +55,7 @@ async function run(interaction) {
 
 	const file = new AttachmentBuilder(canvas.toBuffer(), { name: 'img.jpg' });
 	const embed = new EmbedBuilder().setImage('attachment://img.jpg').setColor(colors.information);
-	await respondSuccess(interaction, embed, false, null, null, [file]);
+	await respondSuccess(interaction, [embed], false, null, null, [file]);
 }
 
 function drawRotated(ctx, canvas, degrees) {

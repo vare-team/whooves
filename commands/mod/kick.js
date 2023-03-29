@@ -85,5 +85,7 @@ async function run(interaction) {
 		);
 
 	await member.kick(`${interaction.user.tag}: ${reason}`);
-	await respondSuccess(interaction, new EmbedBuilder().setDescription(`${member} **был кикнут!** ***||*** ${reason}`));
+	await respondSuccess(interaction, [
+		new EmbedBuilder().setDescription(`${member} **был кикнут!** ***||*** ${reason}`),
+	]);
 }

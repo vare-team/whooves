@@ -96,5 +96,5 @@ async function run(interaction) {
 		deleteMessageSeconds: clearmsg,
 	});
 
-	await respondSuccess(interaction, new EmbedBuilder().setDescription(`${user} **был забанен!** ***||*** ${reason}`));
+	await respondSuccess(interaction, [new EmbedBuilder().setDescription(`${user} **был забанен!** ***||*** ${reason}`)]);
 }

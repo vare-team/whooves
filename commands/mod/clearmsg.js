@@ -71,5 +71,5 @@ async function run(interaction) {
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
 		.setTimestamp();
 
-	await respondSuccess(interaction, embed);
+	await respondSuccess(interaction, [embed]);
 }

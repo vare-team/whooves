@@ -53,7 +53,7 @@ async function run(interaction) {
 
 	if (warn > 1) logger(generateErrLog('unwarn', interaction, 'Удаление варнов сломалось!'));
 
-	await respondSuccess(interaction, new EmbedBuilder().setDescription(`С ${user} **снято предупреждение**.`));
+	await respondSuccess(interaction, [new EmbedBuilder().setDescription(`С ${user} **снято предупреждение**.`)]);
 	await sendLogChannel('commandUse', interaction.guild, {
 		user: { tag: interaction.user.tag, id: interaction.user.id },
 		channel: { id: interaction.channelId },

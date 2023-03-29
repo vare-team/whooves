@@ -67,5 +67,5 @@ async function run(interaction) {
 		},
 	]);
 
-	await respondSuccess(interaction, embed);
+	await respondSuccess(interaction, [embed]);
 }

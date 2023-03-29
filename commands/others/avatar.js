@@ -28,5 +28,5 @@ async function run(interaction) {
 		.setTimestamp();
 
 	if (member.avatar?.startsWith('a_') || member.user.avatar?.startsWith('a_')) embed.setFooter({ text: 'GIF' });
-	await respondSuccess(interaction, embed);
+	await respondSuccess(interaction, [embed]);
 }

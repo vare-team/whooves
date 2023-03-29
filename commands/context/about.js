@@ -39,5 +39,5 @@ function run(interaction) {
 		.addFields(fields)
 		.setThumbnail(targetUserAvatar);
 
-	respondSuccess(interaction, embed, true);
+	respondSuccess(interaction, [embed], true);
 }
