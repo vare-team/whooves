@@ -1,5 +1,5 @@
-import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
-import { EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { EmbedBuilder, PermissionFlagsBits, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import Command from '../../utils/Command.js';
 
 export default new Command(
@@ -22,14 +22,8 @@ export default new Command(
 );
 
 async function run(interaction) {
-	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-		return respondError(
-			interaction,
-			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
-				['BAN_MEMBERS']
-			)}`
-		);
-	}
+	const check = checkPermissions(interaction, PermissionFlagsBits.BanMembers);
+	if (check) return;
 
 	await interaction.deleteReply();
 

@@ -1,5 +1,5 @@
-import { EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
-import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
 
 export default new Command(
@@ -43,19 +43,13 @@ export default new Command(
 				)
 		)
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+		.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 	run
 );
 
 async function run(interaction) {
-	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-		return respondError(
-			interaction,
-			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
-				['MANAGE_MESSAGES']
-			)}`
-		);
-	}
+	const check = checkPermissions(interaction, PermissionFlagsBits.ManageMessages);
+	if (check) return;
 
 	let count = interaction.options.getInteger('count');
 	const message = interaction.options.getString('message_id');

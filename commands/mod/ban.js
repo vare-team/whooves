@@ -1,5 +1,5 @@
-import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
-import { codeBlock, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { codeBlock, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
 import Command from '../../utils/Command.js';
 import Warn from '../../models/warn.js';
@@ -49,19 +49,13 @@ export default new Command(
 				.setRequired(false)
 		)
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+		.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 	run
 );
 
 async function run(interaction) {
-	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-		return respondError(
-			interaction,
-			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
-				['BAN_MEMBERS']
-			)}`
-		);
-	}
+	const check = checkPermissions(interaction, PermissionFlagsBits.BanMembers);
+	if (check) return;
 
 	const member = interaction.options.getMember('user');
 	const user = interaction.options.getUser('user');
@@ -84,7 +78,7 @@ async function run(interaction) {
 		}
 	}
 
-	if (force && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+	if (force && interaction.member.permissions.missing(PermissionFlagsBits.Administrator)) {
 		await respondError(interaction, 'Аргумент ``-force`` доступен только администраторам!');
 		return;
 	}

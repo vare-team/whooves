@@ -1,5 +1,5 @@
-import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
-import { PermissionsBitField, SlashCommandBuilder, ChannelType, EmbedBuilder } from 'discord.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { SlashCommandBuilder, ChannelType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import Command from '../../utils/Command.js';
 
 export default new Command(
@@ -27,19 +27,13 @@ export default new Command(
 				.addChannelTypes(ChannelType.GuildVoice)
 		)
 		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionsBitField.Flags.MoveMembers),
+		.setDefaultMemberPermissions(PermissionFlagsBits.MoveMembers),
 	run
 );
 
 async function run(interaction) {
-	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-		return respondError(
-			interaction,
-			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
-				['MOVE_MEMBERS']
-			)}`
-		);
-	}
+	const check = checkPermissions(interaction, PermissionFlagsBits.MoveMembers);
+	if (check) return;
 
 	const newChannel = interaction.options.getChannel('to');
 	const oldChannel = interaction.options.getChannel('from') ?? interaction.member.voice.channel ?? null;

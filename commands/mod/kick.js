@@ -1,5 +1,5 @@
-import { permissionsArrayToString, respondError, respondSuccess } from '../../utils/respond-messages.js';
-import { bold, EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { bold, EmbedBuilder, PermissionFlagsBits, PermissionsBitField, SlashCommandBuilder } from 'discord.js';
 import { generateErrLog } from '../../utils/logger.js';
 import Command from '../../utils/Command.js';
 import Warn from '../../models/warn.js';
@@ -44,14 +44,8 @@ export default new Command(
 );
 
 async function run(interaction) {
-	if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-		return respondError(
-			interaction,
-			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissionsArrayToString(
-				['KICK_MEMBERS']
-			)}`
-		);
-	}
+	const check = checkPermissions(interaction, PermissionFlagsBits.KickMembers);
+	if (check) return;
 
 	const member = interaction.options.getMember('member');
 	const reason = interaction.options.getString('reason') || 'Причина не указана';
