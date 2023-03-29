@@ -23,30 +23,15 @@ async function run(interaction) {
 
 	const membersRaw = await interaction.guild.members.fetch();
 	const members = membersRaw.filter(m => m.manageable && !isNicknameClear(m.displayName)).map(v => v);
-	const embed = new EmbedBuilder().setDescription('');
 	let counter = 0;
 
 	const embeds = [];
 
-	if (admins.find(interaction.user.id)) {
-		for (let [i, s] = [0, 0], e = 24; i < members.size; s = 24 * i, e += e, i++) {
-			counter = await clearMembers(members, counter, embed, s, e);
-			if (counter) {
-				embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${members.size}`).setDescription('');
-				embeds.push(embed);
-			}
-			counter = 0;
-		}
-	} else {
-		counter = await clearMembers(members, counter, embed);
-		if (counter) {
-			embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${members.size}`);
-		}
-		embeds.push(embed);
-	}
-
-	if (!counter) {
-		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
+	for (let i = 0; i < admins.find(interaction.user.id) ? members.size : 1; i += 24) {
+		const embed = new EmbedBuilder();
+		counter = await clearMembers(members, counter, embed, i, i + 24);
+		pushEmbed(counter, embed, members, embeds);
+		counter = 0;
 	}
 
 	for (let i = 0; i < embeds.length; i += 10) {
@@ -54,6 +39,15 @@ async function run(interaction) {
 	}
 }
 
+/**
+ *
+ * @param members {[GuildMember]}
+ * @param counter {number}
+ * @param embed {EmbedBuilder}
+ * @param start {number}
+ * @param end {number}
+ * @return {Promise<*>}
+ */
 async function clearMembers(members, counter, embed, start = 0, end = 24) {
 	for (const member of members.slice(start, end)) {
 		const name = member.displayName;
@@ -72,6 +66,23 @@ async function clearMembers(members, counter, embed, start = 0, end = 24) {
 	}
 
 	return counter;
+}
+
+/**
+ *
+ * @param counter {number}
+ * @param embed {EmbedBuilder}
+ * @param members {[GuildMember]}
+ * @param embeds {[EmbedBuilder]}
+ */
+function pushEmbed(counter, embed, members, embeds) {
+	if (counter) {
+		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${members.size}`);
+	} else {
+		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
+	}
+
+	embeds.push(embed);
 }
 
 /**
