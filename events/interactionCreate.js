@@ -18,6 +18,6 @@ export default async function (interaction) {
 	if (!(interaction.isCommand() || interaction.isContextMenuCommand())) return;
 
 	if (process.env.NODE_ENV === 'production')
-		commands.execute(interaction, runners).catch(e => logger(generateErrLog(interaction.commandName, interaction, e)));
+		commands.execute(interaction, runners)?.catch(e => logger(generateErrLog(interaction.commandName, interaction, e)));
 	else commands.execute(interaction, runners);
 }

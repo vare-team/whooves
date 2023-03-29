@@ -48,7 +48,7 @@ function run(interaction) {
 			break;
 	}
 
-	return respondSuccess(interaction, embed, true);
+	return respondSuccess(interaction, [embed], true);
 }
 
 function crypt(text) {

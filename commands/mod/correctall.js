@@ -2,6 +2,7 @@ import { inlineCode, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } fr
 import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
 import { checkPermissions, emoji, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
+import admins from '../../configs/admins.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -21,36 +22,68 @@ async function run(interaction) {
 	await interaction.deferReply();
 
 	const membersRaw = await interaction.guild.members.fetch();
-	const members = membersRaw
-		.filter(m => m.manageable && !isNicknameClear(m.displayName))
-		.map(v => v)
-		.slice(0, 24);
-	const embed = new EmbedBuilder();
-	let counter = 0;
+	const members = membersRaw.filter(m => m.manageable && !isNicknameClear(m.displayName)).map(v => v);
+	const isAdmin = admins.includes(interaction.user.id);
+	const size = members.size;
+	const embeds = [];
 
+	if (isAdmin) {
+		let count = 0;
+		while (count >= size) {
+			const embed = new EmbedBuilder();
+			const counter = await clearMembers(members, embed, count);
+			pushEmbed(embeds, embed, counter, size);
+			count += counter;
+		}
+	} else {
+		const embed = new EmbedBuilder();
+		const counter = await clearMembers(members.slice(0, 24), embed);
+		pushEmbed(embeds, embed, counter, size);
+	}
+
+	for (let i = 0; i < embeds.length; i += 10) {
+		await respondSuccess(interaction, embeds.slice(i, i + 10));
+	}
+}
+
+/**
+ *
+ * @param members {[GuildMember]}
+ * @param count {number}
+ * @param embed {EmbedBuilder}
+ * @return {Promise<*>}
+ */
+async function clearMembers(members, embed, count = 0) {
+	let counter = 0;
 	for (const member of members) {
 		const name = member.displayName;
 		const correctName = getClearNickname(name);
 
 		if (checkDescriptionRange(embed, name, correctName)) {
 			await member.edit({ nick: correctName });
+			counter++;
 			embed.setDescription(
-				`${embed.data.description ?? ''}${inlineCode((counter + 1).toString())} ${name}#${
+				`${embed.data.description ?? ''}${inlineCode((count + counter).toString())} ${name}#${
 					member.user.discriminator
 				} ${inlineCode('=>')} ${correctName}\n`
 			);
-
-			counter++;
 		} else break;
 	}
 
-	if (counter) {
-		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`);
-	} else {
-		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
-	}
+	return counter;
+}
 
-	await respondSuccess(interaction, embed);
+/**
+ *
+ * @param counter {number}
+ * @param embed {EmbedBuilder}
+ * @param size {number}
+ * @param embeds {[EmbedBuilder]}
+ */
+function pushEmbed(embeds, embed, counter, size) {
+	if (counter) embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${size}`);
+	else embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
+	embeds.push(embed);
 }
 
 /**
@@ -62,5 +95,5 @@ async function run(interaction) {
  */
 function checkDescriptionRange(embed, name, correctName) {
 	const description = embed.data.description ?? '';
-	return description.length + name.length + correctName.length + 28 < 2000;
+	return description.length + name.length + correctName.length + 28 < 4096;
 }

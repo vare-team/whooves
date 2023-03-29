@@ -33,7 +33,7 @@ async function run(interaction) {
 
 	try {
 		await interaction.guild.members.unban(user);
-		return respondSuccess(interaction, new EmbedBuilder().setDescription(`\`${user.tag}\` **был разбанен!**`));
+		return respondSuccess(interaction, [new EmbedBuilder().setDescription(`\`${user.tag}\` **был разбанен!**`)]);
 	} catch (error) {
 		return respondError(interaction, 'Не удалось разбанить!');
 	}

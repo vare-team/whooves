@@ -40,5 +40,5 @@ async function run(interaction) {
 		descGenerator += `(ID: **${warn.id}**); <@!${warn.whoId}>: ${warn.reason ?? 'Не указана'}\n`;
 	embed.setDescription(descGenerator);
 
-	await respondSuccess(interaction, embed, true);
+	await respondSuccess(interaction, [embed], true);
 }

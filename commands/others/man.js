@@ -51,7 +51,7 @@ function run(interaction) {
 				Object.keys(docs).reduce((pr, cr, ind) => (pr += `\`\`${ind + 1}.:\`\` ${cr}\n${docs[cr].description}\n\n`), '')
 			);
 
-		return respondSuccess(interaction, embed, true);
+		return respondSuccess(interaction, [embed], true);
 	}
 
 	const doc = docs[name];
@@ -63,7 +63,7 @@ function run(interaction) {
 
 	if (typeof text === 'string' && text.length < 2048) {
 		embed.setDescription(text);
-		return respondSuccess(interaction, embed, true);
+		return respondSuccess(interaction, [embed], true);
 	}
 
 	if (typeof text === 'string') text = text.match(/[\s\S]{1,2048}/g);
@@ -89,7 +89,7 @@ function run(interaction) {
 			.setDisabled(page === text.length - 1)
 	);
 
-	return respondSuccess(interaction, embed, true, [row]);
+	return respondSuccess(interaction, [embed], true, [row]);
 }
 
 async function interaction(interaction) {

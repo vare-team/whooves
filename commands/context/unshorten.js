@@ -23,5 +23,5 @@ async function run(interaction) {
 	if (shortUrl === null) return respondError(interaction, 'Ссылка не найдена!');
 
 	const { data: url } = await axios.get(`https://unshorten.me/s/${shortUrl[0]}`);
-	await respondSuccess(interaction, new EmbedBuilder().setDescription(url), true);
+	await respondSuccess(interaction, [new EmbedBuilder().setDescription(url)], true);
 }

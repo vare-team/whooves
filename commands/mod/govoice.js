@@ -54,8 +54,7 @@ async function run(interaction) {
 		await member.voice.setChannel(newChannel);
 	}
 
-	await respondSuccess(
-		interaction,
-		new EmbedBuilder().setDescription(`из <#${oldChannel}> перемещенны в <#${newChannel}>`)
-	);
+	await respondSuccess(interaction, [
+		new EmbedBuilder().setDescription(`из <#${oldChannel}> перемещенны в <#${newChannel}>`),
+	]);
 }

@@ -58,5 +58,5 @@ async function run(interaction) {
 			},
 		]);
 
-	await respondSuccess(interaction, embed, false, null, color);
+	await respondSuccess(interaction, [embed], false, null, color);
 }

@@ -58,7 +58,7 @@ async function run(interaction) {
 	if (message) {
 		if (/([0-9]){18,21}/.test(message)) return await respondError(interaction, 'ID сообщения введено не верно!');
 
-		const currentMsg = await channel.messages.fetch(message).catch(() => 0);
+		const currentMsg = await channel.messages.fetch(message)?.catch(() => 0);
 		if (!currentMsg || currentMsg.channel.id !== channel.id)
 			return await respondError(interaction, 'Сообщение не найдено!');
 
@@ -71,5 +71,5 @@ async function run(interaction) {
 		.setDescription(`Сообщения были удалены (**${dmsg.size}**)!`)
 		.setTimestamp();
 
-	await respondSuccess(interaction, embed);
+	await respondSuccess(interaction, [embed]);
 }

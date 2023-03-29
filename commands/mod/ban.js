@@ -89,12 +89,12 @@ async function run(interaction) {
 				interaction.user.tag
 			)}, по причине: ${reason}`
 		)
-		.catch(e => logger(generateErrLog('ban', interaction, e)));
+		?.catch(e => logger(generateErrLog('ban', interaction, e)));
 
 	await interaction.guild.members.ban(user, {
 		reason: `${interaction.user.tag}: ${reason}`,
 		deleteMessageSeconds: clearmsg,
 	});
 
-	await respondSuccess(interaction, new EmbedBuilder().setDescription(`${user} **был забанен!** ***||*** ${reason}`));
+	await respondSuccess(interaction, [new EmbedBuilder().setDescription(`${user} **был забанен!** ***||*** ${reason}`)]);
 }
