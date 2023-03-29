@@ -27,7 +27,7 @@ export function respondError(interaction, message) {
 /**
  *
  * @param interaction
- * @param embed {[EmbedBuilder]}
+ * @param embeds {[EmbedBuilder]}
  * @param ephemeral {boolean}
  * @param components {[ActionRowBuilder] | null}
  * @param color {string | null}
@@ -42,10 +42,11 @@ export async function respondSuccess(
 	color = null,
 	files = null
 ) {
-	embeds.forEach(e => e.setColor(color ?? colors.success));
+	for (const e of embeds) e.setColor(color ?? colors.success);
 	const options = { embeds: embeds, components, files: files, ephemeral: ephemeral };
 
 	if (interaction.deferred) await interaction.editReply(options);
+	else if (interaction.replied) await interaction.followUp(options);
 	else await interaction.reply(options);
 }
 

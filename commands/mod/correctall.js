@@ -23,15 +23,22 @@ async function run(interaction) {
 
 	const membersRaw = await interaction.guild.members.fetch();
 	const members = membersRaw.filter(m => m.manageable && !isNicknameClear(m.displayName)).map(v => v);
-	let counter = 0;
-
+	const isAdmin = admins.includes(interaction.user.id);
+	const size = members.size;
 	const embeds = [];
 
-	for (let i = 0; i < admins.find(interaction.user.id) ? members.size : 1; i += 24) {
+	if (isAdmin) {
+		let count = 0;
+		while (count >= size) {
+			const embed = new EmbedBuilder();
+			const counter = await clearMembers(members, embed, count);
+			pushEmbed(embeds, embed, counter, size);
+			count += counter;
+		}
+	} else {
 		const embed = new EmbedBuilder();
-		counter = await clearMembers(members, counter, embed, i, i + 24);
-		pushEmbed(counter, embed, members, embeds);
-		counter = 0;
+		const counter = await clearMembers(members.slice(0, 24), embed);
+		pushEmbed(embeds, embed, counter, size);
 	}
 
 	for (let i = 0; i < embeds.length; i += 10) {
@@ -42,26 +49,24 @@ async function run(interaction) {
 /**
  *
  * @param members {[GuildMember]}
- * @param counter {number}
+ * @param count {number}
  * @param embed {EmbedBuilder}
- * @param start {number}
- * @param end {number}
  * @return {Promise<*>}
  */
-async function clearMembers(members, counter, embed, start = 0, end = 24) {
-	for (const member of members.slice(start, end)) {
+async function clearMembers(members, embed, count = 0) {
+	let counter = 0;
+	for (const member of members) {
 		const name = member.displayName;
 		const correctName = getClearNickname(name);
 
 		if (checkDescriptionRange(embed, name, correctName)) {
 			await member.edit({ nick: correctName });
+			counter++;
 			embed.setDescription(
-				`${embed.data.description ?? ''}${inlineCode((counter + 1).toString())} ${name}#${
+				`${embed.data.description ?? ''}${inlineCode((count + counter).toString())} ${name}#${
 					member.user.discriminator
 				} ${inlineCode('=>')} ${correctName}\n`
 			);
-
-			counter++;
 		} else break;
 	}
 
@@ -72,16 +77,12 @@ async function clearMembers(members, counter, embed, start = 0, end = 24) {
  *
  * @param counter {number}
  * @param embed {EmbedBuilder}
- * @param members {[GuildMember]}
+ * @param size {number}
  * @param embeds {[EmbedBuilder]}
  */
-function pushEmbed(counter, embed, members, embeds) {
-	if (counter) {
-		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${members.size}`);
-	} else {
-		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
-	}
-
+function pushEmbed(embeds, embed, counter, size) {
+	if (counter) embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${size}`);
+	else embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
 	embeds.push(embed);
 }
 
@@ -94,5 +95,5 @@ function pushEmbed(counter, embed, members, embeds) {
  */
 function checkDescriptionRange(embed, name, correctName) {
 	const description = embed.data.description ?? '';
-	return description.length + name.length + correctName.length + 28 < 2000;
+	return description.length + name.length + correctName.length + 28 < 4096;
 }
