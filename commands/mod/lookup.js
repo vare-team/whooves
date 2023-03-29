@@ -136,11 +136,12 @@ function userEmbed(embed, user) {
 			inline: true,
 		},
 	];
+	const icon = user.displayAvatarURL({ forceStatic: false });
 
 	embed
 		.setTitle(user.bot ? 'Бот' : 'Пользователь')
-		.setAuthor({ name: user.tag, iconURL: user.displayAvatarURL({ forceStatic: false }) })
-		.setThumbnail(user.displayAvatarURL({ forceStatic: false }));
+		.setAuthor({ name: user.tag, iconURL: icon })
+		.setThumbnail(icon);
 
 	if (user.flags.bitfield)
 		fields.push({
