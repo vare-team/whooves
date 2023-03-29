@@ -61,7 +61,7 @@ async function run(interaction) {
 	}
 
 	const inviteData = Invite.InvitesPattern.exec(id);
-	if (inviteData) {
+	if (inviteData.length > 1) {
 		const invite = await client.fetchInvite(inviteData[0])?.catch(() => 0);
 		inviteEmbed(embed, invite);
 	} else {
