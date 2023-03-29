@@ -1,9 +1,8 @@
-import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { codeBlock, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
 import Command from '../../utils/Command.js';
 import Warn from '../../models/warn.js';
-import checkPermissions from '../../utils/checkPermissions.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -56,7 +55,7 @@ export default new Command(
 
 async function run(interaction) {
 	const check = checkPermissions(interaction, PermissionFlagsBits.BanMembers);
-	if (check) return check;
+	if (check) return;
 
 	const member = interaction.options.getMember('user');
 	const user = interaction.options.getUser('user');

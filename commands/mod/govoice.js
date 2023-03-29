@@ -1,7 +1,6 @@
-import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
 import { SlashCommandBuilder, ChannelType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import Command from '../../utils/Command.js';
-import checkPermissions from '../../utils/checkPermissions.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -34,7 +33,7 @@ export default new Command(
 
 async function run(interaction) {
 	const check = checkPermissions(interaction, PermissionFlagsBits.MoveMembers);
-	if (check) return check;
+	if (check) return;
 
 	const newChannel = interaction.options.getChannel('to');
 	const oldChannel = interaction.options.getChannel('from') ?? interaction.member.voice.channel ?? null;

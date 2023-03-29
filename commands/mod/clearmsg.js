@@ -1,7 +1,6 @@
 import { EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
-import { respondError, respondSuccess } from '../../utils/respond-messages.js';
+import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
-import checkPermissions from '../../utils/checkPermissions.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -50,7 +49,7 @@ export default new Command(
 
 async function run(interaction) {
 	const check = checkPermissions(interaction, PermissionFlagsBits.ManageMessages);
-	if (check) return check;
+	if (check) return;
 
 	let count = interaction.options.getInteger('count');
 	const message = interaction.options.getString('message_id');

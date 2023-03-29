@@ -1,8 +1,7 @@
 import { codeBlock, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
-import { emoji, respondSuccess } from '../../utils/respond-messages.js';
+import { checkPermissions, emoji, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
-import checkPermissions from '../../utils/checkPermissions.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -17,7 +16,7 @@ export default new Command(
 
 async function run(interaction) {
 	const check = checkPermissions(interaction, PermissionFlagsBits.ManageNicknames);
-	if (check) return check;
+	if (check) return;
 
 	await interaction.deferReply();
 

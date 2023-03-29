@@ -59,10 +59,20 @@ export function getMemberOrUser(interaction) {
 }
 
 /**
- * @function
- * @param {Array<string>} array
- * @returns {Array<string>}
+ *
+ * @param interaction {BaseInteraction}
+ * @param permissionsToCheck {PermissionsBitField}
  */
-export function permissionsArrayToString(array) {
-	return array.map(el => permissionsArrayTranslator[el]);
+export function checkPermissions(interaction, permissionsToCheck) {
+	const missing = interaction.guild.members.me.permissions.missing(permissionsToCheck);
+
+	if (missing.length > 0) {
+		const permissions = missing.map(p => permissionsArrayTranslator[p]).join(', ');
+		return respondError(
+			interaction,
+			`У бота отсутствуют права, необходимые для работы этой команды!\n\n**Требуемые права:** ${permissions}`
+		);
+	}
+
+	return null;
 }
