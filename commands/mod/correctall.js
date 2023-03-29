@@ -2,6 +2,8 @@ import { inlineCode, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } fr
 import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
 import { checkPermissions, emoji, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
+import checkPermissions from '../../utils/checkPermissions.js';
+import admins from '../../configs/admins.js';
 
 export default new Command(
 	new SlashCommandBuilder()
@@ -21,14 +23,52 @@ async function run(interaction) {
 	await interaction.deferReply();
 
 	const membersRaw = await interaction.guild.members.fetch();
-	const members = membersRaw
-		.filter(m => m.manageable && !isNicknameClear(m.displayName))
-		.map(v => v)
-		.slice(0, 24);
-	const embed = new EmbedBuilder();
+	const members = membersRaw.filter(m => m.manageable && !isNicknameClear(m.displayName)).map(v => v);
+	const embed = new EmbedBuilder().setDescription('');
 	let counter = 0;
 
-	for (const member of members) {
+	const embeds = [];
+
+	if (admins.find(interaction.user.id)) {
+		for (let [i, s] = [0, 0], e = 24; i < members.size; s = 24 * i, e += e, i++) {
+			counter = await clearMembers(members, counter, embed, s, e);
+			if (counter) {
+				embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${members.size}`).setDescription('');
+				embeds.push(embed);
+			}
+			counter = 0;
+		}
+	} else {
+		counter = await clearMembers(members, counter, embed);
+		if (counter) {
+			embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${members.size}`);
+		}
+		embeds.push(embed);
+	}
+
+	if (!counter) {
+		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription('');
+	}
+
+	for (let i = 0; i < embeds.length; i += 10) {
+		await respondSuccess(interaction, embeds.slice(i, i + 10));
+	}
+}
+
+/**
+ *
+ * @param embed {EmbedBuilder}
+ * @param name
+ * @param correctName
+ * @return {boolean}
+ */
+function checkDescriptionRange(embed, name, correctName) {
+	const description = embed.data.description ?? '';
+	return description.length + name.length + correctName.length + 28 < 2000;
+}
+
+async function clearMembers(members, counter, embed, start = 0, end = 24) {
+	for (const member of members.slice(start, end)) {
 		const name = member.displayName;
 		const correctName = getClearNickname(name);
 
@@ -45,9 +85,9 @@ async function run(interaction) {
 	}
 
 	if (counter) {
-		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`);
+		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`).setDescription(embed.description);
 	} else {
-		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
+		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription('');
 	}
 
 	await respondSuccess(interaction, embed);
