@@ -30,18 +30,18 @@ export async function sendLogChannel(type, guildDiscord, data) {
 	}
 
 	const now = new Date();
-	let text = `[<t:${Math.floor(now.getUTCSeconds() / 1000)}:R>] `;
+	let text = `[<t:${Math.floor(now.getTime() / 1000)}:R>] `;
 
 	switch (type) {
 		case 'memberAdd':
 			text += `📈 **Заход участника** ${data.user.tag} (ID: ${data.user.id});\nАккаунт зарегистрирован <t:${Math.floor(
-				data.user.createdAt.getUTCSeconds() / 1000
+				data.user.createdAt.getTime() / 1000
 			)}:R>;`;
 			break;
 
 		case 'memberRemove':
 			text += `📉 **Выход участника** ${data.user.tag}  (ID: ${data.user.id});\nАккаунт зашёл на сервер <t:${Math.floor(
-				data.user.joinedAt.getUTCSeconds() / 1000
+				data.user.joinedAt.getTime() / 1000
 			)}:R>`;
 			break;
 
