@@ -2,7 +2,6 @@ import { inlineCode, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } fr
 import { getClearNickname, isNicknameClear } from '../../utils/nickname.js';
 import { checkPermissions, emoji, respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
-import checkPermissions from '../../utils/checkPermissions.js';
 import admins from '../../configs/admins.js';
 
 export default new Command(
@@ -47,24 +46,12 @@ async function run(interaction) {
 	}
 
 	if (!counter) {
-		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription('');
+		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription(null);
 	}
 
 	for (let i = 0; i < embeds.length; i += 10) {
 		await respondSuccess(interaction, embeds.slice(i, i + 10));
 	}
-}
-
-/**
- *
- * @param embed {EmbedBuilder}
- * @param name
- * @param correctName
- * @return {boolean}
- */
-function checkDescriptionRange(embed, name, correctName) {
-	const description = embed.data.description ?? '';
-	return description.length + name.length + correctName.length + 28 < 2000;
 }
 
 async function clearMembers(members, counter, embed, start = 0, end = 24) {
@@ -84,13 +71,7 @@ async function clearMembers(members, counter, embed, start = 0, end = 24) {
 		} else break;
 	}
 
-	if (counter) {
-		embed.setTitle(`${emoji.ready} Отредактировано: ${counter}/${membersRaw.size}`).setDescription(embed.description);
-	} else {
-		embed.setTitle(`${emoji.ready} Изменений нет!`).setDescription('');
-	}
-
-	await respondSuccess(interaction, embed);
+	return counter;
 }
 
 /**
