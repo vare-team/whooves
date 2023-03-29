@@ -84,5 +84,5 @@ export async function sendLogChannel(type, guildDiscord, data) {
 	}
 
 	// eslint-disable-next-line
-	channel.send(text).catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
+	channel.send(text)?.catch(err => console.log(`\nОшибка!\nТекст ошибки: ${err}`));
 }

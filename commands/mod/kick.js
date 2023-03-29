@@ -76,7 +76,7 @@ async function run(interaction) {
 				interaction.user.tag
 			)}, по причине: ${reason}`
 		)
-		.catch(() =>
+		?.catch(() =>
 			generateErrLog(
 				'kick',
 				interaction,

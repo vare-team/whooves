@@ -58,10 +58,10 @@ async function run(interaction) {
 
 	const inviteData = Invite.InvitesPattern.exec(id);
 	if (inviteData) {
-		const invite = await client.fetchInvite(inviteData[0]).catch(() => 0);
+		const invite = await client.fetchInvite(inviteData[0])?.catch(() => 0);
 		inviteEmbed(embed, invite);
 	} else {
-		const guild = await client.fetchGuildPreview(id).catch(() => 0);
+		const guild = await client.fetchGuildPreview(id)?.catch(() => 0);
 		if (!guild) return respondError(interaction, 'Приглашения/Гильдии с таким ID не найдено.');
 		guildEmbed(embed, guild);
 	}
