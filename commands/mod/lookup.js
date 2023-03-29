@@ -56,6 +56,10 @@ async function run(interaction) {
 		return await respondSuccess(interaction, [embed], true);
 	}
 
+	if (!id) {
+		return respondError(interaction, 'Укажите параметр для поиска.');
+	}
+
 	const inviteData = Invite.InvitesPattern.exec(id);
 	if (inviteData) {
 		const invite = await client.fetchInvite(inviteData[0])?.catch(() => 0);
