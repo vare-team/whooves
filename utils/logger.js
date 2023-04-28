@@ -1,3 +1,5 @@
+import statistics from './statistics.js';
+
 /**
  * @function
  * @param {string} log
@@ -26,6 +28,7 @@ export default function (log = 'Clap one hand', emitter = 'unknown', type = 'Log
  * @return {string}
  */
 export function generateUseLog(interaction) {
+	statistics.addUse();
 	if (interaction.isCommand()) {
 		return `Use: ${interaction.commandName}, By: @${interaction.user.username}#${interaction.user.discriminator}(${
 			interaction.user.id
@@ -49,6 +52,7 @@ export function generateUseLog(interaction) {
  * @returns {string}
  */
 export function generateErrLog(command, interaction, err) {
+	statistics.addError();
 	if (interaction.inGuild())
 		return `Ошибка!\n! Команда - ${command}\n! Сервер: ${interaction.guild.name} (ID: ${interaction.guild.id})\n! Канал: ${interaction.channel.name} (ID: ${interaction.channel.id})\n! Пользователь: ${interaction.user.tag} (ID: ${interaction.user.id})\n! Текст ошибки: ${err}`;
 	return `Ошибка!\n! Команда - ${command}\n! Пользователь: ${interaction.user.tag} (ID: ${interaction.user.id})\n! Текст ошибки: ${err}`;
