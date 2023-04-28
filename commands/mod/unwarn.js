@@ -67,19 +67,19 @@ async function run(interaction) {
  * @return {Promise<void>}
  */
 async function autocomplete(interaction) {
-	const target = interaction.options.getUser('user');
+	const target = interaction.options.get('user')?.value;
 
 	let warns = warnsCollection[interaction.guildId];
-	if (target) warns = warns?.[target.id];
+	if (target) warns = warns?.[target];
 	if (!warns) {
 		const warnsInstances = await Warn.findAll({
 			attributes: ['id', 'userId'],
-			where: { ...(target && { userId: target.id }), guildId: interaction.guildId },
+			where: { ...(target && { userId: target }), guildId: interaction.guildId },
 		});
 
 		if (target) {
 			if (!warnsCollection[interaction.guildId]) warnsCollection[interaction.guildId] = {};
-			warnsCollection[interaction.guildId][target.id] = warnsInstances.map(w => w.id);
+			warnsCollection[interaction.guildId][target] = warnsInstances.map(w => w.id);
 		} else {
 			warnsCollection[interaction.guildId] = warnsInstances.reduce(
 				(a, w) => ({ ...a, [w.userId]: [...(a[w.userId] ?? []), w.id] }),
@@ -88,10 +88,10 @@ async function autocomplete(interaction) {
 		}
 
 		warns = warnsCollection[interaction.guildId];
-		if (target) warns = warns[target.id];
+		if (target) warns = warns[target];
 	}
 
-	await interaction.respond(
-		(typeof warns === 'object' ? Object.values(warns).flat() : warns).map(w => ({ name: w, value: w }))
-	);
+	warns = typeof warns === 'object' ? Object.values(warns).flat() : warns;
+	if (warns.length > 25) warns = warns.slice(0, 25);
+	await interaction.respond(warns.map(w => ({ name: w, value: w })));
 }

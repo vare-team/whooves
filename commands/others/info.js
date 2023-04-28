@@ -14,6 +14,7 @@ import {
 import { respondSuccess } from '../../utils/respond-messages.js';
 import Command from '../../utils/Command.js';
 import Guild from '../../models/guild.js';
+import statistics from '../../utils/statistics.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');
@@ -48,8 +49,9 @@ async function run(interaction) {
 			name: 'Статистика:',
 			value: codeBlock(
 				'c',
-				//TODO add statistics
-				`Пинг:             ${Math.round(client.ws.ping)} ms\nКоманд исполнено: ${0}\nИз них ошибок:    ${0}`
+				`Пинг:             ${Math.round(
+					client.ws.ping
+				)} ms\nКоманд исполнено: ${statistics.getUseCount()}\nИз них ошибок:    ${statistics.getErrorCount()}`
 			),
 			inline: true,
 		},
@@ -81,7 +83,7 @@ async function run(interaction) {
 		fields.push({
 			name: 'Настройки:',
 			value:
-				`Канал логирования: ${guild?.logchannel ? `<#${guild.logchannel}>` : emojis.error}\n` +
+				`Канал логирования: ${guild?.logChannel ? `<#${guild.logChannel}>` : emojis.error}\n` +
 				`Фильтр плохих слов: ${bold(isPresent(guild?.settings, settings.badwords))}\n` +
 				`Исправитель никнеймов: ${bold(isPresent(guild?.settings, settings.usernamechecker))}`,
 			inline: true,
