@@ -22,7 +22,7 @@ export default new Command(
 				.setDescriptionLocalization('ru', 'пользователь у которого надо снять')
 				.setRequired(true)
 		)
-		.addStringOption(option =>
+		.addIntegerOption(option =>
 			option
 				.setName('warn_id')
 				.setDescription('id of warn to remove')
@@ -46,7 +46,7 @@ async function run(interaction) {
 		delete warnsCollection[interaction.guildId];
 	}, 15e3);
 
-	const warn = await Warn.destroy({ where: { userId: user.id, warnId: id, guildId: interaction.guildId } });
+	const warn = await Warn.destroy({ where: { id, userId: user.id, guildId: interaction.guildId } });
 
 	if (!warn)
 		return respondError(interaction, 'Тщательно проверив свои записи, я не нашёл предупреждения с такими данными.');

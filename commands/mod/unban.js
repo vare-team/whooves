@@ -25,10 +25,10 @@ async function run(interaction) {
 	const check = checkPermissions(interaction, PermissionFlagsBits.BanMembers);
 	if (check) return;
 
-	await interaction.deleteReply();
+	await interaction.deferReply();
 
 	const user = interaction.options.getUser('user');
-	const ban = await interaction.guild.bans.resolve(user.id);
+	const ban = await interaction.guild.bans.fetch(user.id);
 	if (!ban) return respondError(interaction, 'Пользователь не забанен!');
 
 	try {

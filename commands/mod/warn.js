@@ -37,7 +37,7 @@ async function run(interaction) {
 	const user = interaction.options.getUser('user');
 	const reason = interaction.options.getString('reason') ?? 'Не указана';
 
-	await interaction.deleteReply();
+	await interaction.deferReply();
 	const warn = await Warn.create({
 		userId: user.id,
 		guildId: interaction.guildId,
