@@ -24,12 +24,14 @@ async function run(interaction) {
 	const membersRaw = await interaction.guild.members.fetch();
 	const members = membersRaw.filter(m => m.manageable && !isNicknameClear(m.displayName)).map(v => v);
 	const isAdmin = admins.includes(interaction.user.id);
-	const size = members.size;
+	const size = members.length;
 	const embeds = [];
 
-	if (isAdmin) {
+	if (!size) {
+		pushEmbed(embeds, new EmbedBuilder(), 0, 0);
+	} else if (isAdmin) {
 		let count = 0;
-		while (count >= size) {
+		while (count < size) {
 			const embed = new EmbedBuilder();
 			const counter = await clearMembers(members, embed, count);
 			pushEmbed(embeds, embed, counter, size);
@@ -55,7 +57,8 @@ async function run(interaction) {
  */
 async function clearMembers(members, embed, count = 0) {
 	let counter = 0;
-	for (const member of members) {
+	while (members.length) {
+		const member = members.shift();
 		const name = member.displayName;
 		const correctName = getClearNickname(name);
 

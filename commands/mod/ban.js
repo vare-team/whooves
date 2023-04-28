@@ -1,5 +1,5 @@
 import { checkPermissions, respondError, respondSuccess } from '../../utils/respond-messages.js';
-import { codeBlock, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import { bold, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import logger, { generateErrLog } from '../../utils/logger.js';
 import Command from '../../utils/Command.js';
 import Warn from '../../models/warn.js';
@@ -59,7 +59,7 @@ async function run(interaction) {
 
 	const member = interaction.options.getMember('user');
 	const user = interaction.options.getUser('user');
-	const clearmsg = interaction.options.getBoolean('clear_seconds') ?? 0;
+	const clearmsg = interaction.options.getInteger('clear_seconds') ?? 0;
 	const reason = interaction.options.getString('причина') ?? 'Причина не указана';
 	const force = interaction.options.getString('force') === 'true';
 
@@ -78,14 +78,14 @@ async function run(interaction) {
 		}
 	}
 
-	if (force && interaction.member.permissions.missing(PermissionFlagsBits.Administrator)) {
+	if (force && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		await respondError(interaction, 'Аргумент ``-force`` доступен только администраторам!');
 		return;
 	}
 
 	await user
 		.send(
-			`Вам был выдан бан на сервере ${codeBlock(interaction.guild.name)}, модератором ${codeBlock(
+			`Вам был выдан бан на сервере ${bold(interaction.guild.name)}, модератором ${bold(
 				interaction.user.tag
 			)}, по причине: ${reason}`
 		)

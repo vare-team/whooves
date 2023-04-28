@@ -58,11 +58,12 @@ async function run(interaction) {
 
 	const inviteData = Invite.InvitesPattern.exec(id);
 	if (inviteData) {
-		const invite = await client.fetchInvite(inviteData[0])?.catch(() => 0);
+		const invite = await client.fetchInvite(inviteData[0])?.catch(() => false);
+		if (!invite) return respondError(interaction, 'Приглашение не найдено.');
 		inviteEmbed(embed, invite);
 	} else {
 		const guild = await client.fetchGuildPreview(id)?.catch(() => 0);
-		if (!guild) return respondError(interaction, 'Приглашения/Гильдии с таким ID не найдено.');
+		if (!guild) return respondError(interaction, 'Гильдии с таким ID не найдено.');
 		guildEmbed(embed, guild);
 	}
 
@@ -128,15 +129,16 @@ function userEmbed(embed, user) {
 	const fields = [
 		{
 			name: 'Дата регистрации:',
-			value: `<t:${Math.floor(user.createdAt / 1000)}:R>`,
+			value: `<t:${Math.floor((user.user?.createdAt ?? user.createdAt) / 1000)}:R>`,
 			inline: true,
 		},
 	];
+	const icon = user.displayAvatarURL({ forceStatic: false });
 
 	embed
 		.setTitle(user.bot ? 'Бот' : 'Пользователь')
-		.setAuthor({ name: user.tag, iconURL: user.displayAvatarURL({ forceStatic: false }) })
-		.setThumbnail(user.displayAvatarURL({ forceStatic: false }));
+		.setAuthor({ name: user.user?.tag ?? user.tag, iconURL: icon })
+		.setThumbnail(icon);
 
 	if (user.flags.bitfield)
 		fields.push({
