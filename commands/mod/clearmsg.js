@@ -56,7 +56,7 @@ async function run(interaction) {
 	const channel = interaction.channel;
 
 	if (message) {
-		if (/([0-9]){18,21}/.test(message)) return await respondError(interaction, 'ID сообщения введено не верно!');
+		if (!/([0-9]){18,21}/.test(message)) return await respondError(interaction, 'ID сообщения введено не верно!');
 
 		const currentMsg = await channel.messages.fetch(message)?.catch(() => 0);
 		if (!currentMsg || currentMsg.channel.id !== channel.id)
