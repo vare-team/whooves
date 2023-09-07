@@ -38,7 +38,7 @@ export default new Command(
 						.setNameLocalization('ru', 'айди_сообщения')
 						.setDescriptionLocalization('ru', 'айди сообщения до которого нужно очистить чат')
 						.setMinLength(18)
-						.setMinLength(21)
+						.setMaxLength(21)
 						.setRequired(true)
 				)
 		)
