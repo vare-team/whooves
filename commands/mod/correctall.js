@@ -36,6 +36,7 @@ async function run(interaction) {
 			const counter = await clearMembers(members, embed, count);
 			pushEmbed(embeds, embed, counter, size);
 			count += counter;
+			await interaction.editReply(`\`${count}\`/\`${size}\`[\`${(count / size) * 100}\`%]`);
 		}
 	} else {
 		const embed = new EmbedBuilder();
