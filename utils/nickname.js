@@ -6,8 +6,8 @@ const nicknameParts = {
 	root: ['bler', 'ses', 'wis', 'let', 'ger', 'mon', 'lot', 'far'],
 	suffixes: ['er', 'or', 'an', 'ian', 'ist', 'ant', 'ee', 'ess', 'ent', 'ity', 'ance', 'ion', 'dom', 'th'],
 };
-const nicknameReplacerFirst = /^[^A-Za-zА-Яа-я]+/;
-const nicknameReplacer = /[^0-9A-Za-zА-Яа-яЁё .|-]/g;
+const nicknameReplacerFirst = /^[^A-Za-zА-Яа-яЁё]+/;
+const nicknameReplacer = /[^А-Яа-яЁё -~]/g;
 
 /**
  * @function
